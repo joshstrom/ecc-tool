@@ -51,7 +51,7 @@
 # NB: NIB/XIB files still exist even on Storyboard projects, so we want this...
 
 *~.nib
-
+*.xccheckout
 
 ####
 # Xcode build files -
