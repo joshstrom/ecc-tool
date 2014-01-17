@@ -12,6 +12,9 @@
 		3C17077A1883AAB500A900A1 /* EccAlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C1707781883AAB500A900A1 /* EccAlg.cpp */; };
 		3C38AC64187FBDF200DF4257 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C38AC63187FBDF200DF4257 /* main.cpp */; };
 		3C38AC66187FBDF200DF4257 /* EccTool.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C38AC65187FBDF200DF4257 /* EccTool.1 */; };
+		3C93E83D18865C0E00B56C1C /* BigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C93E83B18865C0E00B56C1C /* BigInteger.cpp */; };
+		3CCCC3771887C6EE008DF956 /* EccAlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C1707781883AAB500A900A1 /* EccAlg.cpp */; };
+		3CCCC3791887C6EE008DF956 /* BigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C93E83B18865C0E00B56C1C /* BigInteger.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -46,6 +49,8 @@
 		3C38AC60187FBDF200DF4257 /* EccTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = EccTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C38AC63187FBDF200DF4257 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		3C38AC65187FBDF200DF4257 /* EccTool.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = EccTool.1; sourceTree = "<group>"; };
+		3C93E83B18865C0E00B56C1C /* BigInteger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigInteger.cpp; sourceTree = "<group>"; };
+		3C93E83C18865C0E00B56C1C /* BigInteger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BigInteger.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +105,8 @@
 				3C38AC65187FBDF200DF4257 /* EccTool.1 */,
 				3C1707781883AAB500A900A1 /* EccAlg.cpp */,
 				3C1707791883AAB500A900A1 /* EccAlg.h */,
+				3C93E83B18865C0E00B56C1C /* BigInteger.cpp */,
+				3C93E83C18865C0E00B56C1C /* BigInteger.h */,
 			);
 			path = EccTool;
 			sourceTree = "<group>";
@@ -173,6 +180,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3CCCC3771887C6EE008DF956 /* EccAlg.cpp in Sources */,
+				3CCCC3791887C6EE008DF956 /* BigInteger.cpp in Sources */,
 				3C1707721883A47D00A900A1 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -181,6 +190,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C93E83D18865C0E00B56C1C /* BigInteger.cpp in Sources */,
 				3C17077A1883AAB500A900A1 /* EccAlg.cpp in Sources */,
 				3C38AC64187FBDF200DF4257 /* main.cpp in Sources */,
 			);
@@ -325,6 +335,7 @@
 				3C1707771883A47D00A900A1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3C38AC5B187FBDF200DF4257 /* Build configuration list for PBXProject "EccTool" */ = {
 			isa = XCConfigurationList;

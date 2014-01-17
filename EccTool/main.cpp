@@ -8,8 +8,11 @@
 
 #include <iostream>
 
+#include "EccAlg.h"
+
 int main(int argc, const char * argv[])
 {
+    EccAlg::foo();
 
     // insert code here...
     std::cout << "Hello, World!\n";

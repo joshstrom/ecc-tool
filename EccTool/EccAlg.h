@@ -11,9 +11,15 @@
 
 #include <iostream>
 
+#include "BigInteger.h"
+
 class EccAlg
 {
-    
+public:
+    static void foo()
+    {
+        BigInteger("4");
+    }
 };
 
 
