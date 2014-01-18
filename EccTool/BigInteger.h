@@ -19,7 +19,9 @@ using namespace std;
 class BigInteger
 {
 private:
-    vector<unsigned char> _source;
+    vector<uint8_t> _source;
+    
+    uint8_t GetValidHexDigit(char digit) const;
     
 public:
     BigInteger(string number);
