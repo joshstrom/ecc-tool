@@ -13,9 +13,16 @@
 
 
 
-TEST_CASE("CanCreateBigInteger")
+TEST_CASE("CanCreateBigIntegerWithHexString")
 {
     BigInteger one("1");
+    REQUIRE("01" == one.ToString());
+}
+
+TEST_CASE("CanCreateBigIntegerWithInteger")
+{
+    unsigned int number = 1;
+    BigInteger one(number);
     REQUIRE("01" == one.ToString());
 }
 
@@ -44,8 +51,51 @@ TEST_CASE("CanCreate132BitNumber")
     REQUIRE(veryLargeNumber == veryLargeInteger.ToString());
 }
 
+TEST_CASE("CanAddTwoBigIntegers")
+{
+    BigInteger left("1");
+    BigInteger right("1");
+    
+    BigInteger sum = left + right;
+    REQUIRE("02" == sum.ToString());
+}
+
+TEST_CASE("CanAddTwoLargerBigIntegers")
+{
+    BigInteger left("12345");
+    BigInteger right("67890");
+    
+    BigInteger sum = left + right;
+    REQUIRE("079bd5" == sum.ToString());
+}
+
+TEST_CASE("CanAddIntegralTypeToBigInteger")
+{
+    BigInteger left("500");
+    unsigned int right = 5;
+    
+    BigInteger sum = left + right;
+    REQUIRE("0505" == sum.ToString());
+}
+
 TEST_CASE("FailsToCreateIfCharactersInvalid")
 {
     REQUIRE_THROWS(BigInteger("X"));
+}
+
+TEST_CASE("CanPrefixIncrement")
+{
+    BigInteger testInteger("5");
+    
+    REQUIRE("06" == (++testInteger).ToString());
+    REQUIRE("06" == testInteger.ToString());
+}
+
+TEST_CASE("CanPostfixIncrement")
+{
+    BigInteger testInteger("5");
+    
+    REQUIRE("05" == (testInteger++).ToString());
+    REQUIRE("06" == testInteger.ToString());
 }
 
