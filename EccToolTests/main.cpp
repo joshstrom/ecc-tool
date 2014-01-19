@@ -99,3 +99,69 @@ TEST_CASE("CanPostfixIncrement")
     REQUIRE("06" == testInteger.ToString());
 }
 
+TEST_CASE("ShouldRemoveLeadingZeros")
+{
+    BigInteger testInteger("005");
+    
+    REQUIRE("05" == testInteger.ToString());
+}
+
+TEST_CASE("CanDetermineShorterIntegerAsSmaller")
+{
+    BigInteger smaller("5201");
+    BigInteger larger("72011");
+    
+    REQUIRE(smaller < larger);
+}
+
+TEST_CASE("CanDetermineLongerIntegerAsLarger")
+{
+    BigInteger smaller("5201");
+    BigInteger larger("72011");
+    
+    REQUIRE_FALSE(larger < smaller);
+}
+
+TEST_CASE("CanDetermineLargerSameLengthIntegerAsLarger")
+{
+    BigInteger smaller("5201");
+    BigInteger larger("5202");
+    
+    REQUIRE(smaller < larger);
+}
+
+TEST_CASE("CanSubtractSmallNumbers")
+{
+    BigInteger top("5");
+    BigInteger bottom("4");
+    
+    BigInteger difference = top - bottom;
+    REQUIRE("01" == difference.ToString());
+}
+
+TEST_CASE("CanSubtractEqualNumbers")
+{
+    BigInteger top("5");
+    BigInteger bottom("5");
+    
+    BigInteger difference = top - bottom;
+    REQUIRE("00" == difference.ToString());
+}
+
+TEST_CASE("CanSubtractLargeNumbers")
+{
+    BigInteger top("1234678905");
+    BigInteger bottom("1234678904");
+    
+    BigInteger difference = top - bottom;
+    REQUIRE("01" == difference.ToString());
+}
+
+
+
+
+
+
+
+
+

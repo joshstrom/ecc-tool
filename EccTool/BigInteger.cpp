@@ -44,6 +44,9 @@ BigInteger::BigInteger(string number)
         // No bit shifting here as we only have the least significant two bits.
         *destinationIterator = GetValidHexDigit(number[0]);
     }
+    
+    // Remove any empty zero bytes from the beginning of the buffer.
+    TrimPrefixZeros();
 }
 
 BigInteger& BigInteger::operator+=(const BigInteger& rhs)
@@ -98,6 +101,74 @@ BigInteger& BigInteger::operator+=(const BigInteger& rhs)
     return *this;
 }
 
+BigInteger& BigInteger::operator-=(const BigInteger& rhs)
+{
+    // For now, we do not support subtraction resulting in negative numbers
+    //  (supported elswhere).
+    if(!(rhs < *this))
+        throw invalid_argument("Negative result of subtraction not supported.");
+    
+    // The operation will be done as a long-hand subtraction.
+    // Example:
+    //     (topNumber)      42345   [the larger of the two]
+    //  (bottomNumber)    - 15678   [the smaller of the two]
+    //                    -------
+    //    (difference)      2cccd
+    // A difference buffer and a isBorrowing flag will keep track of results.
+    
+    // The buffer may get smaller, but will not get larger.
+    //  Note that we are adding the bytes to the difference buffer "backwards"
+    //  to simplify determining empty digits.
+    bool isBorowing = false;
+    vector<uint8_t> differenceBuffer;
+    differenceBuffer.reserve(_source.size());
+    
+    // Iterating through the top and bottom backwards.
+    auto lhsIterator = _source.rbegin();
+    auto rhsIterator = rhs._source.rbegin();
+    
+    while(lhsIterator != _source.rend())
+    {
+        // Pull out the current top (aways there) and the current bottom (or zero if no more digits).
+        uint8_t currentTop = *lhsIterator;
+        uint8_t currentBottom = (rhsIterator != rhs._source.rend()) ? *rhsIterator : 0;
+        
+        // Do the subtraction in a signed variable. This may result in a negatie number.
+        short currentDifference = currentTop - currentBottom;
+        
+        // Handle any borrow from the previous column.
+        if(isBorowing)
+        {
+            isBorowing = false;
+            currentDifference -= 1;
+        }
+        
+        // Borrow from the next if necessary.
+        if(currentDifference < 0)
+        {
+            isBorowing = true;
+            currentDifference += 0xFF;
+        }
+        
+        // Put the (now guarenteed positive) difference, masked to ensure proper size
+        //  in the difference buffer.
+        differenceBuffer.push_back(static_cast<unsigned short>(currentDifference) & 0xFF);
+        
+        // Increment everything.
+        lhsIterator++;
+        rhsIterator++;
+    }
+    
+    // Since we created the difference backwards, reverse it then set it to the buffer.
+    reverse(differenceBuffer.begin(), differenceBuffer.end());
+    _source = differenceBuffer;
+    
+    // Remove any empty zero bytes from the beginning of the buffer.
+    TrimPrefixZeros();
+    
+    return *this;
+}
+
 // Prefix-increment.
 //  Applies the change to the return value.
 BigInteger& BigInteger::operator++()
@@ -116,6 +187,28 @@ BigInteger BigInteger::operator++(int)
     ++*this;
     
     return copy;
+}
+
+bool BigInteger::operator<(const BigInteger& rhs) const
+{
+    // Since there are no zero bytes at the beginnig of the arrays,
+    //  if one is longer than the other, it is larger than the other.
+    if(_source.size() < rhs._source.size())
+        return true;
+    else if(_source.size() > rhs._source.size())
+        return false;
+    
+    // Find the first non-equal byte. The larger byte determines the
+    //  larger BigInteger.
+    for(int i = 0; i < _source.size(); i++)
+    {
+        if(_source[i] == rhs._source[i])
+            continue;
+        return _source[i] < rhs._source[i];
+    }
+    
+    // If both are the same, the lhs is declared larger.
+    return true;
 }
 
 const string BigInteger::ToString() const
@@ -154,7 +247,16 @@ uint8_t BigInteger::GetValidHexDigit(char digit) const
     throw invalid_argument(ss.str());
 }
 
-
+void BigInteger::TrimPrefixZeros()
+{
+    // Remove any empty zero bytes from the beginning of the buffer.
+    auto firstNonzero = find_if(_source.begin(), _source.end(), [] (uint8_t element) { return element != 0; });
+    _source.erase(_source.begin(), firstNonzero);
+    
+    // If this trimming results in an empty buffer, place a single zero.
+    if(_source.size() == 0)
+        _source.push_back(static_cast<uint8_t>(0));
+}
 
 
 
