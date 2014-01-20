@@ -15,12 +15,13 @@ using namespace std;
 
 int main(int argc, const char * argv[])
 {
-    BigInteger left("12345");
+    BigInteger left("10h");
+    BigInteger right("ah");
 
-    BigInteger sum = left + static_cast<unsigned int>(1);
+    BigInteger sum = left + right;
 
     // insert code here...
-    std::cout << "Left: " << left.ToString() << ", Right: " << 1 << ", Sum: " << sum.ToString() << endl;
+    std::cout << "Left: " << left.ToString() << ", Right: " << right.ToString() << ", Sum: " << sum.ToString() << endl;
     return 0;
 }
 

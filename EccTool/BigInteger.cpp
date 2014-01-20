@@ -105,8 +105,13 @@ BigInteger& BigInteger::operator-=(const BigInteger& rhs)
 {
     // For now, we do not support subtraction resulting in negative numbers
     //  (supported elswhere).
-    if(!(rhs < *this))
-        throw invalid_argument("Negative result of subtraction not supported.");
+    if(rhs > *this)
+    {
+        stringstream ss;
+        ss << "Negative result of subtraction not supported. Attempted operation: ";
+        ss << ToString() << " - " << rhs.ToString();
+        throw invalid_argument(ss.str());
+    }
     
     // The operation will be done as a long-hand subtraction.
     // Example:
@@ -169,11 +174,28 @@ BigInteger& BigInteger::operator-=(const BigInteger& rhs)
     return *this;
 }
 
+BigInteger& BigInteger::operator*=(const BigInteger& rhs)
+{
+    // Multiplication is done by repeated adding.
+    BigInteger counter = rhs;
+    BigInteger original = *this;
+    
+    // Continue to add the original value of this to *this until
+    //  counter reduces to 1.
+    while(counter > 1)
+    {
+        *this += original;
+        counter--;
+    }
+    
+    return *this;
+}
+
 // Prefix-increment.
 //  Applies the change to the return value.
 BigInteger& BigInteger::operator++()
 {
-    *this += static_cast<uint8_t>(1);
+    *this += 1;
     return *this;
 }
 
@@ -189,26 +211,76 @@ BigInteger BigInteger::operator++(int)
     return copy;
 }
 
-bool BigInteger::operator<(const BigInteger& rhs) const
+// Prefix-decrement.
+//  Applies the change to the return value.
+BigInteger& BigInteger::operator--()
+{
+    *this -= 1;
+    return *this;
+}
+
+//Postfix-decrement.
+//  Applies the change *after* returning the same value. Change "this", return a copy.
+//  Note: the int param is a dummy param used to determine the difference between the prefix
+//  and postfix versions.
+BigInteger BigInteger::operator--(int)
+{
+    BigInteger copy = *this;
+    --*this;
+    
+    return copy;
+}
+
+int BigInteger::Compare(const BigInteger& other) const
 {
     // Since there are no zero bytes at the beginnig of the arrays,
     //  if one is longer than the other, it is larger than the other.
-    if(_source.size() < rhs._source.size())
-        return true;
-    else if(_source.size() > rhs._source.size())
-        return false;
+    if(_source.size() < other._source.size())
+        return -1;
+    else if(_source.size() > other._source.size())
+        return 1;
     
-    // Find the first non-equal byte. The larger byte determines the
-    //  larger BigInteger.
+    // Find the first element (from the left) which differs between this and other.
+    // Use that element to determine which is greater.
     for(int i = 0; i < _source.size(); i++)
     {
-        if(_source[i] == rhs._source[i])
+        if(_source[i] == other._source[i])
             continue;
-        return _source[i] < rhs._source[i];
+        return (_source[i] < other._source[i]) ? -1 : 1;
     }
     
-    // If both are the same, the lhs is declared larger.
-    return true;
+    // None were different. They are the same.
+    return 0;
+}
+
+bool BigInteger::operator<(const BigInteger& rhs) const
+{
+    return (Compare(rhs) == -1);
+}
+
+bool BigInteger::operator>(const BigInteger& rhs) const
+{
+    return (Compare(rhs) == 1);
+}
+
+bool BigInteger::operator<=(const BigInteger& rhs) const
+{
+    return (Compare(rhs) <= 0);
+}
+
+bool BigInteger::operator>=(const BigInteger& rhs) const
+{
+    return (Compare(rhs) >= 0);
+}
+
+bool BigInteger::operator==(const BigInteger& other) const
+{
+    return (Compare(other) == 0);
+}
+
+bool BigInteger::operator!=(const BigInteger& other) const
+{
+    return !(*this == other);
 }
 
 const string BigInteger::ToString() const
@@ -226,7 +298,7 @@ const string BigInteger::ToString() const
     return ss.str();
 }
 
-uint8_t BigInteger::GetValidHexDigit(char digit) const
+uint8_t BigInteger::GetValidHexDigit(char digit)
 {
     // We need to convert this hex character in to an actual
     //  hex binary digit.

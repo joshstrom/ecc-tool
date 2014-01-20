@@ -19,11 +19,84 @@ TEST_CASE("CanCreateBigIntegerWithHexString")
     REQUIRE("01" == one.ToString());
 }
 
+TEST_CASE("ThrowsOnInvalidBase")
+{
+    REQUIRE_THROWS(BigInteger("5x"));
+}
+
+TEST_CASE("CanCreateBigIntegerWithChar")
+{
+    char number = 1;
+    BigInteger one(number);
+    REQUIRE("01" == one.ToString());
+}
+
+TEST_CASE("CanCreateBigIntegerWithUnsignedChar")
+{
+    unsigned char number = 1;
+    BigInteger one(number);
+    REQUIRE("01" == one.ToString());
+}
+
+TEST_CASE("CanCreateBigIntegerWithShort")
+{
+    short number = 1;
+    BigInteger one(number);
+    REQUIRE("01" == one.ToString());
+}
+
+TEST_CASE("CanCreateBigIntegerWithUnsignedShort")
+{
+    unsigned short number = 1;
+    BigInteger one(number);
+    REQUIRE("01" == one.ToString());
+}
+
 TEST_CASE("CanCreateBigIntegerWithInteger")
+{
+    int number = 1;
+    BigInteger one(number);
+    REQUIRE("01" == one.ToString());
+}
+
+TEST_CASE("CanCreateBigIntegerWithUnsignedInteger")
 {
     unsigned int number = 1;
     BigInteger one(number);
     REQUIRE("01" == one.ToString());
+}
+
+TEST_CASE("CanCreateBigIntegerWithLong")
+{
+    long number = 1;
+    BigInteger one(number);
+    REQUIRE("01" == one.ToString());
+}
+
+TEST_CASE("CanCreateBigIntegerWithUnsignedLong")
+{
+    unsigned long number = 1;
+    BigInteger one(number);
+    REQUIRE("01" == one.ToString());
+}
+
+TEST_CASE("CanCreateBigIntegerWithLongLong")
+{
+    long long number = 1;
+    BigInteger one(number);
+    REQUIRE("01" == one.ToString());
+}
+
+TEST_CASE("CanCreateBigIntegerWithUnsignedLongLong")
+{
+    unsigned long long number = 1;
+    BigInteger one(number);
+    REQUIRE("01" == one.ToString());
+}
+
+TEST_CASE("ThrowsIfCreatedFromNegativeInteger")
+{
+    REQUIRE_THROWS(BigInteger(-5));
 }
 
 TEST_CASE("CanCreateAlphaNumericHexDigit")
@@ -72,7 +145,7 @@ TEST_CASE("CanAddTwoLargerBigIntegers")
 TEST_CASE("CanAddIntegralTypeToBigInteger")
 {
     BigInteger left("500");
-    unsigned int right = 5;
+    int right = 5;
     
     BigInteger sum = left + right;
     REQUIRE("0505" == sum.ToString());
@@ -98,6 +171,23 @@ TEST_CASE("CanPostfixIncrement")
     REQUIRE("05" == (testInteger++).ToString());
     REQUIRE("06" == testInteger.ToString());
 }
+
+TEST_CASE("CanPrefixDecrement")
+{
+    BigInteger testInteger("5");
+    
+    REQUIRE("04" == (--testInteger).ToString());
+    REQUIRE("04" == testInteger.ToString());
+}
+
+TEST_CASE("CanPostfixDecrement")
+{
+    BigInteger testInteger("5");
+    
+    REQUIRE("05" == (testInteger--).ToString());
+    REQUIRE("04" == testInteger.ToString());
+}
+
 
 TEST_CASE("ShouldRemoveLeadingZeros")
 {
@@ -155,6 +245,67 @@ TEST_CASE("CanSubtractLargeNumbers")
     
     BigInteger difference = top - bottom;
     REQUIRE("01" == difference.ToString());
+}
+
+TEST_CASE("CanDetectEquality")
+{
+    REQUIRE(BigInteger(5) == BigInteger(5));
+    REQUIRE(BigInteger(5) == BigInteger("0000005"));
+    REQUIRE(BigInteger(10) == BigInteger("a"));
+    
+    REQUIRE_FALSE(BigInteger(10) == BigInteger(11));
+}
+
+TEST_CASE("CanDetectInequality")
+{
+    REQUIRE(BigInteger(5) != BigInteger(4));
+    REQUIRE(BigInteger(5) != BigInteger("0000006"));
+    REQUIRE(BigInteger(3) != BigInteger("0000005"));
+    REQUIRE(BigInteger(10) != BigInteger("10"));
+    
+    REQUIRE_FALSE(BigInteger(10) != BigInteger(10));
+}
+
+TEST_CASE("CanDetectLessThan")
+{
+    REQUIRE(BigInteger(9) < BigInteger(10));
+    REQUIRE_FALSE(BigInteger(10) < BigInteger(10));
+    REQUIRE_FALSE(BigInteger(11) < BigInteger(10));
+}
+
+TEST_CASE("CanDetectLessThanOrEqualTo")
+{
+    REQUIRE(BigInteger(9) <= BigInteger(10));
+    REQUIRE(BigInteger(10) <= BigInteger(10));
+    REQUIRE_FALSE(BigInteger(11) <= BigInteger(10));
+}
+
+TEST_CASE("CanDetectGreaterThan")
+{
+    REQUIRE_FALSE(BigInteger(9) > BigInteger(10));
+    REQUIRE_FALSE(BigInteger(10) > BigInteger(10));
+    REQUIRE(BigInteger(11) > BigInteger(10));
+}
+
+TEST_CASE("CanDetectGreaterThanOrEqualTo")
+{
+    REQUIRE_FALSE(BigInteger(9) >= BigInteger(10));
+    REQUIRE(BigInteger(10) >= BigInteger(10));
+    REQUIRE(BigInteger(11) >= BigInteger(10));
+}
+
+TEST_CASE("CanMultiplySmallNumbers")
+{
+    REQUIRE((BigInteger(1) * BigInteger(1)).ToString() == "01");
+    REQUIRE((BigInteger(1) * BigInteger(2)).ToString() == "02");
+    REQUIRE((BigInteger(1) * BigInteger(3)).ToString() == "03");
+}
+
+TEST_CASE("CanMultiplyLargerNumbers")
+{
+    //REQUIRE((BigInteger(1000) * BigInteger(1000)).ToString() == "0f4240");
+    REQUIRE((BigInteger(0xffffffff) * BigInteger(0xffffffff)).ToString() == "7FFFFFFFFFFFFFFF");
+    REQUIRE((BigInteger(1) * BigInteger(3)).ToString() == "03");
 }
 
 

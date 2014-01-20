@@ -16,28 +16,28 @@
 
 using namespace std;
 
-
 class BigInteger
 {
+    
 private:
+    // Contains the binary representation of the number.
     vector<uint8_t> _source;
     
     // Converts a hex character to a binary hex digit.
-    uint8_t GetValidHexDigit(char digit) const;
+    static uint8_t GetValidHexDigit(char digit);
     
     // Removes any unnecessary prefix 0x00 bytes from the beginning of the buffer.
     void TrimPrefixZeros();
     
-public:
+    // Compares this with another BigInteger.
+    //  Returns 1 if this < other
+    //  Returns 0 if this == other
+    //  Returns -1 if this > other
+    int Compare(const BigInteger& other) const;
     
-    // Constructs a BigInteger with a string containing a hexadecimal number.
-    //  Note: the "0x" notation to indicate a hex number rather than a decimal number
-    //  is not supported at this time. Just provide the number and only a number in hex.
-    BigInteger(string number);
-
-    // Constructs a BigInteger from an unsigned integer.
+    // Sets the source buffer to a given unsigned integral type.
     template<typename T>
-    BigInteger(T number, typename std::enable_if<std::is_unsigned<T>::value, bool>::type* = 0)
+    void SetSourceBuffer(T number, typename std::enable_if<std::is_unsigned<T>::value, bool>::type* = 0)
     {
         // Convert this type to its binary representation.
         //  Note: since integers are stored in x86 little endian, we need to reverse the byte order
@@ -49,6 +49,31 @@ public:
         // Remove any unnecessary zeros.
         TrimPrefixZeros();
     }
+    
+public:
+    
+    // Constructs a BigInteger with a string containing a hex number.
+    //  Note that decimal numbers are not supported and no prefix/suffix should be added.
+    BigInteger(string number);
+
+    // Constructs a BigInteger from an unsigned integer.
+    template<typename T>
+    BigInteger(T number, typename std::enable_if<std::is_unsigned<T>::value, bool>::type* = 0)
+    {
+        SetSourceBuffer(number);
+    }
+    
+    // Constructs a BigInteger from a signed integer. This is needed for a check against negative
+    //  numbers.
+    template<typename T>
+    BigInteger(T number, typename std::enable_if<std::is_signed<T>::value, bool>::type* = 0)
+    {
+        // Negative numbers are not supported at this time.
+        if(number < 0)
+            throw invalid_argument("Cannot create a negative BigInteger.");
+        
+        SetSourceBuffer(static_cast<typename make_unsigned<T>::type>(number));
+    }
 
     // Destructor, copy constructor, move constructor, and operator= (both move and copy)
     //  use default implementations.
@@ -58,15 +83,24 @@ public:
     BigInteger& operator=(const BigInteger& rhs) = default;
     BigInteger& operator=(BigInteger&& rhs) = default;
     
-    // Addition/subtraction operations.
+    // Unary <operation>= mathematical operations.
     BigInteger& operator+=(const BigInteger& rhs);
     BigInteger& operator-=(const BigInteger& rhs);
+    BigInteger& operator*=(const BigInteger& rhs);
     
     // Increment/Decrement operators.
     BigInteger& operator++(); // Prefix-increment.
     BigInteger operator++(int); //Postfix-increment.
+    BigInteger& operator--(); // Prefix-decrement.
+    BigInteger operator--(int); //Postfix-decrement.
     
+    // Comparison operators.
     bool operator<(const BigInteger& rhs) const;
+    bool operator>(const BigInteger& rhs) const;
+    bool operator<=(const BigInteger& rhs) const;
+    bool operator>=(const BigInteger& rhs) const;
+    bool operator==(const BigInteger& other) const;
+    bool operator!=(const BigInteger& other) const;
     
     //void AddOverFiniteField(const BigInteger& rhs, const BigInteger& finiteField);
     
@@ -76,17 +110,24 @@ public:
     const string ToString() const;
 };
 
-// Addition operator with BigInteger. Declared as free function by convention.
+// Binary addition operator with BigIntegers. Declared as free function by convention.
 inline BigInteger operator+(BigInteger lhs, const BigInteger& rhs)
 {
     lhs += rhs;
     return lhs;
 }
 
-// Subtraction operator with BigInteger. Declared as free function by convention.
+// Binary subtraction operator with BigIntegers. Declared as free function by convention.
 inline BigInteger operator-(BigInteger lhs, const BigInteger& rhs)
 {
     lhs -= rhs;
+    return lhs;
+}
+
+// Binary multiplication operator with BigIntegers. Declared as free function by convention.
+inline BigInteger operator*(BigInteger lhs, const BigInteger& rhs)
+{
+    lhs *= rhs;
     return lhs;
 }
 
