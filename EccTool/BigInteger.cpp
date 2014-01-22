@@ -81,11 +81,11 @@ BigInteger& BigInteger::operator+=(const BigInteger& rhs)
     {
         // We will always have a top number (as we are looping over topNumberBuffer), however,
         //  the bottom number might have finished already. Use 0 if this is the case.
-        auto currentTop = *topNumber;
-        auto currentButtom = (bottomNumber != bottomNumberBuffer.rend()) ? *bottomNumber : 0;
+        uint8_t currentTop = *topNumber;
+        uint8_t currentButtom = (bottomNumber != bottomNumberBuffer.rend()) ? *bottomNumber : 0;
         
         // Do the addition, then take the top 4 bytes for the carry and push the bottom 4 bytes as the sum.
-        uint16_t currentSum = currentTop + currentButtom + carry;
+        uint16_t currentSum = currentTop + currentButtom + (carry >> 4);
         carry = (currentSum & 0xFF00) >> 4;
         sumBuffer.push_back(currentSum & 0x00FF);
         
@@ -93,6 +93,10 @@ BigInteger& BigInteger::operator+=(const BigInteger& rhs)
         topNumber++;
         bottomNumber++;
     }
+    
+    // If there is any leftover carry, add it to the sum buffer (shift it since it is one place up).
+    if(carry != 0)
+        sumBuffer.push_back(carry >> 4);
     
     // Since we created the sum backwards, reverse it then set it to the buffer.
     reverse(sumBuffer.begin(), sumBuffer.end());

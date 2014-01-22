@@ -15,13 +15,14 @@ using namespace std;
 
 int main(int argc, const char * argv[])
 {
-    BigInteger left("10h");
-    BigInteger right("ah");
+    BigInteger left(0xffffffff);
+    BigInteger right(0xffffffff);
 
-    BigInteger sum = left + right;
+    BigInteger product = left * right;
+    string expected("fffffffe00000001");
 
     // insert code here...
-    std::cout << "Left: " << left.ToString() << ", Right: " << right.ToString() << ", Sum: " << sum.ToString() << endl;
+    std::cout << "Left: " << left.ToString() << ", Right: " << right.ToString() << ", Product: " << product.ToString() << ", expected: " << expected << endl;
     return 0;
 }
 

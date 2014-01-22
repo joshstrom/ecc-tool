@@ -11,7 +11,28 @@
 #include "EccAlg.h"
 #include "BigInteger.h"
 
-
+void AddTwoNumbersTest(unsigned int number1, unsigned int number2, int count = -1)
+{
+    unsigned long sum = number1 + number2;
+    
+    stringstream ss;
+    ss << hex << sum;
+    
+    string sumInHex = ss.str();
+    ss.clear();
+    
+    if((sumInHex.size() % 2) != 0)
+        sumInHex.insert(sumInHex.begin(), '0');
+    
+    if(count != -1)
+    {
+        ss << ", Counter: " << count;
+    }
+    
+    string actualSumInHex = (BigInteger(number1) + BigInteger(number2)).ToString();
+    if(actualSumInHex != sumInHex)
+        FAIL("Operation " << hex << number1 << " + " << number2 << " resulted in " << actualSumInHex << ". Should have been: " << sumInHex << ss.str());
+}
 
 TEST_CASE("CanCreateBigIntegerWithHexString")
 {
@@ -122,6 +143,11 @@ TEST_CASE("CanCreate132BitNumber")
     string veryLargeNumber = "0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8";
     BigInteger veryLargeInteger(veryLargeNumber);
     REQUIRE(veryLargeNumber == veryLargeInteger.ToString());
+}
+
+TEST_CASE("CanCreateLargeIntegerFromInteger")
+{
+    REQUIRE(BigInteger(0xFFFFFFFF).ToString() == "ffffffff");
 }
 
 TEST_CASE("CanAddTwoBigIntegers")
@@ -301,12 +327,37 @@ TEST_CASE("CanMultiplySmallNumbers")
     REQUIRE((BigInteger(1) * BigInteger(3)).ToString() == "03");
 }
 
+TEST_CASE("CanAddLargerNumbers")
+{
+    AddTwoNumbersTest(0xf, 0xf);
+    AddTwoNumbersTest(0xff, 0xff);
+    AddTwoNumbersTest(0xfff, 0xfff);
+    AddTwoNumbersTest(0xffff, 0xffff);
+}
+
+TEST_CASE("SpecificAdditionTest")
+{
+    AddTwoNumbersTest(0x798c6, 0x34);
+}
+
+TEST_CASE("StatisticalAdditionTest")
+{
+    srand(static_cast<unsigned int>(time(nullptr)));
+    for(int i = 0; i < 1000; i++)
+    {
+        AddTwoNumbersTest(rand() % 0xfffff, rand() % 0xfffff, i);
+    }
+}
+
 TEST_CASE("CanMultiplyLargerNumbers")
 {
-    //REQUIRE((BigInteger(1000) * BigInteger(1000)).ToString() == "0f4240");
-    REQUIRE((BigInteger(0xffffffff) * BigInteger(0xffffffff)).ToString() == "7FFFFFFFFFFFFFFF");
-    REQUIRE((BigInteger(1) * BigInteger(3)).ToString() == "03");
+    REQUIRE((BigInteger(1000) * BigInteger(50)).ToString() == "c350");
+    //REQUIRE((BigInteger(0xffffffff) * BigInteger(0xffffffff)).ToString() == "1fffffffe");
+    //REQUIRE((BigInteger(1) * BigInteger(3)).ToString() == "03");
 }
+
+
+
 
 
 
