@@ -16,7 +16,7 @@
 void StatisticalOperationTest(const BaseOperationTester& tester)
 {
     srand(static_cast<unsigned int>(time(nullptr)));
-    for(int i = 0; i < 10; i++)
+    for(int i = 0; i < 10000; i++)
     {
         cout << "Begin iteration for '" << tester.GetOperationSymbol() << "', iteration: " << i << endl;
         tester.TestOperation(rand() % 0xfffff, rand() % 0xfffff, i);
@@ -331,21 +331,21 @@ TEST_CASE("StatisticalMultiplicationTest")
     StatisticalOperationTest(tester);
 }
 
-//TEST_CASE("StatisticalAdditionTest")
-//{
-//    AdditionOperationTester tester;
-//    StatisticalOperationTest(tester);
-//}
-//
-//TEST_CASE("StatisticalSubtractionTester")
-//{
-//    SubtractionOperationTester tester;
-//    StatisticalOperationTest(tester);
-//}
+TEST_CASE("StatisticalAdditionTest")
+{
+    AdditionOperationTester tester;
+    StatisticalOperationTest(tester);
+}
+
+TEST_CASE("StatisticalSubtractionTester")
+{
+    SubtractionOperationTester tester;
+    StatisticalOperationTest(tester);
+}
 
 TEST_CASE("SpecificMultiplicationTest")
 {
-    RunMultiplicationTest(0x18b3b, 0x73f58);
+    RunMultiplicationTest(0xcc437, 0x131ce);
 }
 
 TEST_CASE("SpecificAdditionTest")

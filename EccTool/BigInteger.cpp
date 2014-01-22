@@ -204,17 +204,57 @@ BigInteger& BigInteger::operator-=(const BigInteger& rhs)
 
 BigInteger& BigInteger::operator*=(const BigInteger& rhs)
 {
-    // Multiplication is done by repeated adding.
-    BigInteger counter = rhs;
-    BigInteger original = *this;
+    bool lhsBigger = *this > rhs;
+    auto& topOperandBuffer = (lhsBigger) ? _source : rhs._source;
+    auto& bottomOperandBuffer = (lhsBigger) ? rhs._source : _source;
     
-    // Continue to add the original value of this to *this until
-    //  counter reduces to 1.
-    while(counter > 1)
+    BigInteger productAccumulator = 0;
+    productAccumulator._source.reserve(topOperandBuffer.size() * 2);
+    
+    BigInteger individualProduct = 0;
+    auto& individualProductBuffer = individualProduct._source;
+    
+    int individualProductStartingIndex = 0;
+    
+    auto bottomOperandIterator = bottomOperandBuffer.rbegin();
+    while(bottomOperandIterator != bottomOperandBuffer.rend())
     {
-        *this += original;
-        counter--;
+        individualProductBuffer.resize(topOperandBuffer.size() * 2, 0);
+        fill(individualProductBuffer.begin(), individualProductBuffer.end(), 0);
+        int individualProductIndex = individualProductStartingIndex++;
+        auto topOperandIterator = topOperandBuffer.rbegin();
+        
+        while(topOperandIterator != topOperandBuffer.rend())
+        {
+            uint8_t currentTopOperand = *topOperandIterator;
+            uint8_t currentBottomOperand = *bottomOperandIterator;
+            uint16_t currentProduct = currentTopOperand * currentBottomOperand;
+            
+            uint8_t lowByte = (currentProduct & 0x00FF);
+            uint8_t highByte = (currentProduct & 0xFF00) >> 8;
+            
+            uint16_t calculatedLowByte = individualProductBuffer[individualProductIndex] + lowByte;
+            uint16_t calculatedHighByte = individualProductBuffer[individualProductIndex + 1] + highByte + ((calculatedLowByte & 0xFF00) >> 8);
+            uint8_t calculatedOverflowByte = (calculatedHighByte & 0xFF00) >> 8;
+            
+            individualProductBuffer[individualProductIndex] = (calculatedLowByte & 0x00FF);
+            individualProductBuffer[individualProductIndex + 1] = (calculatedHighByte & 0x00FF);
+            
+            if(calculatedOverflowByte > 0)
+                individualProductBuffer[individualProductIndex + 2] = calculatedOverflowByte;
+            
+            topOperandIterator++;
+            individualProductIndex++;
+        }
+        
+        reverse(individualProductBuffer.begin(), individualProductBuffer.end());
+        individualProduct.TrimPrefixZeros();
+        productAccumulator += individualProduct;
+        
+        ++bottomOperandIterator;
     }
+    
+    _source.swap(productAccumulator._source);
     
     return *this;
 }
