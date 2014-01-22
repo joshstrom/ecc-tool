@@ -49,6 +49,7 @@
 		3C38AC60187FBDF200DF4257 /* EccTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = EccTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C38AC63187FBDF200DF4257 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		3C38AC65187FBDF200DF4257 /* EccTool.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = EccTool.1; sourceTree = "<group>"; };
+		3C84E621188F94D700F4E16C /* OperationTesters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OperationTesters.h; sourceTree = "<group>"; };
 		3C93E83B18865C0E00B56C1C /* BigInteger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigInteger.cpp; sourceTree = "<group>"; };
 		3C93E83C18865C0E00B56C1C /* BigInteger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BigInteger.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -76,6 +77,7 @@
 			children = (
 				3C1707711883A47D00A900A1 /* main.cpp */,
 				3C1707731883A47D00A900A1 /* EccToolTests.1 */,
+				3C84E621188F94D700F4E16C /* OperationTesters.h */,
 			);
 			path = EccToolTests;
 			sourceTree = "<group>";

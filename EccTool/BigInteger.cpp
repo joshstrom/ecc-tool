@@ -61,9 +61,15 @@ BigInteger& BigInteger::operator+=(const BigInteger& rhs)
     // The "topNumber" and "bottomNumber" buffers will be acceessed with
     //  reverse iterators in order to add in the correct order.
     // A "carry" variable is also utilized.
-    
+
     auto& topNumberBuffer = (_source.size() > rhs._source.size()) ? _source : rhs._source;
     auto& bottomNumberBuffer = (_source.size() > rhs._source.size()) ? rhs._source : _source;
+    
+    // Prepare the _source buffer to hold the sum.
+    //  Since an addition operation requires at most (longest number + 1) digits. Insert enough
+    //  elements at the beginning to ensure that the buffer is large enough.
+    _source.insert(_source.begin(), (topNumberBuffer.size() + 1 - _source.size()), 0);
+    auto sumBuffer = _source.rbegin();
     
     auto topNumber = topNumberBuffer.rbegin();
     auto bottomNumber = bottomNumberBuffer.rbegin();
@@ -74,8 +80,8 @@ BigInteger& BigInteger::operator+=(const BigInteger& rhs)
     
     // Sum will be filled "backwards" compared to the other two operands and reversed at the end.
     //  This is to simplify the creation through use of push_back().
-    vector<uint8_t> sumBuffer;
-    sumBuffer.reserve(topNumberBuffer.size() + 1);
+    //vector<uint8_t> sumBuffer;
+    //sumBuffer.reserve(topNumberBuffer.size() + 1);
 
     while(topNumber != topNumberBuffer.rend())
     {
@@ -87,22 +93,46 @@ BigInteger& BigInteger::operator+=(const BigInteger& rhs)
         // Do the addition, then take the top 4 bytes for the carry and push the bottom 4 bytes as the sum.
         uint16_t currentSum = currentTop + currentButtom + (carry >> 4);
         carry = (currentSum & 0xFF00) >> 4;
-        sumBuffer.push_back(currentSum & 0x00FF);
+        *sumBuffer = (currentSum & 0x00FF);
         
-        // Increment all iterators.
+        // TopNumber and SumBuffer are both of the same size.
         topNumber++;
-        bottomNumber++;
+        sumBuffer++;
+        
+        // Bottom number can be shorter than top number. Make sure to not increment past end.
+        if(bottomNumber != bottomNumberBuffer.rend())
+            bottomNumber++;
     }
     
     // If there is any leftover carry, add it to the sum buffer (shift it since it is one place up).
     if(carry != 0)
-        sumBuffer.push_back(carry >> 4);
+        *sumBuffer = (carry >> 4);
     
-    // Since we created the sum backwards, reverse it then set it to the buffer.
-    reverse(sumBuffer.begin(), sumBuffer.end());
-    _source = sumBuffer;
+    // The sum buffer may be too large (due to the insert operation at the beginning), remove extra.
+    TrimPrefixZeros();
     
     return *this;
+}
+
+void BigInteger::Borrow(vector<uint8_t>::reverse_iterator segmentBegin, const vector<uint8_t>::reverse_iterator& segmentEnd) const
+{
+    // Search ahead for the first non-zero character in the buffer.
+    //  For the borrow to work correctly, it must populate back across
+    //  previous elements in the buffer.
+    //  Example (in decimal): Borrow starting from the ones place of 1000 -> 099(10)
+    while(segmentBegin != segmentEnd)
+    {
+        // Correct element found. Decrement and return.
+        if(*segmentBegin > 0)
+        {
+            (*segmentBegin)--;
+            return;
+        }
+        
+        // Element equal to zero, we need to adjust for the borrow.
+        *segmentBegin = 0xFF;
+        segmentBegin++;
+    }
 }
 
 BigInteger& BigInteger::operator-=(const BigInteger& rhs)
@@ -128,7 +158,6 @@ BigInteger& BigInteger::operator-=(const BigInteger& rhs)
     // The buffer may get smaller, but will not get larger.
     //  Note that we are adding the bytes to the difference buffer "backwards"
     //  to simplify determining empty digits.
-    bool isBorowing = false;
     vector<uint8_t> differenceBuffer;
     differenceBuffer.reserve(_source.size());
     
@@ -142,21 +171,14 @@ BigInteger& BigInteger::operator-=(const BigInteger& rhs)
         uint8_t currentTop = *lhsIterator;
         uint8_t currentBottom = (rhsIterator != rhs._source.rend()) ? *rhsIterator : 0;
         
-        // Do the subtraction in a signed variable. This may result in a negatie number.
-        short currentDifference = currentTop - currentBottom;
-        
-        // Handle any borrow from the previous column.
-        if(isBorowing)
-        {
-            isBorowing = false;
-            currentDifference -= 1;
-        }
+        // Do the subtraction in a signed variable. This may result in a negative number.
+        int currentDifference = currentTop - currentBottom;
         
         // Borrow from the next if necessary.
         if(currentDifference < 0)
         {
-            isBorowing = true;
-            currentDifference += 0xFF;
+            Borrow(lhsIterator + 1, _source.rend());
+            currentDifference += 0x100;
         }
         
         // Put the (now guarenteed positive) difference, masked to ensure proper size
@@ -165,7 +187,9 @@ BigInteger& BigInteger::operator-=(const BigInteger& rhs)
         
         // Increment everything.
         lhsIterator++;
-        rhsIterator++;
+        
+        if(rhsIterator != rhs._source.rend())
+            rhsIterator++;
     }
     
     // Since we created the difference backwards, reverse it then set it to the buffer.

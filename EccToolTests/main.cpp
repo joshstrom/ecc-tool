@@ -10,28 +10,18 @@
 #include "catch.hpp"
 #include "EccAlg.h"
 #include "BigInteger.h"
+#include "OperationTesters.h"
 
-void AddTwoNumbersTest(unsigned int number1, unsigned int number2, int count = -1)
+
+void StatisticalOperationTest(const BaseOperationTester& tester)
 {
-    unsigned long sum = number1 + number2;
-    
-    stringstream ss;
-    ss << hex << sum;
-    
-    string sumInHex = ss.str();
-    ss.clear();
-    
-    if((sumInHex.size() % 2) != 0)
-        sumInHex.insert(sumInHex.begin(), '0');
-    
-    if(count != -1)
+    srand(static_cast<unsigned int>(time(nullptr)));
+    for(int i = 0; i < 10; i++)
     {
-        ss << ", Counter: " << count;
+        cout << "Begin iteration for '" << tester.GetOperationSymbol() << "', iteration: " << i << endl;
+        tester.TestOperation(rand() % 0xfffff, rand() % 0xfffff, i);
+        cout << "End iteration " << i << endl;
     }
-    
-    string actualSumInHex = (BigInteger(number1) + BigInteger(number2)).ToString();
-    if(actualSumInHex != sumInHex)
-        FAIL("Operation " << hex << number1 << " + " << number2 << " resulted in " << actualSumInHex << ". Should have been: " << sumInHex << ss.str());
 }
 
 TEST_CASE("CanCreateBigIntegerWithHexString")
@@ -329,36 +319,44 @@ TEST_CASE("CanMultiplySmallNumbers")
 
 TEST_CASE("CanAddLargerNumbers")
 {
-    AddTwoNumbersTest(0xf, 0xf);
-    AddTwoNumbersTest(0xff, 0xff);
-    AddTwoNumbersTest(0xfff, 0xfff);
-    AddTwoNumbersTest(0xffff, 0xffff);
+    RunAdditionTest(0xf, 0xf);
+    RunAdditionTest(0xff, 0xff);
+    RunAdditionTest(0xfff, 0xfff);
+    RunAdditionTest(0xffff, 0xffff);
+}
+
+TEST_CASE("StatisticalMultiplicationTest")
+{
+    MultiplicationOperationTester tester;
+    StatisticalOperationTest(tester);
+}
+
+//TEST_CASE("StatisticalAdditionTest")
+//{
+//    AdditionOperationTester tester;
+//    StatisticalOperationTest(tester);
+//}
+//
+//TEST_CASE("StatisticalSubtractionTester")
+//{
+//    SubtractionOperationTester tester;
+//    StatisticalOperationTest(tester);
+//}
+
+TEST_CASE("SpecificMultiplicationTest")
+{
+    RunMultiplicationTest(0x18b3b, 0x73f58);
 }
 
 TEST_CASE("SpecificAdditionTest")
 {
-    AddTwoNumbersTest(0x798c6, 0x34);
+    RunAdditionTest(0x7682f, 0xcb00);
 }
 
-TEST_CASE("StatisticalAdditionTest")
+TEST_CASE("SpecificSubtractionTest")
 {
-    srand(static_cast<unsigned int>(time(nullptr)));
-    for(int i = 0; i < 1000; i++)
-    {
-        AddTwoNumbersTest(rand() % 0xfffff, rand() % 0xfffff, i);
-    }
+    RunSubtractionTest(0x79158, 0x5e);
 }
-
-TEST_CASE("CanMultiplyLargerNumbers")
-{
-    REQUIRE((BigInteger(1000) * BigInteger(50)).ToString() == "c350");
-    //REQUIRE((BigInteger(0xffffffff) * BigInteger(0xffffffff)).ToString() == "1fffffffe");
-    //REQUIRE((BigInteger(1) * BigInteger(3)).ToString() == "03");
-}
-
-
-
-
 
 
 

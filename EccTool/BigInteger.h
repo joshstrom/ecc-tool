@@ -29,7 +29,7 @@ private:
     // Removes any unnecessary prefix 0x00 bytes from the beginning of the buffer.
     void TrimPrefixZeros();
     
-    static void SetOrPushFront(vector<uint8_t>& buffer, const vector<uint8_t>::reverse_iterator& position, uint8_t value);
+    void Borrow(vector<uint8_t>::reverse_iterator segmentBegin, const vector<uint8_t>::reverse_iterator& segmentEnd) const;
     
     // Compares this with another BigInteger.
     //  Returns 1 if this < other
