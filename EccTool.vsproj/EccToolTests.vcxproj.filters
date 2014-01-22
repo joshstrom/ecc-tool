@@ -18,25 +18,25 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="EccTool\BigInteger.cpp">
-      <Filter>UnderTest</Filter>
-    </ClCompile>
-    <ClCompile Include="EccTool\EccAlg.cpp">
-      <Filter>UnderTest</Filter>
-    </ClCompile>
-    <ClCompile Include="EccToolTests\main.cpp">
+    <ClCompile Include="..\EccToolTests\main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\EccTool\BigInteger.cpp">
+      <Filter>UnderTest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\EccTool\EccAlg.cpp">
+      <Filter>UnderTest</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EccTool\BigInteger.h">
-      <Filter>UnderTest</Filter>
-    </ClInclude>
-    <ClInclude Include="EccTool\EccAlg.h">
-      <Filter>UnderTest</Filter>
-    </ClInclude>
-    <ClInclude Include="EccToolTests\OperationTesters.h">
+    <ClInclude Include="..\EccToolTests\OperationTesters.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\EccTool\BigInteger.h">
+      <Filter>UnderTest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\EccTool\EccAlg.h">
+      <Filter>UnderTest</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

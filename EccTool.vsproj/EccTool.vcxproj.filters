@@ -15,21 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ecctool\BigInteger.cpp">
+    <ClCompile Include="..\EccTool\BigInteger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ecctool\EccAlg.cpp">
+    <ClCompile Include="..\EccTool\EccAlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EccTool\main.cpp">
+    <ClCompile Include="..\EccTool\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ecctool\BigInteger.h">
+    <ClInclude Include="..\EccTool\BigInteger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ecctool\EccAlg.h">
+    <ClInclude Include="..\EccTool\EccAlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
