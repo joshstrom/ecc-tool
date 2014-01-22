@@ -79,11 +79,6 @@ public:
 
     // Destructor, copy constructor, move constructor, and operator= (both move and copy)
     //  use default implementations.
-    ~BigInteger() = default;
-    BigInteger(const BigInteger& rhs) = default;
-    BigInteger(BigInteger&& rhs) = default;
-    BigInteger& operator=(const BigInteger& rhs) = default;
-    BigInteger& operator=(BigInteger&& rhs) = default;
     
     // Unary <operation>= mathematical operations.
     BigInteger& operator+=(const BigInteger& rhs);

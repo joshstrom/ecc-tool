@@ -15,6 +15,7 @@
 #include <math.h>
 #include <exception>
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -22,7 +23,7 @@ BigInteger::BigInteger(string number)
 {
     // Since a single 8-bit byte can hold the data represented by two hex characters,
     //  size the source buffer to the ceiling of half the length of the number string.
-    _source.resize(ceil(static_cast<float>(number.size()) / static_cast<float>(2)));
+    _source.resize(static_cast<unsigned int>(ceil(static_cast<float>(number.size()) / static_cast<float>(2))));
     
     // The iteration through the destination buffer will be reversed.
     auto destinationIterator = _source.rbegin();
@@ -310,7 +311,7 @@ int BigInteger::Compare(const BigInteger& other) const
     
     // Find the first element (from the left) which differs between this and other.
     // Use that element to determine which is greater.
-    for(int i = 0; i < _source.size(); i++)
+    for(unsigned int i = 0; i < _source.size(); i++)
     {
         if(_source[i] == other._source[i])
             continue;

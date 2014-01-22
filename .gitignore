@@ -20,6 +20,14 @@
 #########################
 
 #####
+# Visual studio files that should be ignored.
+*.sdf
+*.suo
+*Debug
+*TeamCity*
+
+
+#####
 # OS X temporary files that should never be committed
 #
 # c.f. http://www.westwind.com/reference/os-x/invisibles.html

@@ -18,9 +18,7 @@ void StatisticalOperationTest(const BaseOperationTester& tester)
     srand(static_cast<unsigned int>(time(nullptr)));
     for(int i = 0; i < 10000; i++)
     {
-        cout << "Begin iteration for '" << tester.GetOperationSymbol() << "', iteration: " << i << endl;
         tester.TestOperation(rand() % 0xfffff, rand() % 0xfffff, i);
-        cout << "End iteration " << i << endl;
     }
 }
 
