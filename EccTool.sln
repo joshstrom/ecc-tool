@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EccTool", "EccTool.vcxproj", "{4CAE85BA-8089-4E4D-8AD6-B88FA04BB7F2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EccToolTests", "EccToolTests\EccToolTests.vcxproj", "{98358BF7-D60C-40F1-9C0A-462A463A1889}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EccToolTests", "EccToolTests.vcxproj", "{98358BF7-D60C-40F1-9C0A-462A463A1889}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

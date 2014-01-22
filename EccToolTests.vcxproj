@@ -52,7 +52,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\External\Catch;$(ProjectDir)..\EccTool;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)External\Catch;$(ProjectDir)EccTool;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -68,7 +68,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\External\Catch;$(ProjectDir)..\EccTool;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)External\Catch;$(ProjectDir)EccTool;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -78,14 +78,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\EccTool\BigInteger.cpp" />
-    <ClCompile Include="..\EccTool\EccAlg.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="EccToolTests\main.cpp" />
+    <ClCompile Include="EccTool\BigInteger.cpp" />
+    <ClCompile Include="EccTool\EccAlg.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\EccTool\BigInteger.h" />
-    <ClInclude Include="..\EccTool\EccAlg.h" />
-    <ClInclude Include="OperationTesters.h" />
+    <ClInclude Include="EccToolTests\OperationTesters.h" />
+    <ClInclude Include="EccTool\BigInteger.h" />
+    <ClInclude Include="EccTool\EccAlg.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EccTool.vcxproj">

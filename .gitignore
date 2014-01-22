@@ -22,6 +22,7 @@
 #####
 # Visual studio files that should be ignored.
 *.sdf
+*.opensdf
 *.suo
 *Debug
 *TeamCity*
