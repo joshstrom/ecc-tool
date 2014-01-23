@@ -215,6 +215,7 @@
 					./EccTool,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYMROOT = bin/mac;
 			};
 			name = Debug;
 		};
@@ -228,6 +229,7 @@
 					./EccTool,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYMROOT = bin/mac;
 			};
 			name = Release;
 		};

@@ -20,8 +20,18 @@ class BigInteger
 {
     
 private:
+    
+    // Enum to indicate the sign of the number.
+    enum Sign
+    {
+        NEGATIVE,
+        POSITIVE
+    };
+    
     // Contains the binary representation of the number.
     vector<uint8_t> _source;
+    
+    Sign _sign;
     
     // Converts a hex character to a binary hex digit.
     static uint8_t GetValidHexDigit(char digit);
@@ -51,6 +61,17 @@ private:
         // Remove any unnecessary zeros.
         TrimPrefixZeros();
     }
+
+    // Returns POSITIVE if the number is zero or positive and NEGATIVE otherwise.
+    Sign GetSign() const;
+    
+    // The number is zero if the source buffer contains one character (zero).
+    bool IsZero() const;
+    
+    // Internal mathematical helper functions.
+    BigInteger& Add(const BigInteger& rhs);
+    BigInteger& Subtract(const BigInteger& rhs);
+    BigInteger& Multiply(const BigInteger& rhs);
     
 public:
     
@@ -61,6 +82,7 @@ public:
     // Constructs a BigInteger from an unsigned integer.
     template<typename T>
     BigInteger(T number, typename std::enable_if<std::is_unsigned<T>::value, bool>::type* = 0)
+        : _sign(POSITIVE)
     {
         SetSourceBuffer(number);
     }
@@ -69,11 +91,10 @@ public:
     //  numbers.
     template<typename T>
     BigInteger(T number, typename std::enable_if<std::is_signed<T>::value, bool>::type* = 0)
+        : _sign((number >= 0) ? POSITIVE : NEGATIVE)
     {
-        // Negative numbers are not supported at this time.
-        if(number < 0)
-            throw invalid_argument("Cannot create a negative BigInteger.");
-        
+        // The sign is handled in in the initializer.
+        number = abs(number);
         SetSourceBuffer(static_cast<typename make_unsigned<T>::type>(number));
     }
 
@@ -90,6 +111,9 @@ public:
     BigInteger operator++(int); //Postfix-increment.
     BigInteger& operator--(); // Prefix-decrement.
     BigInteger operator--(int); //Postfix-decrement.
+    
+    // Negation operator.
+    BigInteger operator-() const;
     
     // Comparison operators.
     bool operator<(const BigInteger& rhs) const;

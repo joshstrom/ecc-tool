@@ -12,13 +12,27 @@
 #include "BigInteger.h"
 #include "OperationTesters.h"
 
-
 void StatisticalOperationTest(const BaseOperationTester& tester)
 {
     srand(static_cast<unsigned int>(time(nullptr)));
     for(int i = 0; i < 10000; i++)
     {
-        tester.TestOperation(rand() % 0xfffff, rand() % 0xfffff, i);
+        tester.TestOperation(rand() % 0xffffff, rand() % 0xffffff, i);
+    }
+}
+
+void StatisticalOperationTestAllowNegatives(const BaseOperationTester& tester)
+{
+    srand(static_cast<unsigned int>(time(nullptr)));
+    for(int i = 0; i < 10000; i++)
+    {
+        bool firstOperandNegative = ((rand() % 2) % 2) == 0;
+        bool secondOperandNegative = ((rand() % 2) % 2) == 0;
+        
+        int firstOperandSign = (firstOperandNegative) ? -1 : 1;
+        int secondOperandSign = (secondOperandNegative) ? -1 : 1;
+        
+        tester.TestOperation((rand() % 0xffffff) * firstOperandSign, (rand() % 0xffffff) * secondOperandSign, i);
     }
 }
 
@@ -26,6 +40,29 @@ TEST_CASE("CanCreateBigIntegerWithHexString")
 {
     BigInteger one("1");
     REQUIRE("01" == one.ToString());
+}
+
+TEST_CASE("CanCreateWithNegativeInteger")
+{
+    BigInteger negativeInteger(-3);
+    REQUIRE(negativeInteger < 0);
+}
+
+TEST_CASE("CanCreateWithNegativeIntegerString")
+{
+    BigInteger negativeInteger("-3");
+    REQUIRE(negativeInteger == -3);
+}
+
+TEST_CASE("CanNegate")
+{
+    BigInteger postive(5);
+    BigInteger negative(-5);
+    BigInteger zero(0);
+    
+    REQUIRE((-postive) == negative);
+    REQUIRE((-negative) == postive);
+    REQUIRE((-zero) == zero);
 }
 
 TEST_CASE("ThrowsOnInvalidBase")
@@ -101,11 +138,6 @@ TEST_CASE("CanCreateBigIntegerWithUnsignedLongLong")
     unsigned long long number = 1;
     BigInteger one(number);
     REQUIRE("01" == one.ToString());
-}
-
-TEST_CASE("ThrowsIfCreatedFromNegativeInteger")
-{
-    REQUIRE_THROWS(BigInteger(-5));
 }
 
 TEST_CASE("CanCreateAlphaNumericHexDigit")
@@ -339,6 +371,12 @@ TEST_CASE("StatisticalSubtractionTester")
 {
     SubtractionOperationTester tester;
     StatisticalOperationTest(tester);
+}
+
+TEST_CASE("StatisticalComparisonTest")
+{
+    AllComparisonOperationTester tester;
+    StatisticalOperationTestAllowNegatives(tester);
 }
 
 TEST_CASE("SpecificMultiplicationTest")
