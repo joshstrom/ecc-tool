@@ -42,7 +42,7 @@ class BaseMathOperationTester : public BaseOperationTester
 {
 protected:
     virtual BigInteger RunBigIntegerOperation(const BigInteger& operand1, const BigInteger& operand2) const = 0;
-    virtual unsigned long long RunPrimitiveOperation(const int operand1, const int operand2) const = 0;
+    virtual long long RunPrimitiveOperation(const int operand1, const int operand2) const = 0;
     
 public:
     void TestOperation(int number1, int number2, int count = -1) const override
@@ -50,24 +50,21 @@ public:
         auto operand1 = SelectFirstOperand(number1, number2);
         auto operand2 = SelectSecondOperand(number1, number2);
         
-        auto primitiveOperationResult = RunPrimitiveOperation(operand1, operand2);
-        
-        stringstream ss;
-        ss << hex << primitiveOperationResult;
-        
-        string primitiveOperationResultInHex = ss.str();
-        ss.str("");
-        ss.clear();
-        
-        if((primitiveOperationResultInHex.size() % 2) != 0)
-            primitiveOperationResultInHex.insert(primitiveOperationResultInHex.begin(), '0');
-        
-        if(count != -1)
-            ss << ", Counter: " << count;
-        
-        string bigIntegerOpResultInHex = RunBigIntegerOperation(BigInteger(operand1), BigInteger(operand2)).ToString();
-        if(primitiveOperationResultInHex != bigIntegerOpResultInHex)
-            FAIL("Operation " << hex << operand1 << GetOperationSymbol() << operand2 << " resulted in " << bigIntegerOpResultInHex << ". Should have been: " << primitiveOperationResultInHex << ss.str());
+        auto primitiveOperationResult = BigInteger(RunPrimitiveOperation(operand1, operand2));
+
+        auto bigIntegerOperationResult = RunBigIntegerOperation(BigInteger(operand1), BigInteger(operand2));
+        if(primitiveOperationResult != bigIntegerOperationResult)
+        {
+            stringstream ss;
+            ss  << "Operation " << BigInteger(operand1).ToString() << " " << GetOperationSymbol()
+                << " " << BigInteger(operand2).ToString() << " resulted in " << bigIntegerOperationResult.ToString()
+                << ". Should have been: " << primitiveOperationResult.ToString();
+            
+            if(count != -1)
+                ss << ", Counter: " << count;
+            
+            FAIL(ss.str());
+        }
     }
 };
 
@@ -79,7 +76,7 @@ protected:
         return operand1 + operand2;
     }
     
-    unsigned long long RunPrimitiveOperation(const int operand1, const int operand2) const override
+    long long RunPrimitiveOperation(const int operand1, const int operand2) const override
     {
         return operand1 + operand2;
     }
@@ -99,9 +96,9 @@ protected:
         return operand1 * operand2;
     }
     
-    unsigned long long RunPrimitiveOperation(const int operand1, const int operand2) const override
+    long long RunPrimitiveOperation(const int operand1, const int operand2) const override
     {
-        return static_cast<unsigned long long>(operand1) * static_cast<unsigned long long>(operand2);
+        return static_cast<long long>(operand1) * static_cast<long long>(operand2);
     }
 
 public:
@@ -129,7 +126,7 @@ protected:
         return operand1 - operand2;
     }
     
-    unsigned long long RunPrimitiveOperation(const int operand1, const int operand2) const override
+    long long RunPrimitiveOperation(const int operand1, const int operand2) const override
     {
         return operand1 - operand2;
     }

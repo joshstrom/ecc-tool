@@ -29,10 +29,10 @@ BigInteger::BigInteger(string number)
         
     // Since a single 8-bit byte can hold the data represented by two hex characters,
     //  size the source buffer to the ceiling of half the length of the number string.
-    _source.resize(static_cast<unsigned int>(ceil(static_cast<float>(number.size()) / static_cast<float>(2))));
+    _magnitude.resize(static_cast<unsigned int>(ceil(static_cast<float>(number.size()) / static_cast<float>(2))));
     
     // The iteration through the destination buffer will be reversed.
-    auto destinationIterator = _source.rbegin();
+    auto destinationIterator = _magnitude.rbegin();
     
     // Iterate through the string containing the number in reverse order, two digits at a time.
     unsigned int i = static_cast<unsigned int>(number.size()) - 1;
@@ -58,6 +58,20 @@ BigInteger::BigInteger(string number)
 
 BigInteger& BigInteger::operator+=(const BigInteger& rhs)
 {
+    Sign thisSign = GetSign();
+    Sign rhsSign = rhs.GetSign();
+    if(thisSign == rhsSign)
+    {
+        Add(rhs);
+        
+        // If both were negative, the result should be negative.
+        if(thisSign == NEGATIVE)
+            _sign = NEGATIVE;
+        
+        return *this;
+    }
+    
+    // TODO: Handle addition of mixed positive and negative.
     Add(rhs);
     return *this;
 }
@@ -133,27 +147,27 @@ BigInteger BigInteger::operator-() const
 
 bool BigInteger::operator<(const BigInteger& rhs) const
 {
-    return (Compare(rhs) == -1);
+    return (CompareTo(rhs) == -1);
 }
 
 bool BigInteger::operator>(const BigInteger& rhs) const
 {
-    return (Compare(rhs) == 1);
+    return (CompareTo(rhs) == 1);
 }
 
 bool BigInteger::operator<=(const BigInteger& rhs) const
 {
-    return (Compare(rhs) <= 0);
+    return (CompareTo(rhs) <= 0);
 }
 
 bool BigInteger::operator>=(const BigInteger& rhs) const
 {
-    return (Compare(rhs) >= 0);
+    return (CompareTo(rhs) >= 0);
 }
 
 bool BigInteger::operator==(const BigInteger& other) const
 {
-    return (Compare(other) == 0);
+    return (CompareTo(other) == 0);
 }
 
 bool BigInteger::operator!=(const BigInteger& other) const
@@ -168,17 +182,21 @@ const string BigInteger::ToString() const
     stringstream ss;
     ss << hex << setfill('0');
     
+    // Print negative (if necessary).
+    if(_sign == NEGATIVE)
+        ss << '-';
+    
     // Print all digits to the stream.
     //  The width must be 2 (example: 0x5 should print as "05").
     //  The cast is to turn it from a character to a number.
-    for(auto digit : _source)
+    for(auto digit : _magnitude)
         ss << setw(2) << (static_cast<uint16_t>(digit) & 0xFF);
     return ss.str();
 }
 
 bool BigInteger::IsZero() const
 {
-    return ((_source.size() == 1) && (_source[0] == 0));
+    return ((_magnitude.size() == 1) && (_magnitude[0] == 0));
 }
 
 BigInteger::Sign BigInteger::GetSign() const
@@ -213,12 +231,12 @@ uint8_t BigInteger::GetValidHexDigit(char digit)
 void BigInteger::TrimPrefixZeros()
 {
     // Remove any empty zero bytes from the beginning of the buffer.
-    auto firstNonzero = find_if(_source.begin(), _source.end(), [] (uint8_t element) { return element != 0; });
-    _source.erase(_source.begin(), firstNonzero);
+    auto firstNonzero = find_if(_magnitude.begin(), _magnitude.end(), [] (uint8_t element) { return element != 0; });
+    _magnitude.erase(_magnitude.begin(), firstNonzero);
     
     // If this trimming results in an empty buffer, place a single zero.
-    if(_source.size() == 0)
-        _source.push_back(static_cast<uint8_t>(0));
+    if(_magnitude.size() == 0)
+        _magnitude.push_back(static_cast<uint8_t>(0));
 }
 
 void BigInteger::Borrow(vector<uint8_t>::reverse_iterator segmentBegin, const vector<uint8_t>::reverse_iterator& segmentEnd) const
@@ -242,38 +260,48 @@ void BigInteger::Borrow(vector<uint8_t>::reverse_iterator segmentBegin, const ve
     }
 }
 
-int BigInteger::Compare(const BigInteger& other) const
+// Returns -1, zero, 1 as this object is less than, equal to, or greater than the specified object.
+int BigInteger::CompareTo(const BigInteger& other) const
 {
+    // If the signs are different, the positive one is larger than the negative one.
     const Sign thisSign = GetSign();
     const Sign otherSign = other.GetSign();
-    
     if(thisSign != otherSign)
     {
         return (thisSign == POSITIVE) ? 1 : -1;
     }
     
-    auto handleNegative = [=] (int compareResult) {
-        return (thisSign == POSITIVE) ? compareResult : -compareResult;
-    };
+    // If the signs are the same, compare magnitude and flip the result if the signs
+    //  were both negative.
+    int compareResult = CompareMagnitudeTo(other);
+    return (thisSign == POSITIVE) ? compareResult : -compareResult;
+}
+
+// Returns -1, zero, 1 as the absolute value of this object is less than, equal to, or greater
+//  than the absolute value of the specified object.
+int BigInteger::CompareMagnitudeTo(const BigInteger& other) const
+{
+    // BigIntegers store sign separately from magnitude. Simply compare magnitude.
     
     // Since there are no zero bytes at the beginnig of the arrays,
     //  if one is longer than the other, it is larger than the other.
-    if(_source.size() < other._source.size())
-        return handleNegative(-1);
-    else if(_source.size() > other._source.size())
-        return handleNegative(1);
+    if(_magnitude.size() < other._magnitude.size())
+        return -1;
+    else if(_magnitude.size() > other._magnitude.size())
+        return 1;
     
     // Find the first element (from the left) which differs between this and other.
     // Use that element to determine which is greater.
-    for(unsigned int i = 0; i < _source.size(); i++)
+    for(unsigned int i = 0; i < _magnitude.size(); i++)
     {
-        if(_source[i] == other._source[i])
+        if(_magnitude[i] == other._magnitude[i])
             continue;
-        return handleNegative((_source[i] < other._source[i]) ? -1 : 1);
+        return (_magnitude[i] < other._magnitude[i]) ? -1 : 1;
     }
     
     // None were different. They are the same.
     return 0;
+
 }
 
 BigInteger& BigInteger::Add(const BigInteger& rhs)
@@ -289,14 +317,14 @@ BigInteger& BigInteger::Add(const BigInteger& rhs)
     //  reverse iterators in order to add in the correct order.
     // A "carry" variable is also utilized.
     
-    auto& topNumberBuffer = (_source.size() > rhs._source.size()) ? _source : rhs._source;
-    auto& bottomNumberBuffer = (_source.size() > rhs._source.size()) ? rhs._source : _source;
+    auto& topNumberBuffer = (_magnitude.size() > rhs._magnitude.size()) ? _magnitude : rhs._magnitude;
+    auto& bottomNumberBuffer = (_magnitude.size() > rhs._magnitude.size()) ? rhs._magnitude : _magnitude;
     
-    // Prepare the _source buffer to hold the sum.
+    // Prepare the _magnitude buffer to hold the sum.
     //  Since an addition operation requires at most (longest number + 1) digits. Insert enough
     //  elements at the beginning to ensure that the buffer is large enough.
-    _source.insert(_source.begin(), (topNumberBuffer.size() + 1 - _source.size()), 0);
-    auto sumBuffer = _source.rbegin();
+    _magnitude.insert(_magnitude.begin(), (topNumberBuffer.size() + 1 - _magnitude.size()), 0);
+    auto sumBuffer = _magnitude.rbegin();
     
     auto topNumber = topNumberBuffer.rbegin();
     auto bottomNumber = bottomNumberBuffer.rbegin();
@@ -355,19 +383,19 @@ BigInteger& BigInteger::Multiply(const BigInteger& rhs)
     
     // Determine the larger buffer, this must be the top number for efficiency.
     bool lhsBigger = *this > rhs;
-    auto& topOperandBuffer = (lhsBigger) ? _source : rhs._source;
-    auto& bottomOperandBuffer = (lhsBigger) ? rhs._source : _source;
+    auto& topOperandBuffer = (lhsBigger) ? _magnitude : rhs._magnitude;
+    auto& bottomOperandBuffer = (lhsBigger) ? rhs._magnitude : _magnitude;
     
     // The product accumulator is used to accumulate the multiple additions: 1 for each bottom operand digit.
     //  Reserve enough memory to hold 2*<largest operand> so no reallocation of this buffer is necessary.
     BigInteger productAccumulator = 0;
-    productAccumulator._source.reserve(topOperandBuffer.size() * 2);
+    productAccumulator._magnitude.reserve(topOperandBuffer.size() * 2);
     
     // The individual product is used to hold the result of each multiplication of a
     //  bottom digit by all of the top digits. We will deal with this one mostly by its vector.
     //  We will with it backwards and reverse it at the end. Simplifies indexing.
     BigInteger individualProduct = 0;
-    auto& individualProductBuffer = individualProduct._source;
+    auto& individualProductBuffer = individualProduct._magnitude;
     
     // This counter gets incremented for each bottom digit multiplied to track the shift in the
     //  addition.
@@ -423,7 +451,7 @@ BigInteger& BigInteger::Multiply(const BigInteger& rhs)
     }
     
     // The switch updates the "this" reference.
-    _source.swap(productAccumulator._source);
+    _magnitude.swap(productAccumulator._magnitude);
     
     return *this;
 }
@@ -452,17 +480,17 @@ BigInteger& BigInteger::Subtract(const BigInteger& rhs)
     //  Note that we are adding the bytes to the difference buffer "backwards"
     //  to simplify determining empty digits.
     vector<uint8_t> differenceBuffer;
-    differenceBuffer.reserve(_source.size());
+    differenceBuffer.reserve(_magnitude.size());
     
     // Iterating through the top and bottom backwards.
-    auto lhsIterator = _source.rbegin();
-    auto rhsIterator = rhs._source.rbegin();
+    auto lhsIterator = _magnitude.rbegin();
+    auto rhsIterator = rhs._magnitude.rbegin();
     
-    while(lhsIterator != _source.rend())
+    while(lhsIterator != _magnitude.rend())
     {
         // Pull out the current top (aways there) and the current bottom (or zero if no more digits).
         uint8_t currentTop = *lhsIterator;
-        uint8_t currentBottom = (rhsIterator != rhs._source.rend()) ? *rhsIterator : 0;
+        uint8_t currentBottom = (rhsIterator != rhs._magnitude.rend()) ? *rhsIterator : 0;
         
         // Do the subtraction in a signed variable. This may result in a negative number.
         int currentDifference = currentTop - currentBottom;
@@ -470,7 +498,7 @@ BigInteger& BigInteger::Subtract(const BigInteger& rhs)
         // Borrow from the next if necessary.
         if(currentDifference < 0)
         {
-            Borrow(lhsIterator + 1, _source.rend());
+            Borrow(lhsIterator + 1, _magnitude.rend());
             currentDifference += 0x100;
         }
         
@@ -481,13 +509,13 @@ BigInteger& BigInteger::Subtract(const BigInteger& rhs)
         // Increment everything.
         lhsIterator++;
         
-        if(rhsIterator != rhs._source.rend())
+        if(rhsIterator != rhs._magnitude.rend())
             rhsIterator++;
     }
     
     // Since we created the difference backwards, reverse it then set it to the buffer.
     reverse(differenceBuffer.begin(), differenceBuffer.end());
-    _source = differenceBuffer;
+    _magnitude = differenceBuffer;
     
     // Remove any empty zero bytes from the beginning of the buffer.
     TrimPrefixZeros();

@@ -65,6 +65,13 @@ TEST_CASE("CanNegate")
     REQUIRE((-zero) == zero);
 }
 
+TEST_CASE("CorrectlyComputesAbsoluteValue")
+{
+    REQUIRE(abs(BigInteger(5)) == BigInteger(5));
+    REQUIRE(abs(BigInteger(0)) == BigInteger(0));
+    REQUIRE(abs(BigInteger(-5)) == BigInteger(5));
+}
+
 TEST_CASE("ThrowsOnInvalidBase")
 {
     REQUIRE_THROWS(BigInteger("5x"));
@@ -353,6 +360,11 @@ TEST_CASE("CanAddLargerNumbers")
     RunAdditionTest(0xff, 0xff);
     RunAdditionTest(0xfff, 0xfff);
     RunAdditionTest(0xffff, 0xffff);
+}
+
+TEST_CASE("CanAddTwoNegativeNumbers")
+{
+    RunAdditionTest(-5, -5);
 }
 
 TEST_CASE("StatisticalMultiplicationTest")

@@ -98,6 +98,7 @@
 				3C17076F1883A47D00A900A1 /* EccToolTests */,
 			);
 			name = Products;
+			path = bin/mac/Debug;
 			sourceTree = "<group>";
 		};
 		3C38AC62187FBDF200DF4257 /* EccTool */ = {

@@ -29,7 +29,7 @@ private:
     };
     
     // Contains the binary representation of the number.
-    vector<uint8_t> _source;
+    vector<uint8_t> _magnitude;
     
     Sign _sign;
     
@@ -42,10 +42,16 @@ private:
     void Borrow(vector<uint8_t>::reverse_iterator segmentBegin, const vector<uint8_t>::reverse_iterator& segmentEnd) const;
     
     // Compares this with another BigInteger.
-    //  Returns 1 if this < other
+    //  Returns -1 if this < other
     //  Returns 0 if this == other
-    //  Returns -1 if this > other
-    int Compare(const BigInteger& other) const;
+    //  Returns 1 if this > other
+    int CompareTo(const BigInteger& other) const;
+    
+    // Compares the magitude (or absolute value) of this with another BigInteger.
+    //  Returns -1 if abs(this) < abs(other)
+    //  Returns 0 if abs(this) == abs(other)
+    //  Returns 1 if abs(this) > abs(other)
+    int CompareMagnitudeTo(const BigInteger& other) const;
     
     // Sets the source buffer to a given unsigned integral type.
     template<typename T>
@@ -55,8 +61,8 @@ private:
         //  Note: since integers are stored in x86 little endian, we need to reverse the byte order
         //  as BigInteger uses a big endian representation.
         auto convertedPtr = reinterpret_cast<uint8_t*>(&number);
-        _source = vector<uint8_t>(convertedPtr, convertedPtr + sizeof(T));
-        reverse(_source.begin(), _source.end());
+        _magnitude = vector<uint8_t>(convertedPtr, convertedPtr + sizeof(T));
+        reverse(_magnitude.begin(), _magnitude.end());
         
         // Remove any unnecessary zeros.
         TrimPrefixZeros();
@@ -150,6 +156,12 @@ inline BigInteger operator*(BigInteger lhs, const BigInteger& rhs)
 {
     lhs *= rhs;
     return lhs;
+}
+
+// Overload of the absolute value function abs() for BigInteger.
+inline BigInteger abs(const BigInteger& bigInteger)
+{
+    return (bigInteger >= 0) ? bigInteger : -bigInteger;
 }
 
 #endif /* defined(__EccTool__BigInteger__) */
