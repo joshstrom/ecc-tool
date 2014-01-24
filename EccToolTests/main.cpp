@@ -23,7 +23,7 @@ void StatisticalOperationTest(const BaseOperationTester& tester)
 
 void StatisticalOperationTestAllowNegatives(const BaseOperationTester& tester)
 {
-    srand(static_cast<unsigned int>(time(nullptr)));
+	srand(static_cast<unsigned int>(time(nullptr)));
     for(int i = 0; i < 10000; i++)
     {
         bool firstOperandNegative = ((rand() % 2) % 2) == 0;
@@ -397,6 +397,13 @@ TEST_CASE("CanAddNegativeToInverse")
 	RunAdditionTest(-5, 5);
 }
 
+TEST_CASE("CanSubtractWithNegatives")
+{
+	REQUIRE((BigInteger(-2) - BigInteger(-3)).ToString() == BigInteger(1).ToString());
+	REQUIRE((BigInteger(2) - BigInteger(1)).ToString() == BigInteger(1).ToString());
+	REQUIRE((BigInteger(1) - BigInteger(2)).ToString() == BigInteger(-1).ToString());
+}
+
 TEST_CASE("StatisticalMultiplicationTest")
 {
     MultiplicationOperationTester tester;
@@ -412,7 +419,7 @@ TEST_CASE("StatisticalAdditionTest")
 TEST_CASE("StatisticalSubtractionTester")
 {
     SubtractionOperationTester tester;
-    StatisticalOperationTest(tester);
+    StatisticalOperationTestAllowNegatives(tester);
 }
 
 TEST_CASE("StatisticalComparisonTest")

@@ -60,14 +60,11 @@ BigInteger& BigInteger::operator+=(const BigInteger& rhs)
 {
     Sign thisSign = GetSign();
     Sign rhsSign = rhs.GetSign();
-    if(thisSign == rhsSign)
+    
+	// If the signs were the same, add magnitudes as normal and do not change the sign.
+	if(thisSign == rhsSign)
     {
         Add(rhs);
-        
-        // If both were negative, the result should be negative.
-        if(thisSign == NEGATIVE)
-            _sign = NEGATIVE;
-        
         return *this;
     }
     
@@ -77,9 +74,7 @@ BigInteger& BigInteger::operator+=(const BigInteger& rhs)
 	int magnitudeComparisonResult = CompareMagnitudeTo(rhs);
 	if(magnitudeComparisonResult == 0) // Magnitude equal -> result: 0
 	{
-		_magnitude.resize(1);
-		_magnitude[0] = 0;
-		_sign = POSITIVE;
+		SetZero();
 	}
 	else if(magnitudeComparisonResult < 0) // This is smaller than that: result -> (that-this) with sign of that.
 	{
@@ -98,8 +93,9 @@ BigInteger& BigInteger::operator+=(const BigInteger& rhs)
 
 BigInteger& BigInteger::operator-=(const BigInteger& rhs)
 {
-    Subtract(rhs);
-    return *this;
+	// Implement subtraction in terms of addition... add the inverse.
+	*this += -rhs;
+	return *this;
 }
 
 BigInteger& BigInteger::operator*=(const BigInteger& rhs)
@@ -257,6 +253,13 @@ void BigInteger::TrimPrefixZeros()
     // If this trimming results in an empty buffer, place a single zero.
     if(_magnitude.size() == 0)
         _magnitude.push_back(static_cast<uint8_t>(0));
+}
+
+void BigInteger::SetZero()
+{
+	_magnitude.resize(1);
+	_magnitude[0] = 0;
+	_sign = POSITIVE;
 }
 
 void BigInteger::Borrow(vector<uint8_t>::reverse_iterator segmentBegin, const vector<uint8_t>::reverse_iterator& segmentEnd) const

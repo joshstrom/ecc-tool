@@ -38,6 +38,9 @@ private:
     
     // Removes any unnecessary prefix 0x00 bytes from the beginning of the buffer.
     void TrimPrefixZeros();
+
+	// Sets the BigInteger equal to zero.
+	void SetZero();
     
     void Borrow(vector<uint8_t>::reverse_iterator segmentBegin, const vector<uint8_t>::reverse_iterator& segmentEnd) const;
     

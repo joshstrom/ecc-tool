@@ -111,16 +111,7 @@ public:
 class SubtractionOperationTester final : public BaseMathOperationTester
 {
 protected:
-    int SelectFirstOperand(int number1, int number2) const override
-    {
-        return (number1 > number2) ? number1 : number2; // Largest.
-    }
-    
-    int SelectSecondOperand(int number1, int number2) const override
-    {
-        return (number1 > number2) ? number2 : number1; // Smallest.
-    }
-    
+   
     BigInteger RunBigIntegerOperation(const BigInteger& operand1, const BigInteger& operand2) const override
     {
         return operand1 - operand2;
