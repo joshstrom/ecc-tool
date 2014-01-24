@@ -100,7 +100,20 @@ BigInteger& BigInteger::operator-=(const BigInteger& rhs)
 
 BigInteger& BigInteger::operator*=(const BigInteger& rhs)
 {
+	// Check for multiplication by zero.
+	if(IsZero() || rhs.IsZero())
+	{
+		SetZero();
+		return *this;
+	}
+
+	// Do the multiplication. 
     Multiply(rhs);
+
+	// The result sign is positive if both signs are the same.
+	// The result is negative if they are different.
+	_sign = (GetSign() == rhs.GetSign()) ? POSITIVE : NEGATIVE;
+
     return *this;
 }
 
@@ -405,7 +418,7 @@ BigInteger& BigInteger::Multiply(const BigInteger& rhs)
     // (sum of products)     1353   [then add the result]
     
     // Determine the larger buffer, this must be the top number for efficiency.
-    bool lhsBigger = *this > rhs;
+    bool lhsBigger = this->CompareMagnitudeTo(rhs) == 1;
     auto& topOperandBuffer = (lhsBigger) ? _magnitude : rhs._magnitude;
     auto& bottomOperandBuffer = (lhsBigger) ? rhs._magnitude : _magnitude;
     

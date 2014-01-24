@@ -404,10 +404,18 @@ TEST_CASE("CanSubtractWithNegatives")
 	REQUIRE((BigInteger(1) - BigInteger(2)).ToString() == BigInteger(-1).ToString());
 }
 
+TEST_CASE("CanMultiplyWithNegative")
+{
+	RunMultiplicationTest(2, 2);
+	RunMultiplicationTest(-2, 2);
+	RunMultiplicationTest(2, -2);
+	RunMultiplicationTest(-2, -2);
+}
+
 TEST_CASE("StatisticalMultiplicationTest")
 {
     MultiplicationOperationTester tester;
-    StatisticalOperationTest(tester);
+    StatisticalOperationTestAllowNegatives(tester);
 }
 
 TEST_CASE("StatisticalAdditionTest")
