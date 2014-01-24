@@ -367,6 +367,36 @@ TEST_CASE("CanAddTwoNegativeNumbers")
     RunAdditionTest(-5, -5);
 }
 
+TEST_CASE("CanAddLargerNegativeToSmallerPositive")
+{
+	RunAdditionTest(-5, 3);
+}
+
+TEST_CASE("CanAddLargerPositiveToSmallerNegative")
+{
+	RunAdditionTest(5, -3);
+}
+
+TEST_CASE("CanAddSmallerNegativeToLargerPositive")
+{
+	RunAdditionTest(-3, 5);
+}
+
+TEST_CASE("CanAddSmallerPositiveToLargerNegative")
+{
+	RunAdditionTest(3, -5);
+}
+
+TEST_CASE("CanAddPositiveToInverse")
+{
+	RunAdditionTest(5, -5);
+}
+
+TEST_CASE("CanAddNegativeToInverse")
+{
+	RunAdditionTest(-5, 5);
+}
+
 TEST_CASE("StatisticalMultiplicationTest")
 {
     MultiplicationOperationTester tester;
@@ -376,7 +406,7 @@ TEST_CASE("StatisticalMultiplicationTest")
 TEST_CASE("StatisticalAdditionTest")
 {
     AdditionOperationTester tester;
-    StatisticalOperationTest(tester);
+    StatisticalOperationTestAllowNegatives(tester);
 }
 
 TEST_CASE("StatisticalSubtractionTester")

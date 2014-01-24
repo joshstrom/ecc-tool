@@ -71,8 +71,28 @@ BigInteger& BigInteger::operator+=(const BigInteger& rhs)
         return *this;
     }
     
-    // TODO: Handle addition of mixed positive and negative.
-    Add(rhs);
+	// If one is negative and the other is positive, adding them together will
+	//	result in a number that has a magnitude of the larger minus the smaller
+	//	and a sign of the largest one.
+	int magnitudeComparisonResult = CompareMagnitudeTo(rhs);
+	if(magnitudeComparisonResult == 0) // Magnitude equal -> result: 0
+	{
+		_magnitude.resize(1);
+		_magnitude[0] = 0;
+		_sign = POSITIVE;
+	}
+	else if(magnitudeComparisonResult < 0) // This is smaller than that: result -> (that-this) with sign of that.
+	{
+		BigInteger subtractionResult = rhs; // Swap and temporary needed for now. TODO: fix?
+		subtractionResult.Subtract(*this); 
+		_magnitude.swap(subtractionResult._magnitude);
+		_sign = rhs.GetSign();
+	}
+	else // This is larger than that: result -> (this-that) with sign of this (no change to sign).
+	{
+		Subtract(rhs);
+	}
+	
     return *this;
 }
 
@@ -435,7 +455,8 @@ BigInteger& BigInteger::Multiply(const BigInteger& rhs)
             // Set all these.
             individualProductBuffer[individualProductIndex] = (calculatedLowByte & 0x00FF);
             individualProductBuffer[individualProductIndex + 1] = (calculatedHighByte & 0x00FF);
-            individualProductBuffer[individualProductIndex + 2] = calculatedOverflowByte;
+            if(calculatedOverflowByte != 0)
+				individualProductBuffer[individualProductIndex + 2] = calculatedOverflowByte;
             
             // Incrment all iterators/indices.
             topOperandIterator++;
@@ -460,7 +481,7 @@ BigInteger& BigInteger::Subtract(const BigInteger& rhs)
 {
     // For now, we do not support subtraction resulting in negative numbers
     //  (supported elswhere).
-    if(rhs > *this)
+    if(CompareMagnitudeTo(rhs) == -1)
     {
         stringstream ss;
         ss << "Negative result of subtraction not supported. Attempted operation: ";
