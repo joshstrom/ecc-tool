@@ -82,7 +82,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\EccToolTests\main.cpp" />
+    <ClCompile Include="..\EccToolTests\tests_main.cpp" />
     <ClCompile Include="..\EccTool\BigInteger.cpp" />
     <ClCompile Include="..\EccTool\EccAlg.cpp" />
   </ItemGroup>

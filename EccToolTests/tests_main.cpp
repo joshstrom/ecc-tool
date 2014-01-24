@@ -451,10 +451,72 @@ TEST_CASE("SpecificSubtractionTest")
     RunSubtractionTest(0x79158, 0x5e);
 }
 
+TEST_CASE("CanShiftWholeBytes8")
+{
+    BigInteger originalInteger("2");
+    BigInteger shifted("0200");
+    
+    originalInteger <<= 8;
+    
+    REQUIRE(shifted.ToString() == originalInteger.ToString());
+}
 
+TEST_CASE("CanShiftWholeBytes16")
+{
+    BigInteger originalInteger("2");
+    BigInteger shifted("020000");
+    
+    originalInteger <<= 16;
+    
+    REQUIRE(shifted.ToString() == originalInteger.ToString());
+}
 
+TEST_CASE("CanShiftFractionalBytes")
+{
+    BigInteger originalInteger("01020304");
+    BigInteger shifted("10203040");
+    
+    originalInteger <<= 4;
+    
+    REQUIRE(shifted.ToString() == originalInteger.ToString());
+}
 
+TEST_CASE("CanShiftBothWholeAndFractionalBytes")
+{
+    BigInteger originalInteger("FFFFFFFF");
+    BigInteger shifted("1FFFFFFFE000");
+    
+    originalInteger <<= 13;
+    
+    REQUIRE(shifted.ToString() == originalInteger.ToString());
+}
 
+TEST_CASE("CanShiftSingleBitThirteenBits")
+{
+    BigInteger originalInteger("1");
+    BigInteger shifted("2000");
+    
+    originalInteger <<= 13;
+    
+    REQUIRE(shifted.ToString() == originalInteger.ToString());
+}
 
+TEST_CASE("CanTakeModuloOfSmallNumbers")
+{
+    REQUIRE((BigInteger(5) % BigInteger(8)) == 5);
+    REQUIRE((BigInteger(8) % BigInteger(5)) == 3);
+    REQUIRE((BigInteger(-8) % BigInteger(5)) == 2);
+}
+
+//TEST_CASE("CanTakeModuloOfVeryLargeNumbers")
+//{
+//    BigInteger veryLargeNumber1("0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8");
+//    BigInteger veryLargeNumber2("0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28");
+//    
+//    BigInteger modulo = veryLargeNumber1 % veryLargeNumber2;
+//    REQUIRE(modulo >= 0);
+//    REQUIRE(modulo < veryLargeNumber1);
+//}
+//
 
 

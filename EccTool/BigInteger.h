@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <stdint.h>
+#include <tuple>
 
 using namespace std;
 
@@ -114,6 +115,7 @@ public:
     BigInteger& operator+=(const BigInteger& rhs);
     BigInteger& operator-=(const BigInteger& rhs);
     BigInteger& operator*=(const BigInteger& rhs);
+    BigInteger& operator/=(const BigInteger& rhs);
     
     // Increment/Decrement operators.
     BigInteger& operator++(); // Prefix-increment.
@@ -132,12 +134,15 @@ public:
     bool operator==(const BigInteger& other) const;
     bool operator!=(const BigInteger& other) const;
     
-    //void AddOverFiniteField(const BigInteger& rhs, const BigInteger& finiteField);
+    // Bitwise operators.
+    BigInteger& operator<<=(int count);
+    
+    BigInteger& operator%=(const BigInteger& rhs);
     
     // Converts the BigInteger to its string representation in hex. It will print
     //  with all digits concatenated and no separators. The first digit may be left-padded
     //  with '0' if appropriate.
-    const string ToString() const;
+    const string ToString() const;    
 };
 
 // Binary addition operator with BigIntegers. Declared as free function by convention.
@@ -158,6 +163,13 @@ inline BigInteger operator-(BigInteger lhs, const BigInteger& rhs)
 inline BigInteger operator*(BigInteger lhs, const BigInteger& rhs)
 {
     lhs *= rhs;
+    return lhs;
+}
+
+// Binary modulus operator with BigIntegers. Declared as free function by convention.
+inline BigInteger operator%(BigInteger lhs, const BigInteger& rhs)
+{
+    lhs %= rhs;
     return lhs;
 }
 

@@ -117,6 +117,20 @@ BigInteger& BigInteger::operator*=(const BigInteger& rhs)
     return *this;
 }
 
+BigInteger& BigInteger::operator%=(const BigInteger& rhs)
+{
+    while(*this < 0)
+    {
+        *this += rhs;
+    }
+    while(*this >= rhs)
+    {
+        *this -= rhs;
+    }
+    
+    return *this;
+}
+
 // Prefix-increment.
 //  Applies the change to the return value.
 BigInteger& BigInteger::operator++()
@@ -202,6 +216,53 @@ bool BigInteger::operator==(const BigInteger& other) const
 bool BigInteger::operator!=(const BigInteger& other) const
 {
     return !(*this == other);
+}
+
+BigInteger& BigInteger::operator<<=(int count)
+{
+    // Zero shifted left is still zero.
+    if(IsZero())
+        return *this;
+    
+    // Determine the number of whole bytes and the number of bits to shift.
+    int bytesToShift = count / 8;
+    int bitsToShift = count % 8;
+    
+    if(bytesToShift != 0)
+    {
+        // Shift the magnitude vector by whole bytes.
+        _magnitude.resize(_magnitude.size() + bytesToShift, 0);
+    }
+    
+    if(bitsToShift == 0)
+        return *this;
+    
+    // Shift each byte in the magnitude buffer, from right to left, by the number of bits to shift.
+    //  Track any carry between iterations.
+    uint8_t carry = 0;
+    auto iterator = _magnitude.rbegin() + bytesToShift;
+    while(iterator != _magnitude.rend())
+    {
+        uint8_t currentElement = *iterator;
+        
+        // Determine the carry for the next byte (the most significat digits which would shift out).
+        uint8_t currentCarry = (currentElement >> (8 - bitsToShift));
+        
+        // Do the shift and add the previous carry.
+        currentElement <<= bitsToShift;
+        currentElement |= carry;
+        *iterator = currentElement;
+        
+        // Save the current carry for the next iteration.
+        carry = currentCarry;
+        ++iterator;
+    }
+    
+    // Handle any remaining carry.
+    if(carry != 0)
+        _magnitude.insert(_magnitude.begin(), carry);
+    
+    return *this;
 }
 
 const string BigInteger::ToString() const

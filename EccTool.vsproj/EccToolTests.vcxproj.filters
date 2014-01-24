@@ -18,7 +18,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\EccToolTests\main.cpp">
+    <ClCompile Include="..\EccToolTests\tests_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\EccTool\BigInteger.cpp">
