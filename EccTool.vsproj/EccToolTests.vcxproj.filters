@@ -32,6 +32,9 @@
     <ClInclude Include="..\EccToolTests\OperationTesters.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\EccToolTests\Stopwatch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\EccTool\BigInteger.h">
       <Filter>UnderTest</Filter>
     </ClInclude>

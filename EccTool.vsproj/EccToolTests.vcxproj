@@ -88,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\EccToolTests\OperationTesters.h" />
+    <ClInclude Include="..\EccToolTests\Stopwatch.h" />
     <ClInclude Include="..\EccTool\BigInteger.h" />
     <ClInclude Include="..\EccTool\EccAlg.h" />
   </ItemGroup>
