@@ -119,17 +119,28 @@ BigInteger& BigInteger::operator*=(const BigInteger& rhs)
 
 BigInteger& BigInteger::operator/=(const BigInteger& divisor)
 {
-    Divide(divisor);
+    // Do the actual operation.
+    auto quotient = Divide(*this, divisor).first;
+    
+    // Since the divide helper function only deals in magnitude and does
+    //  not handle sign, determine the sign of the result by the comparing the
+    //  signs of the operands.
+    Sign newSign = (GetSign() == divisor.GetSign()) ? POSITIVE : NEGATIVE;
+    
+    // Swap the quotient result in the this instance and set the calcualted sign.
+    swap(*this, quotient);
+    _sign = newSign;
     
     return *this;
 }
 
 BigInteger& BigInteger::operator%=(const BigInteger& divisor)
 {
-    BigInteger remainder = Divide(divisor);
-    _magnitude.swap(remainder._magnitude);
-    _sign = POSITIVE;
+    // Do the actual operation.
+    auto remainder = Divide(*this, divisor).second;
     
+    // Place the remainder of the division operation in this instance.
+    swap(*this, remainder);
     return *this;
 }
 
@@ -596,8 +607,8 @@ BigInteger& BigInteger::Multiply(const BigInteger& rhs)
 
 BigInteger& BigInteger::Subtract(const BigInteger& rhs)
 {
-    // For now, we do not support subtraction resulting in negative numbers
-    //  (supported elswhere).
+    // This function does not support a subtraction resulting in a negative number.
+    //  It will only subtract a smaller magnitude from a smaller.
     if(CompareMagnitudeTo(rhs) == -1)
     {
         stringstream ss;
@@ -661,12 +672,10 @@ BigInteger& BigInteger::Subtract(const BigInteger& rhs)
     return *this;
 }
 
-// Divides by the divisor, saves the result as this, and returns the remainder.
-BigInteger BigInteger::Divide(const BigInteger& divisor)
+// Divides the numerator by the divisor, returns the quotient and remainder as a pair.
+pair<BigInteger, BigInteger> BigInteger::Divide(const BigInteger& numerator, const BigInteger& divisor)
 {
     // Divide using the following bitwise division algorithm.
-    //  Save the quotient in to this instance.
-    //  Return the remainder.
     //
     // if D == 0 then throw DivisionByZeroException end
     // Q := 0                 initialize quotient and remainder to zero
@@ -680,8 +689,7 @@ BigInteger BigInteger::Divide(const BigInteger& divisor)
     //     end
     // end
     
-    
-    BigInteger& numerator = *this;
+    // Note that this division operaton ignores sign and only deals in magnitude.
     
     BigInteger quotient(0);
     BigInteger remainder(0);
@@ -698,14 +706,7 @@ BigInteger BigInteger::Divide(const BigInteger& divisor)
         }
     }
     
-    _magnitude.swap(quotient._magnitude);
-    
-    if(GetSign() == divisor.GetSign())
-        _sign = POSITIVE;
-    else
-        _sign = NEGATIVE;
-    
-    return remainder;
+    return pair<BigInteger, BigInteger>(move(quotient), move(remainder));
 }
 
 

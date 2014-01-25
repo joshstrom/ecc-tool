@@ -65,12 +65,22 @@ private:
     // The number is zero if the source buffer contains one character (zero).
     bool IsZero() const;
     
-    // Internal mathematical helper functions.
+    // Internal mathematical helper functions. Note that these helper functions deal only in
+    //  magnitude and know nothing of sign.
+    
+    // Helpers for addition.
     BigInteger& Add(const BigInteger& rhs);
+    
+    // Helpers for subtraction.
     BigInteger& Subtract(const BigInteger& rhs);
-    BigInteger& Multiply(const BigInteger& rhs);
-    BigInteger Divide(const BigInteger& divisor);
     void Borrow(vector<uint8_t>::reverse_iterator segmentBegin, const vector<uint8_t>::reverse_iterator& segmentEnd) const;
+    
+    // Helpers for multiplication.
+    BigInteger& Multiply(const BigInteger& rhs);
+
+    // Helpers for division.
+    static pair<BigInteger, BigInteger> Divide(const BigInteger& numerator, const BigInteger& divisor);
+    
     
 public:
     
