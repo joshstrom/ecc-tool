@@ -11,13 +11,14 @@
 #include "EccAlg.h"
 #include "BigInteger.h"
 #include "OperationTesters.h"
+#include "Stopwatch.h"
 
 void StatisticalOperationTest(const BaseOperationTester& tester)
 {
     srand(static_cast<unsigned int>(time(nullptr)));
     for(int i = 0; i < 10000; i++)
     {
-        tester.TestOperation(rand() % 0xffffff, rand() % 0xffffff, i);
+        tester.TestOperation(rand() % 0xffffff, rand() % 0xffffff, nullptr, i);
     }
 }
 
@@ -32,8 +33,21 @@ void StatisticalOperationTestAllowNegatives(const BaseOperationTester& tester)
         int firstOperandSign = (firstOperandNegative) ? -1 : 1;
         int secondOperandSign = (secondOperandNegative) ? -1 : 1;
         
-        tester.TestOperation((rand() % 0xffffff) * firstOperandSign, (rand() % 0xffffff) * secondOperandSign, i);
+        tester.TestOperation((rand() % 0xffffff) * firstOperandSign, (rand() % 0xffffff) * secondOperandSign, nullptr, i);
     }
+}
+
+unsigned long RunOperationPerformanceTest(const BaseOperationTester& tester, int operand1, int operand2)
+{
+    Stopwatch sw;
+    
+    int iterationCount = 10000;
+    for(int i = 0; i < iterationCount; i++)
+    {
+        tester.TestOperation(operand1, operand2, &sw);
+    }
+    
+    return sw.GetElapsedTime() / iterationCount;
 }
 
 TEST_CASE("CanCreateBigIntegerWithHexString")
@@ -501,22 +515,22 @@ TEST_CASE("CanShiftSingleBitThirteenBits")
     REQUIRE(shifted.ToString() == originalInteger.ToString());
 }
 
-//TEST_CASE("CanTakeModuloOfSmallNumbers")
-//{
-//    REQUIRE((BigInteger(5) % BigInteger(8)) == 5);
-//    REQUIRE((BigInteger(8) % BigInteger(5)) == 3);
-//    REQUIRE((BigInteger(-8) % BigInteger(5)) == 2);
-//}
+TEST_CASE("CanTakeModuloOfSmallNumbers")
+{
+    REQUIRE((BigInteger(5) % BigInteger(8)) == 5);
+    REQUIRE((BigInteger(8) % BigInteger(5)) == 3);
+    REQUIRE((BigInteger(-8) % BigInteger(5)) == 3);
+}
 
-//TEST_CASE("CanTakeModuloOfVeryLargeNumbers")
-//{
-//    BigInteger veryLargeNumber1("0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8");
-//    BigInteger veryLargeNumber2("0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28");
-//    
-//    BigInteger modulo = veryLargeNumber1 % veryLargeNumber2;
-//    REQUIRE(modulo >= 0);
-//    REQUIRE(modulo < veryLargeNumber1);
-//}
+TEST_CASE("CanTakeModuloOfVeryLargeNumbers")
+{
+    BigInteger veryLargeNumber1("0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8");
+    BigInteger veryLargeNumber2("0479be667ef9dcbbac55a06295ce870b07029bfcdb2dce28");
+    
+    BigInteger modulo = veryLargeNumber1 % veryLargeNumber2;
+    REQUIRE(modulo >= 0);
+    REQUIRE(modulo < veryLargeNumber1);
+}
 
 TEST_CASE("CanSetAndGetBitsInFirstByte")
 {
@@ -573,7 +587,11 @@ TEST_CASE("CanDivideNegativeNumbers")
     RunDivisionTest(-10, -2);
 }
 
-
+TEST_CASE("AdditionPerformanceTest")
+{
+    AdditionOperationTester tester;
+    RunOperationPerformanceTest(tester, 5, 5);
+}
 
 
 

@@ -9,6 +9,8 @@
 #ifndef EccTool_OperationTesters_h
 #define EccTool_OperationTesters_h
 
+#include "Stopwatch.h"
+
 
 void RunAdditionTest(const int number1, const int number2);
 void RunSubtractionTest(const int number1, const int number2);
@@ -35,9 +37,24 @@ protected:
         return number2; // Default implementation.
     }
     
+    void StartTimer(Stopwatch* const sw) const
+    {
+        if(sw == nullptr)
+            return;
+        sw->Start();
+    }
+    
+    void StopTimer(Stopwatch* const sw) const
+    {
+        if(sw == nullptr)
+            return;
+        sw->Stop();
+    }
+    
 public:
+    
     virtual string GetOperationSymbol() const = 0;
-    virtual void TestOperation(int number1, int number2, int count = -1) const = 0;
+    virtual void TestOperation(int number1, int number2, Stopwatch* const sw, int count = -1) const = 0;
 };
 
 class BaseMathOperationTester : public BaseOperationTester
@@ -47,14 +64,20 @@ protected:
     virtual long long RunPrimitiveOperation(const int operand1, const int operand2) const = 0;
     
 public:
-    void TestOperation(int number1, int number2, int count = -1) const override
+    void TestOperation(int number1, int number2, Stopwatch* const sw, int count = -1) const override
     {
         auto operand1 = SelectFirstOperand(number1, number2);
         auto operand2 = SelectSecondOperand(number1, number2);
         
         auto primitiveOperationResult = BigInteger(RunPrimitiveOperation(operand1, operand2));
 
-        auto bigIntegerOperationResult = RunBigIntegerOperation(BigInteger(operand1), BigInteger(operand2));
+        BigInteger bigIntegerOperand1(operand1);
+        BigInteger bigIntegerOperand2(operand2);
+        
+        StartTimer(sw);
+        auto bigIntegerOperationResult = RunBigIntegerOperation(bigIntegerOperand1, bigIntegerOperand2);
+        StopTimer(sw);
+        
         if(primitiveOperationResult != bigIntegerOperationResult)
         {
             stringstream ss;
@@ -173,13 +196,19 @@ public:
 class BaseComparisonOperationTester : public BaseOperationTester
 {
 public:
-    virtual void TestOperation(int number1, int number2, int count = -1) const
+    virtual void TestOperation(int number1, int number2, Stopwatch* const sw = nullptr, int count = -1) const
     {
         auto operand1 = SelectFirstOperand(number1, number2);
         auto operand2 = SelectSecondOperand(number1, number2);
         
         bool primitiveResult = RunPrimitiveComparisonOperation(operand1, operand2);
-        bool bigIntegerComparisonResult = RunBigIntegerComparisonOperation(operand1, operand2);
+        
+        BigInteger bigInterOperand1(operand1);
+        BigInteger bigIntegerOperand2(operand2);
+        
+        StartTimer(sw);
+        bool bigIntegerComparisonResult = RunBigIntegerComparisonOperation(bigInterOperand1, bigIntegerOperand2);
+        StopTimer(sw);
         
         if(primitiveResult == bigIntegerComparisonResult)
             return;
@@ -322,7 +351,7 @@ public:
 class AllComparisonOperationTester final : public BaseOperationTester
 {
 public:
-    void TestOperation(int number1, int number2, int count = -1) const override
+    void TestOperation(int number1, int number2, Stopwatch* const sw, int count = -1) const override
     {
         RunLTTest(number1, number2);
         RunGTTest(number1, number2);
@@ -340,57 +369,57 @@ public:
 
 void RunAdditionTest(const int number1, const int number2)
 {
-    AdditionOperationTester().TestOperation(number1, number2);
+    AdditionOperationTester().TestOperation(number1, number2, nullptr);
 }
 
 void RunSubtractionTest(const int number1, const int number2)
 {
-    SubtractionOperationTester().TestOperation(number1, number2);
+    SubtractionOperationTester().TestOperation(number1, number2, nullptr);
 }
 
 void RunMultiplicationTest(const int number1, const int number2)
 {
-    MultiplicationOperationTester().TestOperation(number1, number2);
+    MultiplicationOperationTester().TestOperation(number1, number2, nullptr);
 }
 
 void RunDivisionTest(const int number1, const int number2)
 {
-    DivisionOperationTester().TestOperation(number1, number2);
+    DivisionOperationTester().TestOperation(number1, number2, nullptr);
 }
 
 void RunModulusTest(const int number1, const int number2)
 {
-    ModulusOperationTester().TestOperation(number1, number2);
+    ModulusOperationTester().TestOperation(number1, number2, nullptr);
 }
 
 void RunLTTest(const int number1, const int number2)
 {
-    LTOperationTester().TestOperation(number1, number2);
+    LTOperationTester().TestOperation(number1, number2, nullptr);
 }
 
 void RunGTTest(const int number1, const int number2)
 {
-    GTOperationTester().TestOperation(number1, number2);
+    GTOperationTester().TestOperation(number1, number2, nullptr);
 }
 
 void RunLEQTest(const int number1, const int number2)
 {
-    LEQOperationTester().TestOperation(number1, number2);
+    LEQOperationTester().TestOperation(number1, number2, nullptr);
 }
 
 void RunGEQTest(const int number1, const int number2)
 {
-    GEQOperationTester().TestOperation(number1, number2);
+    GEQOperationTester().TestOperation(number1, number2, nullptr);
 }
 
 void RunEQTest(const int number1, const int number2)
 {
-    EQOperationTester().TestOperation(number1, number2);
+    EQOperationTester().TestOperation(number1, number2, nullptr);
 }
 
 void RunNEQTest(const int number1, const int number2)
 {
-    NEQOperationTester().TestOperation(number1, number2);
+    NEQOperationTester().TestOperation(number1, number2, nullptr);
 }
 
 #endif

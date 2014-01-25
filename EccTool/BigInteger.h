@@ -32,6 +32,7 @@ private:
     // Contains the binary representation of the number.
     vector<uint8_t> _magnitude;
     
+    // Contains the sign of the number.
     Sign _sign;
     
     // Converts a hex character to a binary hex digit.
@@ -42,8 +43,6 @@ private:
 
 	// Sets the BigInteger equal to zero.
 	void SetZero();
-    
-    void Borrow(vector<uint8_t>::reverse_iterator segmentBegin, const vector<uint8_t>::reverse_iterator& segmentEnd) const;
     
     // Sets the source buffer to a given unsigned integral type.
     template<typename T>
@@ -71,6 +70,7 @@ private:
     BigInteger& Subtract(const BigInteger& rhs);
     BigInteger& Multiply(const BigInteger& rhs);
     BigInteger Divide(const BigInteger& divisor);
+    void Borrow(vector<uint8_t>::reverse_iterator segmentBegin, const vector<uint8_t>::reverse_iterator& segmentEnd) const;
     
 public:
     

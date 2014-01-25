@@ -13,6 +13,7 @@
 		3C38AC64187FBDF200DF4257 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C38AC63187FBDF200DF4257 /* main.cpp */; };
 		3C38AC66187FBDF200DF4257 /* EccTool.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3C38AC65187FBDF200DF4257 /* EccTool.1 */; };
 		3C93E83D18865C0E00B56C1C /* BigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C93E83B18865C0E00B56C1C /* BigInteger.cpp */; };
+		3CB0AFD518939E6B0056B135 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CB0AFD318939E6B0056B135 /* Stopwatch.cpp */; };
 		3CCCC3771887C6EE008DF956 /* EccAlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C1707781883AAB500A900A1 /* EccAlg.cpp */; };
 		3CCCC3791887C6EE008DF956 /* BigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C93E83B18865C0E00B56C1C /* BigInteger.cpp */; };
 /* End PBXBuildFile section */
@@ -52,6 +53,8 @@
 		3C84E621188F94D700F4E16C /* OperationTesters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OperationTesters.h; sourceTree = "<group>"; };
 		3C93E83B18865C0E00B56C1C /* BigInteger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigInteger.cpp; sourceTree = "<group>"; };
 		3C93E83C18865C0E00B56C1C /* BigInteger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BigInteger.h; sourceTree = "<group>"; };
+		3CB0AFD318939E6B0056B135 /* Stopwatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Stopwatch.cpp; sourceTree = "<group>"; };
+		3CB0AFD418939E6B0056B135 /* Stopwatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stopwatch.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +81,8 @@
 				3C1707711883A47D00A900A1 /* tests_main.cpp */,
 				3C1707731883A47D00A900A1 /* EccToolTests.1 */,
 				3C84E621188F94D700F4E16C /* OperationTesters.h */,
+				3CB0AFD318939E6B0056B135 /* Stopwatch.cpp */,
+				3CB0AFD418939E6B0056B135 /* Stopwatch.h */,
 			);
 			path = EccToolTests;
 			sourceTree = "<group>";
@@ -186,6 +191,7 @@
 				3CCCC3771887C6EE008DF956 /* EccAlg.cpp in Sources */,
 				3CCCC3791887C6EE008DF956 /* BigInteger.cpp in Sources */,
 				3C1707721883A47D00A900A1 /* tests_main.cpp in Sources */,
+				3CB0AFD518939E6B0056B135 /* Stopwatch.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
