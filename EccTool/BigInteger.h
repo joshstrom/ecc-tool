@@ -45,18 +45,6 @@ private:
     
     void Borrow(vector<uint8_t>::reverse_iterator segmentBegin, const vector<uint8_t>::reverse_iterator& segmentEnd) const;
     
-    // Compares this with another BigInteger.
-    //  Returns -1 if this < other
-    //  Returns 0 if this == other
-    //  Returns 1 if this > other
-    int CompareTo(const BigInteger& other) const;
-    
-    // Compares the magitude (or absolute value) of this with another BigInteger.
-    //  Returns -1 if abs(this) < abs(other)
-    //  Returns 0 if abs(this) == abs(other)
-    //  Returns 1 if abs(this) > abs(other)
-    int CompareMagnitudeTo(const BigInteger& other) const;
-    
     // Sets the source buffer to a given unsigned integral type.
     template<typename T>
     void SetSourceBuffer(T number, typename std::enable_if<std::is_unsigned<T>::value, bool>::type* = 0)
@@ -82,6 +70,7 @@ private:
     BigInteger& Add(const BigInteger& rhs);
     BigInteger& Subtract(const BigInteger& rhs);
     BigInteger& Multiply(const BigInteger& rhs);
+    BigInteger Divide(const BigInteger& divisor);
     
 public:
     
@@ -116,6 +105,7 @@ public:
     BigInteger& operator-=(const BigInteger& rhs);
     BigInteger& operator*=(const BigInteger& rhs);
     BigInteger& operator/=(const BigInteger& rhs);
+    BigInteger& operator%=(const BigInteger& rhs); // Differs from standard modulo in that result is always positive.
     
     // Increment/Decrement operators.
     BigInteger& operator++(); // Prefix-increment.
@@ -134,10 +124,26 @@ public:
     bool operator==(const BigInteger& other) const;
     bool operator!=(const BigInteger& other) const;
     
-    // Bitwise operators.
+    // Compares this with another BigInteger.
+    //  Returns -1 if this < other
+    //  Returns 0 if this == other
+    //  Returns 1 if this > other
+    int CompareTo(const BigInteger& other) const;
+    
+    // Compares the magitude (or absolute value) of this with another BigInteger.
+    //  Returns -1 if abs(this) < abs(other)
+    //  Returns 0 if abs(this) == abs(other)
+    //  Returns 1 if abs(this) > abs(other)
+    int CompareMagnitudeTo(const BigInteger& other) const;
+    
+    // Bitwise manipulation operators.
     BigInteger& operator<<=(int count);
     
-    BigInteger& operator%=(const BigInteger& rhs);
+    // Bitwise indexing operators. Note that bitwise indexes go right to left.
+    bool GetBitAt(size_t index) const;
+    void SetBitAt(size_t index);
+    void ClearBitAt(size_t index);
+    size_t GetBitSize() const;
     
     // Converts the BigInteger to its string representation in hex. It will print
     //  with all digits concatenated and no separators. The first digit may be left-padded
@@ -163,6 +169,13 @@ inline BigInteger operator-(BigInteger lhs, const BigInteger& rhs)
 inline BigInteger operator*(BigInteger lhs, const BigInteger& rhs)
 {
     lhs *= rhs;
+    return lhs;
+}
+
+// Binary modulus operator with BigIntegers. Declared as free function by convention.
+inline BigInteger operator/(BigInteger lhs, const BigInteger& rhs)
+{
+    lhs /= rhs;
     return lhs;
 }
 

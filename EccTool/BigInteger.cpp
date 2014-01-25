@@ -117,16 +117,18 @@ BigInteger& BigInteger::operator*=(const BigInteger& rhs)
     return *this;
 }
 
-BigInteger& BigInteger::operator%=(const BigInteger& rhs)
+BigInteger& BigInteger::operator/=(const BigInteger& divisor)
 {
-    while(*this < 0)
-    {
-        *this += rhs;
-    }
-    while(*this >= rhs)
-    {
-        *this -= rhs;
-    }
+    Divide(divisor);
+    
+    return *this;
+}
+
+BigInteger& BigInteger::operator%=(const BigInteger& divisor)
+{
+    BigInteger remainder = Divide(divisor);
+    _magnitude.swap(remainder._magnitude);
+    _sign = POSITIVE;
     
     return *this;
 }
@@ -216,6 +218,44 @@ bool BigInteger::operator==(const BigInteger& other) const
 bool BigInteger::operator!=(const BigInteger& other) const
 {
     return !(*this == other);
+}
+
+// Bitwise indexing operators.
+bool BigInteger::GetBitAt(size_t index) const
+{
+    uint8_t bitOffset = index % 8;
+    uint8_t bitMask = 1 << bitOffset;
+    
+    return (_magnitude[(_magnitude.size() - 1) - (index / 8)] & bitMask) == bitMask;
+}
+
+void BigInteger::SetBitAt(size_t index)
+{
+    // Compute a bitmast for the bit portion of of the index.
+    uint8_t bitOffset = index % 8;
+    uint8_t bitMask = 1 << bitOffset;
+    
+    // A binary OR with that bitmask will set the bit.
+    _magnitude[(_magnitude.size() - 1) - (index / 8)] |= bitMask;
+}
+
+void BigInteger::ClearBitAt(size_t index)
+{
+    // Compute a bitmast for the bit portion of of the index.
+    uint8_t bitOffset = index % 8;
+    uint8_t bitMask = 1 << bitOffset;
+    
+    // A binary AND with the inverse of that bitmask will clear the indicated bit.
+    _magnitude[(_magnitude.size() - 1) - (index / 8)] &= ~bitMask;
+    
+    // This may have cleared the the last non-zero bit in the most significant byte.
+    //  Trim if necessary.
+    TrimPrefixZeros();
+}
+
+size_t BigInteger::GetBitSize() const
+{
+    return _magnitude.size() * 8;
 }
 
 BigInteger& BigInteger::operator<<=(int count)
@@ -621,7 +661,52 @@ BigInteger& BigInteger::Subtract(const BigInteger& rhs)
     return *this;
 }
 
-
+// Divides by the divisor, saves the result as this, and returns the remainder.
+BigInteger BigInteger::Divide(const BigInteger& divisor)
+{
+    // Divide using the following bitwise division algorithm.
+    //  Save the quotient in to this instance.
+    //  Return the remainder.
+    //
+    // if D == 0 then throw DivisionByZeroException end
+    // Q := 0                 initialize quotient and remainder to zero
+    // R := 0
+    // for i = n-1...0 do     where n is number of bits in N
+    //     R := R << 1          left-shift R by 1 bit
+    //     R(0) := N(i)         set the least-significant bit of R equal to bit i of the numerator
+    //     if R >= D then
+    //         R = R - D
+    //         Q(i) := 1
+    //     end
+    // end
+    
+    
+    BigInteger& numerator = *this;
+    
+    BigInteger quotient(0);
+    BigInteger remainder(0);
+    
+    for(int i = static_cast<int>(numerator.GetBitSize()) - 1; i >= 0; --i)
+    {
+        remainder <<= 1;
+        if(numerator.GetBitAt(i)) remainder.SetBitAt(0);
+        quotient <<= 1;
+        if(remainder.CompareMagnitudeTo(divisor) >= 0)
+        {
+            remainder.Subtract(divisor);
+            quotient.SetBitAt(0);
+        }
+    }
+    
+    _magnitude.swap(quotient._magnitude);
+    
+    if(GetSign() == divisor.GetSign())
+        _sign = POSITIVE;
+    else
+        _sign = NEGATIVE;
+    
+    return remainder;
+}
 
 
 

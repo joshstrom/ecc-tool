@@ -501,12 +501,12 @@ TEST_CASE("CanShiftSingleBitThirteenBits")
     REQUIRE(shifted.ToString() == originalInteger.ToString());
 }
 
-TEST_CASE("CanTakeModuloOfSmallNumbers")
-{
-    REQUIRE((BigInteger(5) % BigInteger(8)) == 5);
-    REQUIRE((BigInteger(8) % BigInteger(5)) == 3);
-    REQUIRE((BigInteger(-8) % BigInteger(5)) == 2);
-}
+//TEST_CASE("CanTakeModuloOfSmallNumbers")
+//{
+//    REQUIRE((BigInteger(5) % BigInteger(8)) == 5);
+//    REQUIRE((BigInteger(8) % BigInteger(5)) == 3);
+//    REQUIRE((BigInteger(-8) % BigInteger(5)) == 2);
+//}
 
 //TEST_CASE("CanTakeModuloOfVeryLargeNumbers")
 //{
@@ -517,6 +517,77 @@ TEST_CASE("CanTakeModuloOfSmallNumbers")
 //    REQUIRE(modulo >= 0);
 //    REQUIRE(modulo < veryLargeNumber1);
 //}
-//
+
+TEST_CASE("CanSetAndGetBitsInFirstByte")
+{
+    BigInteger integer(0);
+    REQUIRE(integer.GetBitSize() == 8);
+    REQUIRE(integer.GetBitAt(4) == false);
+    
+    integer.SetBitAt(4);
+    REQUIRE(integer.GetBitAt(4) == true);
+    REQUIRE(integer.ToString() == "10");
+    
+    integer.ClearBitAt(4);
+    REQUIRE(integer.GetBitAt(4) == false);
+    REQUIRE(integer.ToString() == "00");
+}
+
+TEST_CASE("CanSetAndGetBitsInSecondByte")
+{
+    BigInteger integer(0x8000);
+    REQUIRE(integer.GetBitSize() == 16);
+    REQUIRE(integer.GetBitAt(9) == false);
+    
+    integer.SetBitAt(9);
+    REQUIRE(integer.GetBitAt(9) == true);
+    REQUIRE(integer.ToString() == "8200");
+    
+    integer.ClearBitAt(9);
+    REQUIRE(integer.GetBitAt(9) == false);
+    REQUIRE(integer.ToString() == "8000");
+}
+
+TEST_CASE("CanDividePositiveNumbers")
+{
+    RunDivisionTest(10, 2);
+    RunDivisionTest(5, 10);
+}
+
+TEST_CASE("StatisticalDivisionTest")
+{
+    DivisionOperationTester tester;
+    StatisticalOperationTestAllowNegatives(tester);
+}
+
+TEST_CASE("StatisticalModulusTest")
+{
+    ModulusOperationTester tester;
+    StatisticalOperationTestAllowNegatives(tester);
+}
+
+TEST_CASE("CanDivideNegativeNumbers")
+{
+    RunDivisionTest(-10, 2);
+    RunDivisionTest(10, -2);
+    RunDivisionTest(-10, -2);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

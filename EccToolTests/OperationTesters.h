@@ -13,6 +13,8 @@
 void RunAdditionTest(const int number1, const int number2);
 void RunSubtractionTest(const int number1, const int number2);
 void RunMultiplicationTest(const int number1, const int number2);
+void RunDivisionTest(const int number1, const int number2);
+void RunModulusTest(const int number1, const int number2);
 void RunLTTest(const int number1, const int number2);
 void RunGTTest(const int number1, const int number2);
 void RunLEQTest(const int number1, const int number2);
@@ -125,6 +127,46 @@ public:
     string GetOperationSymbol() const override
     {
         return "-";
+    }
+};
+
+class DivisionOperationTester final : public BaseMathOperationTester
+{
+protected:
+    
+    BigInteger RunBigIntegerOperation(const BigInteger& operand1, const BigInteger& operand2) const override
+    {
+        return operand1 / operand2;
+    }
+
+    long long RunPrimitiveOperation(const int operand1, const int operand2) const override
+    {
+        return operand1 / operand2;
+    }
+public:
+    string GetOperationSymbol() const override
+    {
+        return "/";
+    }
+};
+
+class ModulusOperationTester final : public BaseMathOperationTester
+{
+protected:
+    
+    BigInteger RunBigIntegerOperation(const BigInteger& operand1, const BigInteger& operand2) const override
+    {
+        return operand1 % operand2;
+    }
+
+    long long RunPrimitiveOperation(const int operand1, const int operand2) const override
+    {
+        return abs(operand1 % operand2); // BigInteger modulo operations always result in positive numbers.
+    }
+public:
+    string GetOperationSymbol() const override
+    {
+        return "%";
     }
 };
 
@@ -309,6 +351,16 @@ void RunSubtractionTest(const int number1, const int number2)
 void RunMultiplicationTest(const int number1, const int number2)
 {
     MultiplicationOperationTester().TestOperation(number1, number2);
+}
+
+void RunDivisionTest(const int number1, const int number2)
+{
+    DivisionOperationTester().TestOperation(number1, number2);
+}
+
+void RunModulusTest(const int number1, const int number2)
+{
+    ModulusOperationTester().TestOperation(number1, number2);
 }
 
 void RunLTTest(const int number1, const int number2)
