@@ -77,12 +77,15 @@ private:
     
     // Helpers for multiplication.
     BigInteger& Multiply(const BigInteger& rhs);
-
-    // Helpers for division.
-    static pair<BigInteger, BigInteger> Divide(const BigInteger& numerator, const BigInteger& divisor);
     
     
 public:
+    
+    // Constructs a BigInteger with a value of zero.
+    BigInteger()
+    {
+        SetZero();
+    }
     
     // Constructs a BigInteger with a string containing a hex number.
     //  Note that decimal numbers are not supported and no prefix/suffix should be added.
@@ -134,6 +137,66 @@ public:
     bool operator==(const BigInteger& other) const;
     bool operator!=(const BigInteger& other) const;
     
+    // Specializations of the comparison operators when the compare value
+    //  is zero. Improves efficiency in these cases since they become mostly
+    //  checks of negative and positive and comparison against zero.
+    template <typename T>
+    typename std::enable_if<std::is_integral<T>::value,bool>::type
+    operator<(T other) const
+    {
+        if(other != 0)
+            return (*this < BigInteger(other));
+        
+        return (GetSign() == NEGATIVE);
+    }
+    
+    template <typename T>
+    typename std::enable_if<std::is_integral<T>::value,bool>::type
+    operator>(T other) const
+    {
+        if(other != 0)
+            return (*this < BigInteger(other));
+        
+        return ((GetSign() == POSITIVE) && !IsZero());
+    }
+
+    template <typename T>
+    typename std::enable_if<std::is_integral<T>::value,bool>::type
+    operator<=(T other) const
+    {
+        if(other != 0)
+            return (*this < BigInteger(other));
+        
+        return ((GetSign() == NEGATIVE) || IsZero());
+    }
+    
+    template <typename T>
+    typename std::enable_if<std::is_integral<T>::value,bool>::type
+    operator>=(T other) const
+    {
+        if(other != 0)
+            return (*this < BigInteger(other));
+        
+        return (GetSign() == POSITIVE);
+    }
+    
+    template <typename T>
+    typename std::enable_if<std::is_integral<T>::value,bool>::type
+    operator!=(T other) const
+    {
+        return !(*this == other);
+    }
+    
+    template <typename T>
+    typename std::enable_if<std::is_integral<T>::value,bool>::type
+    operator==(T other) const
+    {
+        if(other == 0)
+            return IsZero();
+        else
+            return (*this == BigInteger(other));
+    }
+    
     // Compares this with another BigInteger.
     //  Returns -1 if this < other
     //  Returns 0 if this == other
@@ -158,7 +221,10 @@ public:
     // Converts the BigInteger to its string representation in hex. It will print
     //  with all digits concatenated and no separators. The first digit may be left-padded
     //  with '0' if appropriate.
-    const string ToString() const;    
+    const string ToString() const;
+    
+    // Helpers for division.
+    static pair<BigInteger, BigInteger> Divide(const BigInteger& numerator, const BigInteger& divisor);
 };
 
 // Binary addition operator with BigIntegers. Declared as free function by convention.
@@ -200,6 +266,13 @@ inline BigInteger operator%(BigInteger lhs, const BigInteger& rhs)
 inline BigInteger abs(const BigInteger& bigInteger)
 {
     return (bigInteger >= 0) ? bigInteger : -bigInteger;
+}
+
+// Overload of out stream operator to print a representation of the BigInteger.
+inline std::ostream& operator<<(std::ostream& os, const BigInteger& bigInteger)
+{
+    os << bigInteger.ToString();
+    return os;
 }
 
 #endif /* defined(__EccTool__BigInteger__) */

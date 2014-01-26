@@ -12,6 +12,7 @@
 #include "BigInteger.h"
 #include "OperationTesters.h"
 #include "Stopwatch.h"
+#include "EllipticCurve.h"
 
 void StatisticalOperationTest(const BaseOperationTester& tester)
 {
@@ -54,6 +55,12 @@ TEST_CASE("CanCreateBigIntegerWithHexString")
 {
     BigInteger one("1");
     REQUIRE("01" == one.ToString());
+}
+
+TEST_CASE("CanCreateFromStringWithSpaces")
+{
+    BigInteger bigIntegerWithSpaces("1234 5678");
+    REQUIRE("12345678" == bigIntegerWithSpaces.ToString());
 }
 
 TEST_CASE("CanCreateWithNegativeInteger")
@@ -269,6 +276,12 @@ TEST_CASE("CanDetermineShorterIntegerAsSmaller")
     BigInteger larger("72011");
     
     REQUIRE(smaller < larger);
+}
+
+TEST_CASE("CanCompareToZeroWithTemplate")
+{
+    REQUIRE(BigInteger(1) != 0);
+    REQUIRE(BigInteger(0) == 0);
 }
 
 TEST_CASE("CanDetermineLongerIntegerAsLarger")
@@ -568,6 +581,12 @@ TEST_CASE("CanDividePositiveNumbers")
     RunDivisionTest(5, 10);
 }
 
+TEST_CASE("CanDivideSmallNumberByLargerOne")
+{
+    REQUIRE((BigInteger(2) / BigInteger(5)).ToString() == "00");
+    REQUIRE((BigInteger(2) % BigInteger(5)).ToString() == "02");
+}
+
 TEST_CASE("StatisticalDivisionTest")
 {
     DivisionOperationTester tester;
@@ -587,12 +606,98 @@ TEST_CASE("CanDivideNegativeNumbers")
     RunDivisionTest(-10, -2);
 }
 
-TEST_CASE("AdditionPerformanceTest")
+TEST_CASE("CanAddInFiniteField")
 {
-    AdditionOperationTester tester;
-    RunOperationPerformanceTest(tester, 5, 5);
+    BigInteger addend(5);
+    BigInteger field(6);
+    //ModularAdd(addend, addend, field);
 }
 
+TEST_CASE("CanCreateEllipticCurveWithParameters_secp112r1")
+{
+    DomainParameters params({
+            "DB7C 2ABF62E3 5E668076 BEAD208B", //p
+            "DB7C 2ABF62E3 5E668076 BEAD2088", //a
+            "659E F8BA0439 16EEDE89 11702B22", //b
+            "04 09487239 995A5EE7 6B55F9C2 F098A89C E5AF8724 C0A23E0E 0FF77500", //G (uncompressed)
+            "DB7C 2ABF62E3 5E7628DF AC6561C5", //n
+            "01" //h
+       });
+    
+    EllipticCurve curve(params);
+    cout << "G -> x: " << curve.GetBasePoint().x.ToString() << ", y: " << curve.GetBasePoint().y.ToString() << endl;
+    
+    const Point& generatorPoint = curve.GetBasePoint();
+    Point sum = curve.AddPointsOnCurve(generatorPoint, generatorPoint);
+    
+    INFO("Sum->x = " << sum.x.ToString() << ", Sum->y = " << sum.y.ToString());
+    
+    BigInteger expectedX("57cf52a0f9318000ee0bc032d756");
+    BigInteger expectedY("60aee03bbcff537a8d17401f006c");
+
+    REQUIRE(expectedX.ToString() == sum.x.ToString());
+    REQUIRE(expectedY.ToString() == sum.y.ToString());
+    
+    REQUIRE(curve.CheckPointOnCurve(sum));
+    
+    Point sum2 = curve.AddPointsOnCurve(generatorPoint, sum);
+    REQUIRE(sum != sum2);
+    REQUIRE(curve.CheckPointOnCurve(sum2));
+    
+}
+
+TEST_CASE("CanInvertPoint")
+{
+    DomainParameters params({
+        "DB7C 2ABF62E3 5E668076 BEAD208B", //p
+        "DB7C 2ABF62E3 5E668076 BEAD2088", //a
+        "659E F8BA0439 16EEDE89 11702B22", //b
+        "04 09487239 995A5EE7 6B55F9C2 F098A89C E5AF8724 C0A23E0E 0FF77500", //G (uncompressed)
+        "DB7C 2ABF62E3 5E7628DF AC6561C5", //n
+        "01" //h
+    });
+    
+    EllipticCurve curve(params);
+    
+    Point basePoint = curve.GetBasePoint();
+    Point invertedBasePoint = curve.InvertPoint(basePoint);
+    
+    REQUIRE(basePoint.x == invertedBasePoint.x);
+    REQUIRE(basePoint.y != invertedBasePoint.y);
+    
+    Point doubleInvertedBasePoint = curve.InvertPoint(invertedBasePoint);
+    REQUIRE(invertedBasePoint != doubleInvertedBasePoint);
+    REQUIRE(basePoint == doubleInvertedBasePoint);
+}
+
+TEST_CASE("AddinWithPointAtInfinity")
+{
+    DomainParameters params({
+        "DB7C 2ABF62E3 5E668076 BEAD208B", //p
+        "DB7C 2ABF62E3 5E668076 BEAD2088", //a
+        "659E F8BA0439 16EEDE89 11702B22", //b
+        "04 09487239 995A5EE7 6B55F9C2 F098A89C E5AF8724 C0A23E0E 0FF77500", //G (uncompressed)
+        "DB7C 2ABF62E3 5E7628DF AC6561C5", //n
+        "01" //h
+    });
+    
+    EllipticCurve curve(params);
+    
+    Point basePoint = curve.GetBasePoint();
+    
+    // Adding a point on curve to infinity.
+    REQUIRE(basePoint == curve.AddPointsOnCurve(basePoint, EllipticCurve::O));
+    // Adding infinity to a point on the curve.
+    REQUIRE(basePoint == curve.AddPointsOnCurve(EllipticCurve::O, basePoint));
+    
+    // Adding infinity to itself.
+    REQUIRE(EllipticCurve::O == curve.AddPointsOnCurve(EllipticCurve::O, EllipticCurve::O));
+    
+    // Add a point on the curve to its inverse.
+    REQUIRE(EllipticCurve::O == curve.AddPointsOnCurve(basePoint, curve.InvertPoint(basePoint)));
+    // Add a an inverse of a point on the curve to that point on the curve.
+    REQUIRE(EllipticCurve::O == curve.AddPointsOnCurve(curve.InvertPoint(basePoint), basePoint));
+}
 
 
 

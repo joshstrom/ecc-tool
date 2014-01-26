@@ -20,8 +20,11 @@
 using namespace std;
 
 BigInteger::BigInteger(string number)
-    : _sign((!number.empty() && number[0] == '-') ? NEGATIVE : POSITIVE)
 {
+    // Strip spaces and determine sign of number.
+    number.erase(std::remove_if(number.begin(), number.end(), ::isspace), number.end());
+    _sign = ((!number.empty() && number[0] == '-') ? NEGATIVE : POSITIVE);
+    
     // Negative number means that the string was not empty the first character was '-'
     //  Strip off the negative sign.
     if(_sign == NEGATIVE)
@@ -136,6 +139,15 @@ BigInteger& BigInteger::operator/=(const BigInteger& divisor)
 
 BigInteger& BigInteger::operator%=(const BigInteger& divisor)
 {
+    // Simplification in the case of a positive divisor
+    if(divisor.GetSign() == POSITIVE)
+    {
+        // If the numerator (this) is non-negative and less than the divisor,
+        //  the operation is a no-op.
+        if((GetSign() == POSITIVE) && (CompareMagnitudeTo(divisor) < 0))
+            return *this;
+    }
+    
     // Do the actual operation.
     auto remainder = Divide(*this, divisor).second;
     
