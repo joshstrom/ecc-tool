@@ -26,8 +26,8 @@ class EllipticCurve
     // Members/functions of EllipticCurve
     // --
 private:
-    const char* COMPRESSED_GENERATOR_FLAG = "02";
-    const char* UNCOMPRESSED_GENERATOR_FLAG = "04";
+    static const char* COMPRESSED_GENERATOR_FLAG;
+    static const char* UNCOMPRESSED_GENERATOR_FLAG;
     
     // The parameters for this particular curve.
     // The field Fp over which the equation operates.

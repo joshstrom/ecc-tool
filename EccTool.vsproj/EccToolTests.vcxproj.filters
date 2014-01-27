@@ -27,6 +27,12 @@
     <ClCompile Include="..\EccTool\EccAlg.cpp">
       <Filter>UnderTest</Filter>
     </ClCompile>
+    <ClCompile Include="..\EccTool\EllipticCurve.cpp">
+      <Filter>UnderTest</Filter>
+    </ClCompile>
+    <ClCompile Include="..\EccToolTests\Stopwatch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\EccToolTests\OperationTesters.h">
@@ -39,6 +45,18 @@
       <Filter>UnderTest</Filter>
     </ClInclude>
     <ClInclude Include="..\EccTool\EccAlg.h">
+      <Filter>UnderTest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\EccTool\DefinedCurveDomainParameters.h">
+      <Filter>UnderTest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\EccTool\EccDefs.h">
+      <Filter>UnderTest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\EccTool\EllipticCurve.h">
+      <Filter>UnderTest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\EccTool\Point.h">
       <Filter>UnderTest</Filter>
     </ClInclude>
   </ItemGroup>

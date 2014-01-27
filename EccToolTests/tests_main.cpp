@@ -49,7 +49,7 @@ unsigned long RunOperationPerformanceTest(const BaseOperationTester& tester, int
         tester.TestOperation(operand1, operand2, &sw);
     }
     
-    return sw.GetElapsedTime() / iterationCount;
+    return static_cast<unsigned long>(sw.GetElapsedTime() / iterationCount);
 }
 
 TEST_CASE("CanCreateBigIntegerWithHexString")
@@ -616,7 +616,7 @@ TEST_CASE("CanAddInFiniteField")
 
 TEST_CASE("CanCreateEllipticCurveWithParameters_secp112r1")
 {
-    DomainParameters params({
+    DomainParameters params = {
             "secp112r1", //name
             "DB7C 2ABF62E3 5E668076 BEAD208B", //p
             "DB7C 2ABF62E3 5E668076 BEAD2088", //a
@@ -624,7 +624,7 @@ TEST_CASE("CanCreateEllipticCurveWithParameters_secp112r1")
             "04 09487239 995A5EE7 6B55F9C2 F098A89C E5AF8724 C0A23E0E 0FF77500", //G (uncompressed)
             "DB7C 2ABF62E3 5E7628DF AC6561C5", //n
             "01" //h
-       });
+       };
     
     EllipticCurve curve(params);
     const Point& generatorPoint = curve.GetBasePoint();
@@ -646,7 +646,7 @@ TEST_CASE("CanCreateEllipticCurveWithParameters_secp112r1")
 
 TEST_CASE("CanInvertPoint")
 {
-    DomainParameters params({
+    DomainParameters params = {
         "secp112r1", //name
         "DB7C 2ABF62E3 5E668076 BEAD208B", //p
         "DB7C 2ABF62E3 5E668076 BEAD2088", //a
@@ -654,7 +654,7 @@ TEST_CASE("CanInvertPoint")
         "04 09487239 995A5EE7 6B55F9C2 F098A89C E5AF8724 C0A23E0E 0FF77500", //G (uncompressed)
         "DB7C 2ABF62E3 5E7628DF AC6561C5", //n
         "01" //h
-    });
+    };
     
     EllipticCurve curve(params);
     
@@ -671,7 +671,7 @@ TEST_CASE("CanInvertPoint")
 
 TEST_CASE("AddinWithPointAtInfinity")
 {
-    DomainParameters params({
+    DomainParameters params = {
         "secp112r1", //name
         "DB7C 2ABF62E3 5E668076 BEAD208B", //p
         "DB7C 2ABF62E3 5E668076 BEAD2088", //a
@@ -679,7 +679,7 @@ TEST_CASE("AddinWithPointAtInfinity")
         "04 09487239 995A5EE7 6B55F9C2 F098A89C E5AF8724 C0A23E0E 0FF77500", //G (uncompressed)
         "DB7C 2ABF62E3 5E7628DF AC6561C5", //n
         "01" //h
-    });
+    };
     
     EllipticCurve curve(params);
     
@@ -701,7 +701,7 @@ TEST_CASE("AddinWithPointAtInfinity")
 
 TEST_CASE("MultiplyWithScalar")
 {
-    DomainParameters params({
+    DomainParameters params = {
         "secp112r1", //name
         "DB7C 2ABF62E3 5E668076 BEAD208B", //p
         "DB7C 2ABF62E3 5E668076 BEAD2088", //a
@@ -709,7 +709,7 @@ TEST_CASE("MultiplyWithScalar")
         "04 09487239 995A5EE7 6B55F9C2 F098A89C E5AF8724 C0A23E0E 0FF77500", //G (uncompressed)
         "DB7C 2ABF62E3 5E7628DF AC6561C5", //n
         "01" //h
-    });
+    };
     
     EllipticCurve curve(params);
     
@@ -728,7 +728,7 @@ TEST_CASE("MultiplyWithScalar")
 
 TEST_CASE("EccAlgGenerateEccKeypair")
 {
-    DomainParameters params({
+    DomainParameters params = {
         "secp112r1", //name
         "DB7C 2ABF62E3 5E668076 BEAD208B", //p
         "DB7C 2ABF62E3 5E668076 BEAD2088", //a
@@ -736,7 +736,7 @@ TEST_CASE("EccAlgGenerateEccKeypair")
         "04 09487239 995A5EE7 6B55F9C2 F098A89C E5AF8724 C0A23E0E 0FF77500", //G (uncompressed)
         "DB7C 2ABF62E3 5E7628DF AC6561C5", //n
         "01" //h
-    });
+    };
     
     EllipticCurve curve(params);
     
@@ -746,7 +746,7 @@ TEST_CASE("EccAlgGenerateEccKeypair")
 
 TEST_CASE("EccAlgCanGenerateAndPersistKeys")
 {
-    DomainParameters params({
+    DomainParameters params = {
         "secp112r1", //name
         "DB7C 2ABF62E3 5E668076 BEAD208B", //p
         "DB7C 2ABF62E3 5E668076 BEAD2088", //a
@@ -754,7 +754,7 @@ TEST_CASE("EccAlgCanGenerateAndPersistKeys")
         "04 09487239 995A5EE7 6B55F9C2 F098A89C E5AF8724 C0A23E0E 0FF77500", //G (uncompressed)
         "DB7C 2ABF62E3 5E7628DF AC6561C5", //n
         "01" //h
-    });
+    };
     
     EllipticCurve curve(params);
     

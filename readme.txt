@@ -24,7 +24,13 @@ Lastly, there are ~85 test cases to test out the various levels of the applicati
 a unit testing framework called Catch, which is simple to build and use (basically, it 
 is distributed as a single header file) and builds to an executable (EccToolTests). Note:
 this test executable, due to the operations it does internally, may take several seconds 
-to complete. Be patient :)
+to complete. 
+
+A note on performance:
+The algorithms (and all tests) ran reasonably quickly on my late-2013 mac with a Haswell i7.
+When I tested out key generation on a 2 year old i5 windows machine, it took more like 1-2 minutes 
+to generate a key for the secp256k1 Koblitz curve. Recommend using the secp112r1 curve 
+instead if you don't want to wait too long. They do both work, but be patient :)
 
 Routines/Classes implemented:
 I implemented a class called BigInteger which can do operations on integer of arbitrary

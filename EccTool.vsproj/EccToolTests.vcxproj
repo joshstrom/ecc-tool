@@ -82,18 +82,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\EccToolTests\Stopwatch.cpp" />
     <ClCompile Include="..\EccToolTests\tests_main.cpp" />
     <ClCompile Include="..\EccTool\BigInteger.cpp" />
     <ClCompile Include="..\EccTool\EccAlg.cpp" />
+    <ClCompile Include="..\EccTool\EllipticCurve.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\EccToolTests\OperationTesters.h" />
     <ClInclude Include="..\EccToolTests\Stopwatch.h" />
     <ClInclude Include="..\EccTool\BigInteger.h" />
+    <ClInclude Include="..\EccTool\DefinedCurveDomainParameters.h" />
     <ClInclude Include="..\EccTool\EccAlg.h" />
+    <ClInclude Include="..\EccTool\EccDefs.h" />
+    <ClInclude Include="..\EccTool\EllipticCurve.h" />
+    <ClInclude Include="..\EccTool\Point.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EccTool.vcxproj">
+    <ProjectReference Include="EccTool.vcxproj">
       <Project>{4cae85ba-8089-4e4d-8ad6-b88fa04bb7f2}</Project>
     </ProjectReference>
   </ItemGroup>

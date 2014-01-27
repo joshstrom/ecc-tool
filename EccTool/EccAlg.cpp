@@ -9,6 +9,7 @@
 #include "EccAlg.h"
 #include "Point.h"
 #include <sstream>
+#include <ctime>
 
 EccAlg::EccAlg(const EllipticCurve& curve) : _curve(curve)
 {

@@ -24,12 +24,27 @@
     <ClCompile Include="..\EccTool\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\EccTool\EllipticCurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\EccTool\BigInteger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\EccTool\EccAlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\EccTool\DefinedCurveDomainParameters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\EccTool\EccDefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\EccTool\EllipticCurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\EccTool\Point.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

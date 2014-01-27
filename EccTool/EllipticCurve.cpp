@@ -11,11 +11,14 @@
 #include <string>
 #include <exception>
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 using namespace ecc;
 
 const Point EllipticCurve::O = Point::MakePointAtInfinity();
+const char* EllipticCurve::COMPRESSED_GENERATOR_FLAG = "02";
+const char* EllipticCurve::UNCOMPRESSED_GENERATOR_FLAG = "04";
 
 EllipticCurve::EllipticCurve(DomainParameters params) : _h(params.h), _n(params.n), _p(params.p), _a(params.a), _b(params.b), _G(ParseGeneratorPoint(params))
 {
@@ -53,8 +56,8 @@ Point EllipticCurve::ParseUncompressedGeneratorPoint(const string& pointString) 
         throw invalid_argument("Generator point not serialized correctly: not same size.");
     
     // Create the point: x = first half of point string, y = second half of point string.
-    return Point({BigInteger(string(pointString.begin(), pointString.begin() + (pointString.size() / 2))),
-        BigInteger(string(pointString.begin() + (pointString.size() / 2), pointString.end()))});
+    return Point(BigInteger(string(pointString.begin(), pointString.begin() + (pointString.size() / 2))),
+        BigInteger(string(pointString.begin() + (pointString.size() / 2), pointString.end())));
 }
 
 Point EllipticCurve::ParseCompressedGeneratorPoint(const string& pointString)const
@@ -80,7 +83,7 @@ Point EllipticCurve::PointAdd(const Point& P, const Point& Q) const
     BigInteger Rx = SubtractInFiniteField(SubtractInFiniteField(MultiplyInFiniteField(s, s), P.x), Q.x);
     BigInteger Ry = SubtractInFiniteField(MultiplyInFiniteField(s, SubtractInFiniteField(P.x, Rx)), P.y);
     
-    return Point({Rx, Ry});
+    return Point(Rx, Ry);
 }
 
 Point EllipticCurve::PointDouble(const Point& P) const
@@ -101,7 +104,7 @@ Point EllipticCurve::PointDouble(const Point& P) const
     BigInteger Rx = SubtractInFiniteField(MultiplyInFiniteField(s, s), MultiplyInFiniteField(2, P.x));
     BigInteger Ry = SubtractInFiniteField(MultiplyInFiniteField(s, SubtractInFiniteField(P.x, Rx)), P.y);
     
-    return Point({Rx, Ry});
+    return Point(Rx, Ry);
 }
 
 Point EllipticCurve::InvertPoint(const Point& point) const

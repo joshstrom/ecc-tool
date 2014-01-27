@@ -11,6 +11,8 @@
 
 #include <iostream>
 #include <exception>
+#include <chrono>
+#include <ctime>
 
 using namespace std;
 
@@ -18,15 +20,15 @@ class Stopwatch
 {
 private:
     
-    unsigned long GetCurrentTime() const
+    long long GetCurrentTime() const
     {
         return std::chrono::duration_cast<std::chrono::milliseconds>
         (std::chrono::system_clock::now().time_since_epoch()).count();
     }
     
-    unsigned long _storedTime;
+    long long _storedTime;
     bool _isRunning;
-    unsigned long _elapsedTime;
+    long long _elapsedTime;
     
 public:
     Stopwatch() : _storedTime(0), _elapsedTime(0)
@@ -61,7 +63,7 @@ public:
         _storedTime = false;
     }
     
-    unsigned long GetElapsedTime() const
+    long long GetElapsedTime() const
     {
         if(_isRunning)
             throw runtime_error("Cannot get elapsed time while Stopwatch is running.");

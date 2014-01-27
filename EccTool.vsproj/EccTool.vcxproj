@@ -13,11 +13,16 @@
   <ItemGroup>
     <ClCompile Include="..\EccTool\BigInteger.cpp" />
     <ClCompile Include="..\EccTool\EccAlg.cpp" />
+    <ClCompile Include="..\EccTool\EllipticCurve.cpp" />
     <ClCompile Include="..\EccTool\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\EccTool\BigInteger.h" />
+    <ClInclude Include="..\EccTool\DefinedCurveDomainParameters.h" />
     <ClInclude Include="..\EccTool\EccAlg.h" />
+    <ClInclude Include="..\EccTool\EccDefs.h" />
+    <ClInclude Include="..\EccTool\EllipticCurve.h" />
+    <ClInclude Include="..\EccTool\Point.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4CAE85BA-8089-4E4D-8AD6-B88FA04BB7F2}</ProjectGuid>

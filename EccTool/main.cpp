@@ -14,6 +14,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdio.h>
+#include <algorithm>
 
 using namespace std;
 using namespace ecc;
@@ -112,7 +113,7 @@ void ListCurves()
 {
     auto curves = GetSupportedCurves();
     cout << "Supported curves:" << endl;
-    for(int i = 0; i < curves.size(); i++)
+    for(size_t i = 0; i < curves.size(); i++)
     {
         cout << i + 1 << "     " << curves[i] << endl;
     }
@@ -124,7 +125,7 @@ void GenerateKeys(int curveId, string keyName)
     auto curves = GetSupportedCurves();
     
     // Check curveId.
-    if((curveId <= 0) || (curveId > curves.size()))
+    if((curveId <= 0) || (curveId > static_cast<int>(curves.size())))
     {
         cout << "Invalid curve ID." << endl;
         return;

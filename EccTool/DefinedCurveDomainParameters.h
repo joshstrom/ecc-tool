@@ -27,8 +27,8 @@ namespace ecc
         vector<string> curves;
         
         // Add all supported curves by name.
-        curves.push_back("secp256k1");
         curves.push_back("secp112r1");
+        curves.push_back("secp256k1");
         
         return curves;
     }
