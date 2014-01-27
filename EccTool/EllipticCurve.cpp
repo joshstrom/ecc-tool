@@ -135,7 +135,7 @@ Point EllipticCurve::AddPointsOnCurve(const Point& rhs, const Point& lhs) const
 //  are undefined otherwise).
 Point EllipticCurve::MultiplyPointOnCurveWithScalar(const Point& point, const BigInteger& scalar) const
 {
-    // Multiplies according the the below algorithm:
+    // Multiplies according the the below algorithm (found here: http://www-ma2.upc.es/~cripto/Q2-06-07/ECC_eng.pdf):
     //function multiplyByScalar(point A, scalar k)
     //    N = A
     //    R = O    // Point at infinity
@@ -245,7 +245,7 @@ BigInteger EllipticCurve::DivideInFiniteField(const BigInteger& numerator, const
 BigInteger EllipticCurve::FindMultiplicativeInverse(const BigInteger& a, const BigInteger& b)
 {
     // Use the following algorithm to calculate the multiplicative inverese via the
-    //  Extended Euclidian Algorithm:
+    //  Extended Euclidian Algorithm: (algorithm found here: http://en.wikipedia.org/wiki/Extended_Euclidean_algorithm)
     //    function eea(a, b)
     //        s := 0;    old_s := 1
     //        t := 1;    old_t := 0

@@ -697,6 +697,7 @@ BigInteger& BigInteger::Subtract(const BigInteger& rhs)
 pair<BigInteger, BigInteger> BigInteger::Divide(const BigInteger& numerator, const BigInteger& divisor)
 {
     // Divide using the following bitwise division algorithm.
+    //  Algorithm found here (long division algorithm): http://en.wikipedia.org/wiki/Division_algorithm
     //
     // if D == 0 then throw DivisionByZeroException end
     // Q := 0                 initialize quotient and remainder to zero

@@ -18,6 +18,9 @@ namespace ecc
     const DomainParameters GetCurveByName(const string& name);
     DomainParameters GetSecp256k1Curve();
     DomainParameters GetSecp112r1Curve();
+
+    // The following are a few sets of standard curve parameters.
+    // Curve definition found here: http://www.secg.org/collateral/sec2_final.pdf
     
     const vector<string> GetSupportedCurves()
     {
