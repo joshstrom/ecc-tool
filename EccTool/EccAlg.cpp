@@ -107,3 +107,14 @@ const string EccAlg::SaveKeys() const
     
     return ss.str();
 }
+
+const string EccAlg::KeysToString(bool includePrivate) const
+{
+    stringstream ss;
+    ss << "Public: " << _publicKey;
+    
+    if(includePrivate)
+        ss << endl << "Private: " << _privateKey;
+    
+    return ss.str();
+}

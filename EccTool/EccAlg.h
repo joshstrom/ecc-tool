@@ -40,6 +40,10 @@ public:
     
     // Persists the keys pair in the returned string.
     const string SaveKeys() const;
+    
+    // Creates a string with a printable version of the string.
+    //  Optionally includes private key.
+    const string KeysToString(bool includePrivate) const;
 };
 
 

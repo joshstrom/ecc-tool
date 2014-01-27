@@ -13,6 +13,7 @@
 #include "OperationTesters.h"
 #include "Stopwatch.h"
 #include "EllipticCurve.h"
+#include "DefinedCurveDomainParameters.h"
 
 void StatisticalOperationTest(const BaseOperationTester& tester)
 {
@@ -768,8 +769,27 @@ TEST_CASE("EccAlgCanGenerateAndPersistKeys")
     
 }
 
+TEST_CASE("CanGetCurveByName")
+{
+    const string curveName = "secp256k1";
+    DomainParameters params = ecc::GetCurveByName(curveName);
+    
+    REQUIRE(params.name == curveName);
+}
 
-
+TEST_CASE("CanMakeBitcoinCurve")
+{
+    DomainParameters bitcoinCurveParams = GetSecp256k1Curve();
+    EllipticCurve curve(bitcoinCurveParams);
+    
+    EccAlg alg(curve);
+    alg.GenerateKeys();
+    string savedKeys = alg.SaveKeys();
+    
+    EccAlg newAlg(bitcoinCurveParams);
+    REQUIRE_NOTHROW(newAlg.LoadKeys(savedKeys));
+    REQUIRE(savedKeys == newAlg.SaveKeys());
+}
 
 
 

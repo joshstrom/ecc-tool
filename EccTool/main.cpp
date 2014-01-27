@@ -10,21 +10,228 @@
 
 #include "EccAlg.h"
 #include "BigInteger.h"
+#include "DefinedCurveDomainParameters.h"
+#include <fstream>
+#include <sstream>
+#include <stdio.h>
 
 using namespace std;
+using namespace ecc;
+
+void PrintHelpMessage();
+void ListCurves();
+void GenerateKeys(int curveId, string keyName);
+void LoadKey(string keyname, bool printPrivate);
+
+string ToLower(string str);
+string TrimWhitespace(string str);
+
+bool UserApproved(const string& question);
 
 int main(int argc, const char * argv[])
 {
+    try
+    {
+        // Display help if no args (except the always passed in name) were given.
+        if(argc <= 1)
+        {
+            PrintHelpMessage();
+            return 0;
+        }
+        
+        // At least one additional arg was given.
+        string firstArg = ToLower(argv[1]);
+        
+        if(firstArg == "-c")
+        {
+            ListCurves();
+            return 0;
+        }
+        if(firstArg == "-g")
+        {
+            if(argc < 4)
+            {
+                cout << "Curve ID and key name required." << endl;
+                return 0;
+            }
+            
+            int curveId = atoi(argv[2]);
+            string keyName(argv[3]);
+            GenerateKeys(curveId, TrimWhitespace(keyName));
+            return 0;
+        }
+        if(firstArg == "-l")
+        {
+            if(argc < 3)
+            {
+                cout << "Key name required." << endl;
+                return 0;
+            }
+            
+            string keyName(argv[2]);
+            
+            bool printPrivateKey = false;
+            if(argc > 3)
+            {
+                if(ToLower(argv[3]) == "-p")
+                    printPrivateKey = true;
+            }
+            
+            LoadKey(keyName, printPrivateKey);
+            return 0;
+        }
+        else
+        {
+            PrintHelpMessage();
+            return 0;
+        }
+    }
+    catch(exception& ex)
+    {
+        cout << "Error: " << ex.what() << endl;
+    }
+}
+
+void PrintHelpMessage()
+{
+    cout << "The following commands are supported:" << endl;
+    cout << "    -c                        List supported ECC curves." << endl;
+    cout << "    -g <curve ID><key name>   Generate keys with specified algorithm ID (from list" << endl;
+    cout << "                              of ECC curves) and save with specified name." << endl;
+    cout << "    -l <keyname> [-p]         Print key information for the specified key. Use -p to " << endl;
+    cout << "                              print private key." << endl;
+    cout << "    -h                        Display this help message." << endl;
+}
+
+void ListCurves()
+{
+    auto curves = GetSupportedCurves();
+    cout << "Supported curves:" << endl;
+    for(int i = 0; i < curves.size(); i++)
+    {
+        cout << i + 1 << "     " << curves[i] << endl;
+    }
+}
+
+// Generates a keypair and saves it to disk.
+void GenerateKeys(int curveId, string keyName)
+{
+    auto curves = GetSupportedCurves();
     
-    DomainParameters params({
-        "DB7C 2ABF62E3 5E668076 BEAD208B", //p
-        "DB7C 2ABF62E3 5E668076 BEAD2088", //a
-        "659E F8BA0439 16EEDE89 11702B22", //b
-        "04 09487239 995A5EE7 6B55F9C2 F098A89C E5AF8724 C0A23E0E 0FF77500", //G (uncompressed)
-        "DB7C 2ABF62E3 5E7628DF AC6561C5", //n
-        "01" //h
-    });
+    // Check curveId.
+    if((curveId <= 0) || (curveId > curves.size()))
+    {
+        cout << "Invalid curve ID." << endl;
+        return;
+    }
     
-    return 0;
+    // Check size.
+    if(keyName.size() == 0)
+    {
+        cout << "Invalid key name." << endl;
+        return;
+    }
+    
+    // Check for key already existing.
+    string keyFileName = keyName + ".ecckey";
+    if(ifstream(keyFileName))
+    {
+        stringstream ss;
+        ss << "Key\'" << keyName << "\' already exists. Overwrite?";
+        if(!UserApproved(ss.str()))
+        {
+            cout << "Opeation Cancelled." << endl;
+            return;
+        }
+        
+        remove(keyFileName.c_str());
+    }
+    
+    // Open file for writing (ensures that we can make it).
+    ofstream file;
+    file.open(keyFileName, ios::out | ios::binary);
+    if(!file.good())
+    {
+        cout << "Unable to access key file." << endl;
+        return;
+    }
+    
+    // Generate keys.
+    string curveName = curves[curveId-1];
+    cout << "Preparing ECC domain parameters for curve \'" << curveName << "\'..." << endl;
+    DomainParameters params = GetCurveByName(curveName);
+    EllipticCurve curve(params);
+    EccAlg alg(curve);
+    
+    cout << "Generating keys..." << endl;
+    alg.GenerateKeys();
+    cout << "Keys generated successfully." << endl;
+    cout << "Saving..." << endl;
+    
+    file << curveName << ':' << alg.SaveKeys();
+    file.close();
+    
+    cout << "Done. Access using \"" << keyName << "\"" << endl;
+}
+
+void LoadKey(string keyName, bool printPrivate)
+{
+    // Open the key and load it in memory.
+    string keyFileName = keyName + ".ecckey";
+    
+    ifstream file;
+    file.open(keyFileName, ios::in | ios::binary);
+    if(!file.good())
+    {
+        cout << "Unable to open key \'" << keyName << "\'." << endl;
+        return;
+    }
+    
+    string archivedKey;
+    file >> archivedKey;
+    
+    // Read the first segment of the file to get the curve name.
+    size_t elementDelimiter = archivedKey.find(":");
+    if(elementDelimiter == string::npos)
+    {
+        cout << "Invalid file format." << endl;
+        return;
+    }
+    
+    string curveName = archivedKey.substr(0, elementDelimiter);
+    archivedKey.erase(0, elementDelimiter + 1);
+
+    DomainParameters params = GetCurveByName(curveName);
+    EllipticCurve curve(params);
+    EccAlg alg(curve);
+    alg.LoadKeys(archivedKey);
+    
+    cout << "Successfully loaded key. Curve: " << curveName << endl;
+    cout << "Printing key information..." << endl;
+    cout << alg.KeysToString(printPrivate) << endl;
+}
+
+string ToLower(string str)
+{
+    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    return str;
+}
+
+string TrimWhitespace(string str)
+{
+    str.erase(remove_if(str.begin(), str.end(), ::isspace), str.end());
+    return str;
+}
+
+bool UserApproved(const string& question)
+{
+    char answer = '0';
+    while(answer != 'y' && answer != 'n')
+    {
+        cout << question << " (y|n): ";
+        cin >> answer;
+    }
+    
+    return (answer == 'y');
 }
 
