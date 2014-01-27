@@ -42,12 +42,13 @@ int main(int argc, const char * argv[])
         // At least one additional arg was given.
         string firstArg = ToLower(argv[1]);
         
-        if(firstArg == "-c")
+        // Look for one of the defined flags.
+        if(firstArg == "-c") // The list curves flag.
         {
             ListCurves();
             return 0;
         }
-        if(firstArg == "-g")
+        if(firstArg == "-g") // The generate keys flag.
         {
             if(argc < 4)
             {
@@ -60,7 +61,7 @@ int main(int argc, const char * argv[])
             GenerateKeys(curveId, TrimWhitespace(keyName));
             return 0;
         }
-        if(firstArg == "-l")
+        if(firstArg == "-l") // The load key (print info) flag.
         {
             if(argc < 3)
             {
@@ -80,13 +81,13 @@ int main(int argc, const char * argv[])
             LoadKey(keyName, printPrivateKey);
             return 0;
         }
-        else
+        else // Any other flag, print help message.
         {
             PrintHelpMessage();
             return 0;
         }
     }
-    catch(exception& ex)
+    catch(exception& ex) // Catch any thrown exceptions and print to console.
     {
         cout << "Error: " << ex.what() << endl;
     }
