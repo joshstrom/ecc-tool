@@ -249,7 +249,7 @@ BigInteger EllipticCurve::DivideInFiniteField(const BigInteger& numerator, const
 
 BigInteger EllipticCurve::FindMultiplicativeInverse(const BigInteger& a, const BigInteger& b)
 {
-    // Use the following algorithm to calculate the multiplicative inverese via the
+    // Use the following algorithm to calculate the multiplicative inverse via the
     //  Extended Euclidian Algorithm: (algorithm found here: http://en.wikipedia.org/wiki/Extended_Euclidean_algorithm)
     //    function eea(a, b)
     //        s := 0;    old_s := 1
@@ -266,25 +266,38 @@ BigInteger EllipticCurve::FindMultiplicativeInverse(const BigInteger& a, const B
     //        prov := r;
     //        r := old_r - quotient * prov;
     //        old_r := prov;
+	// Note: this algorithm has been adjusted from that above for efficiency (through profiling)
+	//	to avoid extra operations, extra copies and extra allocations.
 
+
+	// This will eventually hold the inverse of a mod b.
     BigInteger s = 0;
     BigInteger old_s = 1;
     
-    
+	// Used to hold the repeatedly computed remainder.
     BigInteger r = b;
     BigInteger old_r = a;
     
     while(r != 0)
     {
-        BigInteger quotient = old_r / r;
+		// Do the full division operation for the quotient and remainder.
+        auto divResult = BigInteger::Divide(old_r, r); // Returns a pair: <quotient, remainder>
+		BigInteger& quotient = divResult.first;
+		BigInteger& remainder = divResult.second;
 
-        BigInteger prov = r;
-        r = old_r - (quotient * r);
-        swap(old_r, prov);
+		swap(old_r, r); // Save away the current r in old_r (value of old_r stored in r and no longer needed)
+		swap(r, remainder);	// Save away the current remainder in r (use swap to avoid making a copy).
         
-        prov = s;
-        s = old_s - (quotient * prov);
-        swap(old_s, prov);
+		// Do the first part of the calculation (s = old_s - (quotient * s))
+		//	(the multiplication part), reusing the BigInteger instance for quotient.
+		quotient *= s; 
+
+		// Store away the value of s into old_s for the next iteration.
+		swap(old_s, s);
+        
+		// Now that old_s is in s, do the subtraction part of the equation (s = old_s - (quotient * s).
+		//	by subtracting the quotion (which holds quotient*s) from s (which holds old_s).
+		s -= quotient;
     }
 
     // old_s is the multiplicative inverse of a, but may be a negative number.
