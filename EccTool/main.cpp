@@ -36,6 +36,7 @@ int main(int argc, const char * argv[])
         if(argc <= 1)
         {
             PrintHelpMessage();
+            cout << endl;
             return 0;
         }
         
@@ -46,26 +47,27 @@ int main(int argc, const char * argv[])
         if(firstArg == "-c") // The list curves flag.
         {
             ListCurves();
+            cout << endl;
             return 0;
         }
         if(firstArg == "-g") // The generate keys flag.
         {
             if(argc < 4)
             {
-                cout << "Curve ID and key name required." << endl;
-                return 0;
+                throw invalid_argument("Curve ID and key name required.");
             }
             
             int curveId = atoi(argv[2]);
             string keyName(argv[3]);
             GenerateKeys(curveId, TrimWhitespace(keyName));
+            cout << endl;
             return 0;
         }
         if(firstArg == "-l") // The load key (print info) flag.
         {
             if(argc < 3)
             {
-                cout << "Key name required." << endl;
+                throw invalid_argument("Key name required.");
                 return 0;
             }
             
@@ -79,17 +81,19 @@ int main(int argc, const char * argv[])
             }
             
             LoadKey(keyName, printPrivateKey);
+            cout << endl;
             return 0;
         }
         else // Any other flag, print help message.
         {
             PrintHelpMessage();
+            cout << endl;
             return 0;
         }
     }
     catch(exception& ex) // Catch any thrown exceptions and print to console.
     {
-        cout << "Error: " << ex.what() << endl;
+        cout << "Error: " << ex.what() << endl << endl;
     }
 }
 

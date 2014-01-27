@@ -38,7 +38,7 @@ namespace ecc
         if(name == "secp256k1")
             return GetSecp256k1Curve();
         if(name == "secp112r1")
-            return GetSecp256k1Curve();
+            return GetSecp112r1Curve();
         
         throw invalid_argument("Unsupported curve: " + name);
     }
