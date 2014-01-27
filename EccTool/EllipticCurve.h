@@ -13,6 +13,7 @@
 #include <string>
 #include "BigInteger.h"
 #include "EccDefs.h"
+#include "Point.h"
 
 using namespace std;
 using namespace ecc;

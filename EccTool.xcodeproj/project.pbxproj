@@ -55,6 +55,7 @@
 		3C6D9A5E18945C4000645326 /* EllipticCurve.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EllipticCurve.cpp; sourceTree = "<group>"; };
 		3C6D9A5F18945C4000645326 /* EllipticCurve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EllipticCurve.h; sourceTree = "<group>"; };
 		3C6D9A621894A0DD00645326 /* EccDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EccDefs.h; sourceTree = "<group>"; };
+		3C6D9ACC1895D02600645326 /* Point.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Point.h; sourceTree = "<group>"; };
 		3C84E621188F94D700F4E16C /* OperationTesters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OperationTesters.h; sourceTree = "<group>"; };
 		3C93E83B18865C0E00B56C1C /* BigInteger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigInteger.cpp; sourceTree = "<group>"; };
 		3C93E83C18865C0E00B56C1C /* BigInteger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BigInteger.h; sourceTree = "<group>"; };
@@ -123,6 +124,7 @@
 				3C93E83C18865C0E00B56C1C /* BigInteger.h */,
 				3C6D9A5E18945C4000645326 /* EllipticCurve.cpp */,
 				3C6D9A5F18945C4000645326 /* EllipticCurve.h */,
+				3C6D9ACC1895D02600645326 /* Point.h */,
 			);
 			path = EccTool;
 			sourceTree = "<group>";

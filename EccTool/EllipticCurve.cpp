@@ -131,6 +131,45 @@ Point EllipticCurve::AddPointsOnCurve(const Point& rhs, const Point& lhs) const
         return PointAdd(rhs, lhs);
 }
 
+// Multiplies the given point on the curve with the given scalar. Point must be on the curve (result
+//  are undefined otherwise).
+Point EllipticCurve::MultiplyPointOnCurveWithScalar(const Point& point, const BigInteger& scalar) const
+{
+    // Multiplies according the the below algorithm:
+    //function multiplyByScalar(point A, scalar k)
+    //    N = A
+    //    R = O    // Point at infinity
+    //    r = <Most Significat Bit b of k | b != 0>
+    //    Iterate k from r to 0 (current bit designated by i) {
+    //        R = R + R
+    //        if (bit_is_set(i)) {
+    //            R = R + P
+    //        }
+    //    }
+    //    output R
+
+    Point product = EllipticCurve::O;
+    Point n = point;
+    
+    // Find first non-zero bit starting at the MSB of the scalar.
+    int i = static_cast<int>(scalar.GetBitSize()) - 1;
+    for(; i >= 0; i--)
+    {
+        if(scalar.GetBitAt(i))
+            break;
+    }
+    
+    // Do the addition based on the above algorithm.
+    for(; i >= 0; i--)
+    {
+        product = AddPointsOnCurve(product, product);
+        if(scalar.GetBitAt(i))
+            product = AddPointsOnCurve(product, point);
+    }
+    
+    return product;
+}
+
 bool EllipticCurve::CheckPointOnCurve(const Point& point) const
 {
     // For the point (x,y) to be on the curve,
