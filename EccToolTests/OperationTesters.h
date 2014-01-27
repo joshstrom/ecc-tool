@@ -157,6 +157,11 @@ class DivisionOperationTester final : public BaseMathOperationTester
 {
 protected:
     
+	int SelectSecondOperand(int number1, int number2) const override
+	{
+		return (number2 != 0) ? number2 : 1; // ensure no division by zero.
+	}
+
     BigInteger RunBigIntegerOperation(const BigInteger& operand1, const BigInteger& operand2) const override
     {
         return operand1 / operand2;
@@ -177,6 +182,11 @@ class ModulusOperationTester final : public BaseMathOperationTester
 {
 protected:
     
+	int SelectSecondOperand(int number1, int number2) const override
+	{
+		return (number2 != 0) ? number2 : 1; // ensure no division by zero.
+	}
+
     BigInteger RunBigIntegerOperation(const BigInteger& operand1, const BigInteger& operand2) const override
     {
         return operand1 % operand2;

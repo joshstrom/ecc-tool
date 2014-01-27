@@ -27,10 +27,12 @@ this test executable, due to the operations it does internally, may take several
 to complete. 
 
 A note on performance:
-The algorithms (and all tests) ran reasonably quickly on my late-2013 mac with a Haswell i7.
-When I tested out key generation on a 2 year old i5 windows machine, it took more like 1-2 minutes 
-to generate a key for the secp256k1 Koblitz curve. Recommend using the secp112r1 curve 
-instead if you don't want to wait too long. They do both work, but be patient :)
+The algorithms (and all tests) ran reasonably quickly. Generating a key for the secp112r1 
+on my late-2013 MacBook Pro with a Haswell i7 takes < 1 second, and generating a key for
+the secp256k1 curve took only slightly longer. When I tested out key generation on a 2 year 
+old i5 windows machine, it took more about 2 seconds to generate a key for the secp112r1
+and 12 seconds to generate a key for the secp256k1 curve. Generation of both works, just takes
+a few seconds. Be patient :)
 
 Routines/Classes implemented:
 I implemented a class called BigInteger which can do operations on integer of arbitrary
@@ -43,6 +45,9 @@ operators made the mathematics much easier to program and to read in the code.
 Possible improvements: 
 - The implementation could be more efficient by implementing some of the more "clever" 
 	theorems for binary or number manipulation.
+- BigInteger is implemented using an unsigned magnitude (represented with bytes) and a sign flag.
+	I am considering switching in future releases to use a two's-complement representation of
+	negative numbers.
 
 I implemented a class for math over an elliptic curve (called EllipticCurve). This class
 uses a set of domain parameters to define an elliptic curve, then can do elliptic curve

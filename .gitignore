@@ -26,6 +26,10 @@
 *.suo
 *Debug
 *TeamCity*
+*.vsp
+*.psess
+*.vcxproj.user
+
 
 
 #####

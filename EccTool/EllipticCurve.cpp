@@ -194,6 +194,8 @@ const BigInteger& EllipticCurve::GetBasePointOrder() const
     return _n;
 }
 
+
+// Definitions of the below modulo operations were found here: http://tools.ietf.org/search/rfc6090
 BigInteger EllipticCurve::AddInFiniteField(const BigInteger& operand1, const BigInteger& operand2) const
 {
     // Let p define the max of the fininte field Fp such that all elemnts of Fp are in the range
@@ -251,13 +253,11 @@ BigInteger EllipticCurve::FindMultiplicativeInverse(const BigInteger& a, const B
     //  Extended Euclidian Algorithm: (algorithm found here: http://en.wikipedia.org/wiki/Extended_Euclidean_algorithm)
     //    function eea(a, b)
     //        s := 0;    old_s := 1
-    //        t := 1;    old_t := 0
     //        r := b;    old_r := a
     //        while r ≠ 0
     //            quotient := old_r div r
     //            (old_r, r) := (r, old_r - quotient *r)
     //            (old_s, s) := (s, old_s - quotient *s)
-    //            (old_t, t) := (t, old_t - quotient *t)
     //        output "Bézout coefficients:", (old_s, old_t)
     //        output "greatest common divisor:", old_r
     //        output "quotients by the gcd:", (t, s)
@@ -270,8 +270,6 @@ BigInteger EllipticCurve::FindMultiplicativeInverse(const BigInteger& a, const B
     BigInteger s = 0;
     BigInteger old_s = 1;
     
-    BigInteger t = 1;
-    BigInteger old_t = 0;
     
     BigInteger r = b;
     BigInteger old_r = a;
@@ -279,18 +277,14 @@ BigInteger EllipticCurve::FindMultiplicativeInverse(const BigInteger& a, const B
     while(r != 0)
     {
         BigInteger quotient = old_r / r;
-        
+
         BigInteger prov = r;
-        r = old_r - (quotient * prov);
+        r = old_r - (quotient * r);
         swap(old_r, prov);
         
         prov = s;
         s = old_s - (quotient * prov);
         swap(old_s, prov);
-        
-        prov = t;
-        t = old_t - (quotient * prov);
-        swap(old_t, prov);
     }
 
     // old_s is the multiplicative inverse of a, but may be a negative number.

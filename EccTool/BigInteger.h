@@ -73,7 +73,7 @@ private:
     
     // Helpers for subtraction.
     BigInteger& Subtract(const BigInteger& rhs);
-    void Borrow(vector<uint8_t>::reverse_iterator segmentBegin, const vector<uint8_t>::reverse_iterator& segmentEnd) const;
+    void Borrow(vector<uint8_t>& buffer, int segmentBegin) const;
     
     // Helpers for multiplication.
     BigInteger& Multiply(const BigInteger& rhs);

@@ -476,7 +476,12 @@ TEST_CASE("SpecificAdditionTest")
 
 TEST_CASE("SpecificSubtractionTest")
 {
-    RunSubtractionTest(0x79158, 0x5e);
+    RunSubtractionTest(0x2c5e, 0x0eac);
+}
+
+TEST_CASE("SpecificDivisionTest")
+{
+	RunDivisionTest(14, 5);
 }
 
 TEST_CASE("CanShiftWholeBytes8")
@@ -777,19 +782,19 @@ TEST_CASE("CanGetCurveByName")
     REQUIRE(params.name == curveName);
 }
 
-TEST_CASE("CanMakeBitcoinCurve")
-{
-    DomainParameters bitcoinCurveParams = GetSecp256k1Curve();
-    EllipticCurve curve(bitcoinCurveParams);
-    
-    EccAlg alg(curve);
-    alg.GenerateKeys();
-    string savedKeys = alg.SaveKeys();
-    
-    EccAlg newAlg(bitcoinCurveParams);
-    REQUIRE_NOTHROW(newAlg.LoadKeys(savedKeys));
-    REQUIRE(savedKeys == newAlg.SaveKeys());
-}
+//TEST_CASE("CanMakeBitcoinCurve")
+//{
+//    DomainParameters bitcoinCurveParams = GetSecp256k1Curve();
+//    EllipticCurve curve(bitcoinCurveParams);
+//    
+//    EccAlg alg(curve);
+//    alg.GenerateKeys();
+//    string savedKeys = alg.SaveKeys();
+//    
+//    EccAlg newAlg(bitcoinCurveParams);
+//    REQUIRE_NOTHROW(newAlg.LoadKeys(savedKeys));
+//    REQUIRE(savedKeys == newAlg.SaveKeys());
+//}
 
 
 

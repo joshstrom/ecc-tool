@@ -312,22 +312,19 @@ BigInteger& BigInteger::operator<<=(int count)
     // Shift each byte in the magnitude buffer, from right to left, by the number of bits to shift.
     //  Track any carry between iterations.
     uint8_t carry = 0;
-    auto iterator = _magnitude.rbegin() + bytesToShift;
-    while(iterator != _magnitude.rend())
+    for(int i = static_cast<int>(_magnitude.size()) - 1; i >= 0; i--)
     {
-        uint8_t currentElement = *iterator;
+        uint8_t& currentElement = _magnitude[i];
         
-        // Determine the carry for the next byte (the most significat digits which would shift out).
+        // Determine the carry for the next byte (the most significant digits which would shift out).
         uint8_t currentCarry = (currentElement >> (8 - bitsToShift));
         
         // Do the shift and add the previous carry.
         currentElement <<= bitsToShift;
         currentElement |= carry;
-        *iterator = currentElement;
         
         // Save the current carry for the next iteration.
         carry = currentCarry;
-        ++iterator;
     }
     
     // Handle any remaining carry.
@@ -393,8 +390,13 @@ uint8_t BigInteger::GetValidHexDigit(char digit)
 void BigInteger::TrimPrefixZeros()
 {
     // Remove any empty zero bytes from the beginning of the buffer.
-    auto firstNonzero = find_if(_magnitude.begin(), _magnitude.end(), [] (uint8_t element) { return element != 0; });
-    _magnitude.erase(_magnitude.begin(), firstNonzero);
+	auto size = _magnitude.size();
+	unsigned int firstNonzero = 0;
+	for(; firstNonzero < size; ++firstNonzero)
+		if(_magnitude[firstNonzero] != 0) break;
+
+	auto begin = _magnitude.begin();
+    _magnitude.erase(begin, begin + firstNonzero);
     
     // If this trimming results in an empty buffer, place a single zero.
     if(_magnitude.size() == 0)
@@ -408,24 +410,25 @@ void BigInteger::SetZero()
 	_sign = POSITIVE;
 }
 
-void BigInteger::Borrow(vector<uint8_t>::reverse_iterator segmentBegin, const vector<uint8_t>::reverse_iterator& segmentEnd) const
+void BigInteger::Borrow(vector<uint8_t>& buffer, int segmentBegin) const
 {
     // Search ahead for the first non-zero character in the buffer.
     //  For the borrow to work correctly, it must populate back across
     //  previous elements in the buffer.
     //  Example (in decimal): Borrow starting from the ones place of 1000 -> 099(10)
-    while(segmentBegin != segmentEnd)
+    while(segmentBegin >= 0)
     {
         // Correct element found. Decrement and return.
-        if(*segmentBegin > 0)
+		uint8_t& currentElement = buffer[segmentBegin];
+        if(currentElement > 0)
         {
-            (*segmentBegin)--;
+            --currentElement;
             return;
         }
         
         // Element equal to zero, we need to adjust for the borrow.
-        *segmentBegin = 0xFF;
-        segmentBegin++;
+        currentElement = 0xFF;
+        --segmentBegin;
     }
 }
 
@@ -493,12 +496,12 @@ BigInteger& BigInteger::Add(const BigInteger& rhs)
     //  Since an addition operation requires at most (longest number + 1) digits. Insert enough
     //  elements at the beginning to ensure that the buffer is large enough.
     _magnitude.insert(_magnitude.begin(), (topNumberBuffer.size() + 1 - _magnitude.size()), 0);
-    auto sumBuffer = _magnitude.rbegin();
-    
-    auto topNumber = topNumberBuffer.rbegin();
-    auto bottomNumber = bottomNumberBuffer.rbegin();
+
+	int sumIndex = _magnitude.size() - 1;
+	int topNumberIndex = topNumberBuffer.size() - 1;
+	int bottomNumberIndex = bottomNumberBuffer.size() - 1;
+
     uint8_t carry = 0;
-    
     // Addition can result in a number that is (maximum) one extra character
     //  than the largest of the two operands. The "sum" buffer will be reserved at this size.
     
@@ -507,30 +510,30 @@ BigInteger& BigInteger::Add(const BigInteger& rhs)
     //vector<uint8_t> sumBuffer;
     //sumBuffer.reserve(topNumberBuffer.size() + 1);
     
-    while(topNumber != topNumberBuffer.rend())
+	auto topNumberBufferEnd = topNumberBuffer.rend();
+    while(topNumberIndex >= 0)
     {
         // We will always have a top number (as we are looping over topNumberBuffer), however,
         //  the bottom number might have finished already. Use 0 if this is the case.
-        uint8_t currentTop = *topNumber;
-        uint8_t currentButtom = (bottomNumber != bottomNumberBuffer.rend()) ? *bottomNumber : 0;
+        uint8_t currentTop = topNumberBuffer[topNumberIndex];
+        uint8_t currentButtom = (bottomNumberIndex >= 0) ? bottomNumberBuffer[bottomNumberIndex] : 0;
         
         // Do the addition, then take the top 4 bytes for the carry and push the bottom 4 bytes as the sum.
         uint16_t currentSum = currentTop + currentButtom + (carry >> 4);
         carry = (currentSum & 0xFF00) >> 4;
-        *sumBuffer = (currentSum & 0x00FF);
+        _magnitude[sumIndex] = (currentSum & 0x00FF);
         
         // TopNumber and SumBuffer are both of the same size.
-        topNumber++;
-        sumBuffer++;
+        --topNumberIndex;
+		--sumIndex;
         
-        // Bottom number can be shorter than top number. Make sure to not increment past end.
-        if(bottomNumber != bottomNumberBuffer.rend())
-            bottomNumber++;
+        // Increment past end is fine. We check before dereferencing.
+        --bottomNumberIndex;
     }
     
     // If there is any leftover carry, add it to the sum buffer (shift it since it is one place up).
     if(carry != 0)
-        *sumBuffer = (carry >> 4);
+        _magnitude[sumIndex] = (carry >> 4);
     
     // The sum buffer may be too large (due to the insert operation at the beginning), remove extra.
     TrimPrefixZeros();
@@ -551,7 +554,7 @@ BigInteger& BigInteger::Multiply(const BigInteger& rhs)
     // (sum of products)     1353   [then add the result]
     
     // Determine the larger buffer, this must be the top number for efficiency.
-    bool lhsBigger = this->CompareMagnitudeTo(rhs) == 1;
+    bool lhsBigger = (_magnitude.size() > rhs._magnitude.size());
     auto& topOperandBuffer = (lhsBigger) ? _magnitude : rhs._magnitude;
     auto& bottomOperandBuffer = (lhsBigger) ? rhs._magnitude : _magnitude;
     
@@ -571,8 +574,9 @@ BigInteger& BigInteger::Multiply(const BigInteger& rhs)
     int individualProductStartingIndex = 0;
     
     // Outer loop: iterate over the bottom operand digits in reverse.
-    auto bottomOperandIterator = bottomOperandBuffer.rbegin();
-    while(bottomOperandIterator != bottomOperandBuffer.rend())
+	int bottomOperandIndex = static_cast<int>(bottomOperandBuffer.size()) - 1;
+
+    while(bottomOperandIndex >= 0)
     {
         // Prepare the individual product buffer. it should be large enough to hold a full multiplication.
         //  It should be as large as necessary and filled with zero (it will never resize smaller).
@@ -583,12 +587,12 @@ BigInteger& BigInteger::Multiply(const BigInteger& rhs)
         int individualProductIndex = individualProductStartingIndex++;
         
         // Inner loop: iterate over the top operand digits in reverse for each bottom operand digit.
-        auto topOperandIterator = topOperandBuffer.rbegin();
-        while(topOperandIterator != topOperandBuffer.rend())
+		int topOperandIndex = static_cast<int>(topOperandBuffer.size()) - 1;
+        while(topOperandIndex >= 0)
         {
             // Do the operation on a single digit.
-            uint8_t currentTopOperand = *topOperandIterator;
-            uint8_t currentBottomOperand = *bottomOperandIterator;
+            uint8_t currentTopOperand = topOperandBuffer[topOperandIndex];
+            uint8_t currentBottomOperand = bottomOperandBuffer[bottomOperandIndex];
             uint16_t currentProduct = currentTopOperand * currentBottomOperand;
             
             // Split the short into a high-byte and low-byte.
@@ -607,17 +611,17 @@ BigInteger& BigInteger::Multiply(const BigInteger& rhs)
             if(calculatedOverflowByte != 0)
 				individualProductBuffer[individualProductIndex + 2] = calculatedOverflowByte;
             
-            // Incrment all iterators/indices.
-            topOperandIterator++;
+            // Decrement all iterators/indices.
+            --topOperandIndex;
             individualProductIndex++;
         }
         
         // Prepare individual product for addition (fix byte order, remove extra zeros, etc.)
-        reverse(individualProductBuffer.begin(), individualProductBuffer.end());
+        std::reverse(individualProductBuffer.begin(), individualProductBuffer.end());
         individualProduct.TrimPrefixZeros();
         productAccumulator += individualProduct;
         
-        ++bottomOperandIterator;
+        --bottomOperandIndex;
     }
     
     // The switch updates the "this" reference.
@@ -650,17 +654,18 @@ BigInteger& BigInteger::Subtract(const BigInteger& rhs)
     //  Note that we are adding the bytes to the difference buffer "backwards"
     //  to simplify determining empty digits.
     vector<uint8_t> differenceBuffer;
-    differenceBuffer.reserve(_magnitude.size());
+    differenceBuffer.resize(_magnitude.size());
     
     // Iterating through the top and bottom backwards.
-    auto lhsIterator = _magnitude.rbegin();
-    auto rhsIterator = rhs._magnitude.rbegin();
-    
-    while(lhsIterator != _magnitude.rend())
+    int lhsIndex = static_cast<int>(_magnitude.size()) - 1;
+    int rhsIndex = static_cast<int>(rhs._magnitude.size()) - 1;
+	int differenceIndex = static_cast<int>(differenceBuffer.size()) - 1;
+
+    while(lhsIndex >= 0)
     {
         // Pull out the current top (aways there) and the current bottom (or zero if no more digits).
-        uint8_t currentTop = *lhsIterator;
-        uint8_t currentBottom = (rhsIterator != rhs._magnitude.rend()) ? *rhsIterator : 0;
+        uint8_t currentTop = _magnitude[lhsIndex];
+        uint8_t currentBottom = (rhsIndex >= 0) ? rhs._magnitude[rhsIndex] : 0;
         
         // Do the subtraction in a signed variable. This may result in a negative number.
         int currentDifference = currentTop - currentBottom;
@@ -668,24 +673,22 @@ BigInteger& BigInteger::Subtract(const BigInteger& rhs)
         // Borrow from the next if necessary.
         if(currentDifference < 0)
         {
-            Borrow(lhsIterator + 1, _magnitude.rend());
+            Borrow(_magnitude, lhsIndex - 1);
             currentDifference += 0x100;
         }
         
-        // Put the (now guarenteed positive) difference, masked to ensure proper size
+        // Put the (now guaranteed positive) difference, masked to ensure proper size
         //  in the difference buffer.
-        differenceBuffer.push_back(static_cast<unsigned short>(currentDifference) & 0xFF);
+        differenceBuffer[differenceIndex] = static_cast<unsigned short>(currentDifference) & 0xFF;
         
         // Increment everything.
-        lhsIterator++;
-        
-        if(rhsIterator != rhs._magnitude.rend())
-            rhsIterator++;
+        --lhsIndex;
+		--rhsIndex;
+		--differenceIndex;
     }
     
     // Since we created the difference backwards, reverse it then set it to the buffer.
-    reverse(differenceBuffer.begin(), differenceBuffer.end());
-    _magnitude = differenceBuffer;
+    _magnitude.swap(differenceBuffer);
     
     // Remove any empty zero bytes from the beginning of the buffer.
     TrimPrefixZeros();
@@ -712,7 +715,6 @@ pair<BigInteger, BigInteger> BigInteger::Divide(const BigInteger& numerator, con
     // end
     
     // Note that this division operaton ignores sign and only deals in magnitude.
-    
     BigInteger quotient(0);
     BigInteger remainder(0);
     
