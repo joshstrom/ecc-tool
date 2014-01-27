@@ -88,8 +88,11 @@ public:
     // Returns true|false depending on whether the given point is on the curve.
     bool CheckPointOnCurve(const Point& point) const;
     
-    // Returns the Generator, or Base Point of this curve.
+    // Returns the Generator G, or Base Point of this curve.
     const Point& GetBasePoint() const;
+    
+    // Returns the order of the Generator G.
+    const BigInteger& GetBasePointOrder() const;
 };
 
 #endif /* defined(__EccTool__EllipticCurve__) */

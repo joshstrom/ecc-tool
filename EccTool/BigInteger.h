@@ -217,6 +217,7 @@ public:
     void SetBitAt(size_t index);
     void ClearBitAt(size_t index);
     size_t GetBitSize() const;
+    size_t GetMostSignificantBitIndex() const;
     
     // Converts the BigInteger to its string representation in hex. It will print
     //  with all digits concatenated and no separators. The first digit may be left-padded

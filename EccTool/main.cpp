@@ -15,14 +15,16 @@ using namespace std;
 
 int main(int argc, const char * argv[])
 {
-    BigInteger left(0xffffffff);
-    BigInteger right(0xffffffff);
-
-    BigInteger product = left * right;
-    string expected("fffffffe00000001");
-
-    // insert code here...
-    std::cout << "Left: " << left.ToString() << ", Right: " << right.ToString() << ", Product: " << product.ToString() << ", expected: " << expected << endl;
+    
+    DomainParameters params({
+        "DB7C 2ABF62E3 5E668076 BEAD208B", //p
+        "DB7C 2ABF62E3 5E668076 BEAD2088", //a
+        "659E F8BA0439 16EEDE89 11702B22", //b
+        "04 09487239 995A5EE7 6B55F9C2 F098A89C E5AF8724 C0A23E0E 0FF77500", //G (uncompressed)
+        "DB7C 2ABF62E3 5E7628DF AC6561C5", //n
+        "01" //h
+    });
+    
     return 0;
 }
 

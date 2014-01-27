@@ -19,6 +19,9 @@ namespace ecc
     // Defines the parameters that define the elliptic curve equation: y^2 = x^3 + ax + b mod p.
     struct DomainParameters
     {
+        // The name of this set of domain parameters.
+        const string name;
+        
         // The prime number which defines the field (Fp) in which the curve operates.
         const string p;
         

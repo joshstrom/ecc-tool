@@ -281,6 +281,15 @@ size_t BigInteger::GetBitSize() const
     return _magnitude.size() * 8;
 }
 
+size_t BigInteger::GetMostSignificantBitIndex() const
+{
+    int bitSize = static_cast<int>(GetBitSize()) - 1;
+    while(!GetBitAt(bitSize))
+        --bitSize;
+    
+    return bitSize;
+}
+
 BigInteger& BigInteger::operator<<=(int count)
 {
     // Zero shifted left is still zero.

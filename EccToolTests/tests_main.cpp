@@ -616,6 +616,7 @@ TEST_CASE("CanAddInFiniteField")
 TEST_CASE("CanCreateEllipticCurveWithParameters_secp112r1")
 {
     DomainParameters params({
+            "secp112r1", //name
             "DB7C 2ABF62E3 5E668076 BEAD208B", //p
             "DB7C 2ABF62E3 5E668076 BEAD2088", //a
             "659E F8BA0439 16EEDE89 11702B22", //b
@@ -625,12 +626,8 @@ TEST_CASE("CanCreateEllipticCurveWithParameters_secp112r1")
        });
     
     EllipticCurve curve(params);
-    cout << "G -> x: " << curve.GetBasePoint().x.ToString() << ", y: " << curve.GetBasePoint().y.ToString() << endl;
-    
     const Point& generatorPoint = curve.GetBasePoint();
     Point sum = curve.AddPointsOnCurve(generatorPoint, generatorPoint);
-    
-    INFO("Sum->x = " << sum.x.ToString() << ", Sum->y = " << sum.y.ToString());
     
     BigInteger expectedX("57cf52a0f9318000ee0bc032d756");
     BigInteger expectedY("60aee03bbcff537a8d17401f006c");
@@ -649,6 +646,7 @@ TEST_CASE("CanCreateEllipticCurveWithParameters_secp112r1")
 TEST_CASE("CanInvertPoint")
 {
     DomainParameters params({
+        "secp112r1", //name
         "DB7C 2ABF62E3 5E668076 BEAD208B", //p
         "DB7C 2ABF62E3 5E668076 BEAD2088", //a
         "659E F8BA0439 16EEDE89 11702B22", //b
@@ -673,6 +671,7 @@ TEST_CASE("CanInvertPoint")
 TEST_CASE("AddinWithPointAtInfinity")
 {
     DomainParameters params({
+        "secp112r1", //name
         "DB7C 2ABF62E3 5E668076 BEAD208B", //p
         "DB7C 2ABF62E3 5E668076 BEAD2088", //a
         "659E F8BA0439 16EEDE89 11702B22", //b
@@ -702,6 +701,7 @@ TEST_CASE("AddinWithPointAtInfinity")
 TEST_CASE("MultiplyWithScalar")
 {
     DomainParameters params({
+        "secp112r1", //name
         "DB7C 2ABF62E3 5E668076 BEAD208B", //p
         "DB7C 2ABF62E3 5E668076 BEAD2088", //a
         "659E F8BA0439 16EEDE89 11702B22", //b
@@ -723,6 +723,49 @@ TEST_CASE("MultiplyWithScalar")
     REQUIRE(curve.CheckPointOnCurve(multipliedPoint));
     REQUIRE(expectedPoint == multipliedPoint);
  
+}
+
+TEST_CASE("EccAlgGenerateEccKeypair")
+{
+    DomainParameters params({
+        "secp112r1", //name
+        "DB7C 2ABF62E3 5E668076 BEAD208B", //p
+        "DB7C 2ABF62E3 5E668076 BEAD2088", //a
+        "659E F8BA0439 16EEDE89 11702B22", //b
+        "04 09487239 995A5EE7 6B55F9C2 F098A89C E5AF8724 C0A23E0E 0FF77500", //G (uncompressed)
+        "DB7C 2ABF62E3 5E7628DF AC6561C5", //n
+        "01" //h
+    });
+    
+    EllipticCurve curve(params);
+    
+    EccAlg alg(curve);
+    REQUIRE_NOTHROW(alg.GenerateKeys());
+}
+
+TEST_CASE("EccAlgCanGenerateAndPersistKeys")
+{
+    DomainParameters params({
+        "secp112r1", //name
+        "DB7C 2ABF62E3 5E668076 BEAD208B", //p
+        "DB7C 2ABF62E3 5E668076 BEAD2088", //a
+        "659E F8BA0439 16EEDE89 11702B22", //b
+        "04 09487239 995A5EE7 6B55F9C2 F098A89C E5AF8724 C0A23E0E 0FF77500", //G (uncompressed)
+        "DB7C 2ABF62E3 5E7628DF AC6561C5", //n
+        "01" //h
+    });
+    
+    EllipticCurve curve(params);
+    
+    EccAlg alg(curve);
+    alg.GenerateKeys();
+    
+    string savedKeys = alg.SaveKeys();
+    
+    EccAlg newAlg(params);
+    REQUIRE_NOTHROW(newAlg.LoadKeys(savedKeys));
+    REQUIRE(savedKeys == newAlg.SaveKeys());
+    
 }
 
 

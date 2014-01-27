@@ -186,6 +186,11 @@ const Point& EllipticCurve::GetBasePoint() const
     return _G;
 }
 
+const BigInteger& EllipticCurve::GetBasePointOrder() const
+{
+    return _n;
+}
+
 BigInteger EllipticCurve::AddInFiniteField(const BigInteger& operand1, const BigInteger& operand2) const
 {
     // Let p define the max of the fininte field Fp such that all elemnts of Fp are in the range
