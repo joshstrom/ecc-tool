@@ -497,20 +497,13 @@ BigInteger& BigInteger::Add(const BigInteger& rhs)
     //  elements at the beginning to ensure that the buffer is large enough.
     _magnitude.insert(_magnitude.begin(), (topNumberBuffer.size() + 1 - _magnitude.size()), 0);
 
-	int sumIndex = _magnitude.size() - 1;
-	int topNumberIndex = topNumberBuffer.size() - 1;
-	int bottomNumberIndex = bottomNumberBuffer.size() - 1;
+	int sumIndex = static_cast<int>(_magnitude.size()) - 1;
+	int topNumberIndex = static_cast<int>(topNumberBuffer.size()) - 1;
+	int bottomNumberIndex = static_cast<int>(bottomNumberBuffer.size()) - 1;
 
     uint8_t carry = 0;
     // Addition can result in a number that is (maximum) one extra character
-    //  than the largest of the two operands. The "sum" buffer will be reserved at this size.
-    
-    // Sum will be filled "backwards" compared to the other two operands and reversed at the end.
-    //  This is to simplify the creation through use of push_back().
-    //vector<uint8_t> sumBuffer;
-    //sumBuffer.reserve(topNumberBuffer.size() + 1);
-    
-	auto topNumberBufferEnd = topNumberBuffer.rend();
+    //  than the largest of the two operands. The "sum" buffer will be resized to this size.
     while(topNumberIndex >= 0)
     {
         // We will always have a top number (as we are looping over topNumberBuffer), however,
