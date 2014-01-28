@@ -691,17 +691,17 @@ TEST_CASE("AddinWithPointAtInfinity")
     Point basePoint = curve.GetBasePoint();
     
     // Adding a point on curve to infinity.
-    REQUIRE(basePoint == curve.AddPointsOnCurve(basePoint, EllipticCurve::O));
+    REQUIRE(basePoint == curve.AddPointsOnCurve(basePoint, EllipticCurve::PointAtInfinity));
     // Adding infinity to a point on the curve.
-    REQUIRE(basePoint == curve.AddPointsOnCurve(EllipticCurve::O, basePoint));
+    REQUIRE(basePoint == curve.AddPointsOnCurve(EllipticCurve::PointAtInfinity, basePoint));
     
     // Adding infinity to itself.
-    REQUIRE(EllipticCurve::O == curve.AddPointsOnCurve(EllipticCurve::O, EllipticCurve::O));
+    REQUIRE(EllipticCurve::PointAtInfinity == curve.AddPointsOnCurve(EllipticCurve::PointAtInfinity, EllipticCurve::PointAtInfinity));
     
     // Add a point on the curve to its inverse.
-    REQUIRE(EllipticCurve::O == curve.AddPointsOnCurve(basePoint, curve.InvertPoint(basePoint)));
+    REQUIRE(EllipticCurve::PointAtInfinity == curve.AddPointsOnCurve(basePoint, curve.InvertPoint(basePoint)));
     // Add a an inverse of a point on the curve to that point on the curve.
-    REQUIRE(EllipticCurve::O == curve.AddPointsOnCurve(curve.InvertPoint(basePoint), basePoint));
+    REQUIRE(EllipticCurve::PointAtInfinity == curve.AddPointsOnCurve(curve.InvertPoint(basePoint), basePoint));
 }
 
 TEST_CASE("MultiplyWithScalar")

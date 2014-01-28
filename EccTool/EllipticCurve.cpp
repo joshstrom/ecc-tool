@@ -16,7 +16,7 @@
 using namespace std;
 using namespace ecc;
 
-const Point EllipticCurve::O = Point::MakePointAtInfinity();
+const Point EllipticCurve::PointAtInfinity = Point::MakePointAtInfinity();
 const char* EllipticCurve::COMPRESSED_GENERATOR_FLAG = "02";
 const char* EllipticCurve::UNCOMPRESSED_GENERATOR_FLAG = "04";
 
@@ -118,14 +118,14 @@ Point EllipticCurve::AddPointsOnCurve(const Point& rhs, const Point& lhs) const
 {
     // Special rules O (the point at infinity)
     // For point P and point at infinity O:
-    //  P + (-P) = O    (and since addition is communitive: (-P) + P = O)
-    //  P + O = P       (and since addition is communitive: O + P = P)
-    if(rhs == O)
+    //  P + (-P) = O    (and since addition is communicative: (-P) + P = O)
+    //  P + O = P       (and since addition is communicative: O + P = P)
+    if(rhs == PointAtInfinity)
         return lhs;
-    if(lhs == O)
+    if(lhs == PointAtInfinity)
         return rhs;
     if(rhs == InvertPoint(lhs))
-        return O;
+        return PointAtInfinity;
     
     // For points P and Q, P+Q is added differently (point add) than P+P (point double).
     if(rhs == lhs)
@@ -151,7 +151,7 @@ Point EllipticCurve::MultiplyPointOnCurveWithScalar(const Point& point, const Bi
     //    }
     //    output R
 
-    Point product = EllipticCurve::O;
+    Point product = EllipticCurve::PointAtInfinity;
     Point n = point;
     
     // Find first non-zero bit starting at the MSB of the scalar.
@@ -198,7 +198,7 @@ const BigInteger& EllipticCurve::GetBasePointOrder() const
 // Definitions of the below modulo operations were found here: http://tools.ietf.org/search/rfc6090
 BigInteger EllipticCurve::AddInFiniteField(const BigInteger& operand1, const BigInteger& operand2) const
 {
-    // Let p define the max of the fininte field Fp such that all elemnts of Fp are in the range
+    // Let p define the max of the finite field Fp such that all elemnets of Fp are in the range
     //  [0, p-1].
     // Since both operands are in Fp, the result of an addition operation must be
     //  in the range [0, 2p-1]. Thus, to ensure that the result of the addition is an element of Fp,
@@ -214,7 +214,7 @@ BigInteger EllipticCurve::AddInFiniteField(const BigInteger& operand1, const Big
 
 BigInteger EllipticCurve::SubtractInFiniteField(const BigInteger& operand1, const BigInteger& operand2) const
 {
-    // Let p define the max of the fininte field Fp such that all elemnts of Fp are in the range
+    // Let p define the max of the finite field Fp such that all elements of Fp are in the range
     //  [0, p-1].
     // Since both operands are in Fp, the result of a subtraction operation must be
     //  in the range [-(p-1), p-1]. Thus, to ensure that the result of the subtraction is an element of Fp,
@@ -230,7 +230,7 @@ BigInteger EllipticCurve::SubtractInFiniteField(const BigInteger& operand1, cons
 
 BigInteger EllipticCurve::MultiplyInFiniteField(const BigInteger& operand1, const BigInteger& operand2) const
 {
-    // Let p define the max of the fininte field Fp such that all elemnts of Fp are in the range
+    // Let p define the max of the finite field Fp such that all elements of Fp are in the range
     //  [0, p-1].
     // To ensure that the result of the multiplication operation is an element of Fp, return the result
     //  mod p, which will place the result in the range [0, p-1]
@@ -240,24 +240,27 @@ BigInteger EllipticCurve::MultiplyInFiniteField(const BigInteger& operand1, cons
 
 BigInteger EllipticCurve::DivideInFiniteField(const BigInteger& numerator, const BigInteger& denominator) const
 {
-    // Let p define the max of the fininte field Fp such that all elemnts of Fp are in the range
+    // Let p define the max of the finite field Fp such that all elements of Fp are in the range
     //  [0, p-1].
     //  Divide numerator by denominator by multiplying the numerator by the multiplicative inverse
-    //  of the numerator, mod p.
+    //  of the numerator, mod p. Since the result is a multiplication in the finite field, the result
+	//	will also be in the finite field.
     return MultiplyInFiniteField(numerator, EllipticCurve::FindMultiplicativeInverse(denominator, _p));
 }
 
 BigInteger EllipticCurve::FindMultiplicativeInverse(const BigInteger& a, const BigInteger& b)
 {
     // Use the following algorithm to calculate the multiplicative inverse via the
-    //  Extended Euclidian Algorithm: (algorithm found here: http://en.wikipedia.org/wiki/Extended_Euclidean_algorithm)
+    //  Extended Euclidean Algorithm: (algorithm found here: http://en.wikipedia.org/wiki/Extended_Euclidean_algorithm)
     //    function eea(a, b)
     //        s := 0;    old_s := 1
     //        r := b;    old_r := a
+	//		  t := 1;    old_t := 0
     //        while r ≠ 0
     //            quotient := old_r div r
     //            (old_r, r) := (r, old_r - quotient *r)
     //            (old_s, s) := (s, old_s - quotient *s)
+	//			  (old_t, t) := (t, old_t - quotient *t)
     //        output "Bézout coefficients:", (old_s, old_t)
     //        output "greatest common divisor:", old_r
     //        output "quotients by the gcd:", (t, s)
@@ -267,7 +270,7 @@ BigInteger EllipticCurve::FindMultiplicativeInverse(const BigInteger& a, const B
     //        r := old_r - quotient * prov;
     //        old_r := prov;
 	// Note: this algorithm has been adjusted from that above for efficiency (through profiling)
-	//	to avoid extra operations, extra copies and extra allocations.
+	//	to avoid extra operations, extra copies and extra allocations. Additionally, we do not need t.
 
 
 	// This will eventually hold the inverse of a mod b.

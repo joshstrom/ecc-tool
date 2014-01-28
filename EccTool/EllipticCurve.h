@@ -70,7 +70,7 @@ private:
     
 public:
     // Point at infinity.
-    static const Point O;
+    static const Point PointAtInfinity;
     
     // Initializes a curve with the supplied parameters.
     EllipticCurve(DomainParameters params);
