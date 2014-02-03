@@ -726,6 +726,53 @@ pair<BigInteger, BigInteger> BigInteger::Divide(const BigInteger& numerator, con
     return pair<BigInteger, BigInteger>(move(quotient), move(remainder));
 }
 
+// Binary addition operator with BigIntegers. Declared as free function by convention.
+BigInteger operator+(BigInteger lhs, const BigInteger& rhs)
+{
+    lhs += rhs;
+    return lhs;
+}
+
+// Binary subtraction operator with BigIntegers. Declared as free function by convention.
+BigInteger operator-(BigInteger lhs, const BigInteger& rhs)
+{
+    lhs -= rhs;
+    return lhs;
+}
+
+// Binary multiplication operator with BigIntegers. Declared as free function by convention.
+BigInteger operator*(BigInteger lhs, const BigInteger& rhs)
+{
+    lhs *= rhs;
+    return lhs;
+}
+
+// Binary modulus operator with BigIntegers. Declared as free function by convention.
+BigInteger operator/(BigInteger lhs, const BigInteger& rhs)
+{
+    lhs /= rhs;
+    return lhs;
+}
+
+// Binary modulus operator with BigIntegers. Declared as free function by convention.
+BigInteger operator%(BigInteger lhs, const BigInteger& rhs)
+{
+    lhs %= rhs;
+    return lhs;
+}
+
+// Overload of the absolute value function abs() for BigInteger.
+BigInteger abs(const BigInteger& bigInteger)
+{
+    return (bigInteger >= 0) ? bigInteger : -bigInteger;
+}
+
+// Overload of out stream operator to print a representation of the BigInteger.
+std::ostream& operator<<(std::ostream& os, const BigInteger& bigInteger)
+{
+    os << bigInteger.ToString();
+    return os;
+}
 
 
 

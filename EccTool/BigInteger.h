@@ -229,51 +229,24 @@ public:
 };
 
 // Binary addition operator with BigIntegers. Declared as free function by convention.
-inline BigInteger operator+(BigInteger lhs, const BigInteger& rhs)
-{
-    lhs += rhs;
-    return lhs;
-}
+BigInteger operator+(BigInteger lhs, const BigInteger& rhs);
 
 // Binary subtraction operator with BigIntegers. Declared as free function by convention.
-inline BigInteger operator-(BigInteger lhs, const BigInteger& rhs)
-{
-    lhs -= rhs;
-    return lhs;
-}
+BigInteger operator-(BigInteger lhs, const BigInteger& rhs);
 
 // Binary multiplication operator with BigIntegers. Declared as free function by convention.
-inline BigInteger operator*(BigInteger lhs, const BigInteger& rhs)
-{
-    lhs *= rhs;
-    return lhs;
-}
+BigInteger operator*(BigInteger lhs, const BigInteger& rhs);
 
 // Binary modulus operator with BigIntegers. Declared as free function by convention.
-inline BigInteger operator/(BigInteger lhs, const BigInteger& rhs)
-{
-    lhs /= rhs;
-    return lhs;
-}
+BigInteger operator/(BigInteger lhs, const BigInteger& rhs);
 
 // Binary modulus operator with BigIntegers. Declared as free function by convention.
-inline BigInteger operator%(BigInteger lhs, const BigInteger& rhs)
-{
-    lhs %= rhs;
-    return lhs;
-}
+BigInteger operator%(BigInteger lhs, const BigInteger& rhs);
 
 // Overload of the absolute value function abs() for BigInteger.
-inline BigInteger abs(const BigInteger& bigInteger)
-{
-    return (bigInteger >= 0) ? bigInteger : -bigInteger;
-}
+BigInteger abs(const BigInteger& bigInteger);
 
 // Overload of out stream operator to print a representation of the BigInteger.
-inline std::ostream& operator<<(std::ostream& os, const BigInteger& bigInteger)
-{
-    os << bigInteger.ToString();
-    return os;
-}
+std::ostream& operator<<(std::ostream& os, const BigInteger& bigInteger);
 
 #endif /* defined(__EccTool__BigInteger__) */

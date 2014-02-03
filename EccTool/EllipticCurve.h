@@ -47,11 +47,6 @@ private:
     // The cofactor of the curve.
     BigInteger _h;
     
-    // Helper functions for parsing the Generator point from the domain parameters.
-    Point ParseGeneratorPoint(DomainParameters domainParams) const;
-    Point ParseUncompressedGeneratorPoint(const string& pointString) const;
-    Point ParseCompressedGeneratorPoint(const string& pointString)const;
-    
     // Internal functions to compute the addition of two points for
     //  a) A + B = C (when A and B are distinct), and
     //  b) A + A = C (when A is added to itself)

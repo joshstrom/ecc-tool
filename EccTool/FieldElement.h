@@ -25,7 +25,10 @@ private:
     shared_ptr<const BigInteger> _p;
     
 public:
+    // Constructor taking an number in the field and the field itself (as a shared ptr).
     FieldElement(BigInteger number, shared_ptr<const BigInteger> p);
+    
+    // Constructor taking an number in the field and the field itself (by value).
     FieldElement(BigInteger number, const BigInteger p);
     
     // Mathematical operations mod _p.
@@ -65,6 +68,6 @@ FieldElement operator*(FieldElement lhs, const FieldElement& rhs);
 FieldElement operator/(FieldElement lhs, const FieldElement& rhs);
 
 // Streaming operator used for printing object to stream.
-std::ostream& operator<<(std::ostream& os, const FieldElement& point);
+ostream& operator<<(ostream& os, const FieldElement& point);
 
 #endif /* defined(__EccTool__FieldElement__) */

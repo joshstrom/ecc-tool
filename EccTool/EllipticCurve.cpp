@@ -21,49 +21,11 @@ const Point EllipticCurve::PointAtInfinity = Point::MakePointAtInfinity();
 const char* EllipticCurve::COMPRESSED_GENERATOR_FLAG = "02";
 const char* EllipticCurve::UNCOMPRESSED_GENERATOR_FLAG = "04";
 
-EllipticCurve::EllipticCurve(DomainParameters params) : _p(make_shared<BigInteger>(params.p)), _a(params.a, _p), _b(params.b, _p), _G(ParseGeneratorPoint(params)), _n(params.n), _h(params.h)
+EllipticCurve::EllipticCurve(DomainParameters params) : _p(make_shared<BigInteger>(params.p)), _a(params.a, _p), _b(params.b, _p), _G(Point::Parse(params.G, _p)), _n(params.n), _h(params.h)
 {
     // Validate that the base point G is on the curve.
     if(!CheckPointOnCurve(_G))
         throw invalid_argument("Invalid curve parameters: Generator point not on curve.");
-}
-
-Point EllipticCurve::ParseGeneratorPoint(DomainParameters params) const
-{
-    // Strip out any spaces in the generator.
-    string point(params.G);
-    point.erase(std::remove_if(point.begin(), point.end(), ::isspace), point.end());
-    
-    if(point.size() < 2)
-        throw invalid_argument("Valid generator not provided: buffer too short.");
-    
-    // Pull the first two characters from the beginning of the string, this indicates whether the point is compressed
-    //  or uncompressed.
-    string type = point.substr(0, 2);
-    if(type == COMPRESSED_GENERATOR_FLAG)
-        return ParseCompressedGeneratorPoint(point.substr(2, string::npos));
-    if(type == UNCOMPRESSED_GENERATOR_FLAG)
-        return ParseUncompressedGeneratorPoint(point.substr(2, string::npos));
-    
-    throw invalid_argument("Invalid generator point compression flag.");
-}
-
-Point EllipticCurve::ParseUncompressedGeneratorPoint(const string& pointString) const
-{
-    // The first half of the point is the x-coordinate, the second half of the point is the y-coordinate.
-    if((pointString.size() % 2) != 0)
-        throw invalid_argument("Generator point not serialized correctly: not same size.");
-    
-    // Create the point: x = first half of point string, y = second half of point string.
-    BigInteger pointX(string(pointString.begin(), pointString.begin() + (pointString.size() / 2)));
-    BigInteger pointY(string(pointString.begin() + (pointString.size() / 2), pointString.end()));
-                      
-    return Point(FieldElement(move(pointX), _p), FieldElement(move(pointY), _p));
-}
-
-Point EllipticCurve::ParseCompressedGeneratorPoint(const string& pointString)const
-{
-    throw invalid_argument("compressed generator point parsing not implemented.");
 }
 
 Point EllipticCurve::PointAdd(const Point& P, const Point& Q) const

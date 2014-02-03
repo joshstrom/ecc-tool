@@ -9,15 +9,24 @@
 #include "FieldElement.h"
 
 #include <sstream>
+#include <cassert>
 
 FieldElement::FieldElement(BigInteger number, shared_ptr<const BigInteger> p)
     : _number(number), _p(p)
 {
+    // Number must be within the finite field. This test is done as a debug
+    //  assert since numbers are not selected by users and the issue will appear
+    //  with any code issues.
+    assert(_number >= 0 && _number < *_p);
 }
 
 FieldElement::FieldElement(BigInteger number, BigInteger p)
 : _number(number), _p(make_shared<const BigInteger>(p))
 {
+    // Number must be within the finite field. This test is done as a debug
+    //  assert since numbers are not selected by users and the issue will appear
+    //  with any code issues.
+    assert(_number >= 0 && _number < *_p);
 }
 
 FieldElement& FieldElement::operator+=(const FieldElement& other)
@@ -150,7 +159,6 @@ FieldElement FieldElement::operator-() const
     return result;
 }
 
-
 // ***
 // comparison Operators
 // ***
@@ -174,8 +182,6 @@ bool FieldElement::operator!=(const BigInteger& other) const
     return !(*this == other);
 }
 
-
-
 BigInteger FieldElement::GetRawInteger() const
 {
     return _number;
@@ -188,7 +194,6 @@ string FieldElement::ToString() const
     
     return ss.str();
 }
-
 
 // ***
 // Implementatiions of free functions for binary mathematical operations

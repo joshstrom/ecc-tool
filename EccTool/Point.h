@@ -25,43 +25,44 @@ public:
     FieldElement y;
     
     // Creates a point at infinity.
-    static Point MakePointAtInfinity()
-    {
-        return Point(true);
-    }
+    static Point MakePointAtInfinity();
     
-    Point() : x(BigInteger(0), BigInteger(0)), y(BigInteger(0), BigInteger(0)), isPointAtInfinity(false)
-    {
-    }
+    // Deserializes a point.
+    static Point Parse(const string& serializedPoint, shared_ptr<BigInteger> field);
+    
+    // Default constructor, creates a point at (0,0).
+    Point();
     
     // Creates a point with the given x and y coordinates (not at infinity).
-    Point(FieldElement x, FieldElement y) : x(x), y(y), isPointAtInfinity(false)
-    {
-    }
+    Point(FieldElement x, FieldElement y);
     
     // Two points are equal if:
     //  a) They are both a point at infinity (x,y coordinates don't matter).
-    //  b) They have the exact same x and y coordinates.
-    bool operator==(const Point& other) const
-    {
-        return (isPointAtInfinity && other.isPointAtInfinity) || ((x == other.x) && (y == other.y));
-    }
+    //      OR
+    //  b) Neither is a point at infinity and they have the exact same x and y coordinates.
+    bool operator==(const Point& other) const;
     
     // Not Equal implemented as the inverse of Equal.
-    bool operator!=(const Point& other) const
-    {
-        return !(*this == other);
-    }
+    bool operator!=(const Point& other) const;
+    
+    string Serialize() const;
  
 private:
+    static const char* COMPRESSED_POINT_FLAG;
+    static const char* UNCOMPRESSED_POINT_FLAG;
+    
+    // Internal point parsing helper function for uncompressed point representations.
+    static Point ParseUncompressedGeneratorPoint(const string& pointString, shared_ptr<BigInteger> field);
+    
+    // Internal point parsing helper function for compressed point representations.
+    static Point ParseCompressedGeneratorPoint(const string& pointString, shared_ptr<BigInteger> field);
+    
     // Determines if this is a point at infinity.
     bool isPointAtInfinity;
 
     // Internal constructor used only for making a point at infinity (bool param provided
     //  so these are not accidentally created as this is a default constructor).
-    Point(bool isPointAtInfinity) : x(BigInteger(0), BigInteger(0)), y(BigInteger(0), BigInteger(0)), isPointAtInfinity(isPointAtInfinity)
-    {
-    }
+    Point(bool isPointAtInfinity);
 };
 
 // Stream writing operator for Point.

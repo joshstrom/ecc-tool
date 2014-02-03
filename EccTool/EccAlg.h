@@ -10,8 +10,11 @@
 #define __EccTool__EccAlg__
 
 #include <iostream>
+#include <tuple>
 #include "EllipticCurve.h"
 #include "BigInteger.h"
+
+using namespace std;
 
 class EccAlg
 {
@@ -44,6 +47,9 @@ public:
     // Creates a string with a printable version of the string.
     //  Optionally includes private key.
     const string KeysToString(bool includePrivate) const;
+    
+    //vector<uint8_t> Encrypt(const vector<uint8_t> plaintext);
+    //vector<uint8_t> Decrypt(const vector<uint8_t> ciphertext);
 };
 
 
