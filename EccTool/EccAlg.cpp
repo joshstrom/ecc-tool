@@ -82,29 +82,26 @@ void EccAlg::LoadKeys(const string& archivedKeys)
     elementDelimiter = stringToParse.find(delimiter);
     if(elementDelimiter == string::npos)
         throw invalid_argument("Not valid format for serialized keys. Third element not in string.");
-    parsedPublicKey.x = BigInteger(stringToParse.substr(0, elementDelimiter));
+    BigInteger parsedX(stringToParse.substr(0, elementDelimiter));
     stringToParse.erase(0, elementDelimiter + 1);
     
     // Parse the PublicY key element from the archived string.
     elementDelimiter = stringToParse.find(delimiter);
     if(elementDelimiter != string::npos)
         throw invalid_argument("Not valid format for serialized keys. String not ending when expected.");
-    parsedPublicKey.y = BigInteger(stringToParse.substr(0, elementDelimiter));
+    BigInteger parsedY(stringToParse.substr(0, elementDelimiter));
     
     // Save the key components.
     swap(_privateKey, parsedPrivateKey);
-    swap(_publicKey, parsedPublicKey);
-    
-    // Test to ensure that the public key is on the curve.
-    if(!_curve.CheckPointOnCurve(_publicKey))
-        throw invalid_argument("Invalid key for curve.");
+    _publicKey = _curve.MakePointOnCurve(move(parsedX), move(parsedY));
+
 }
 
 const string EccAlg::SaveKeys() const
 {
     // Order of keys: [<private>:<publicX>:<publicY>]
     stringstream ss;
-    ss << '[' << _privateKey << ':' << _publicKey.x << ':' << _publicKey.y << ']';
+    ss << '[' << _privateKey << ':' << _publicKey.x.GetRawInteger() << ':' << _publicKey.y.GetRawInteger() << ']';
     
     return ss.str();
 }

@@ -14,6 +14,7 @@
 #include "Stopwatch.h"
 #include "EllipticCurve.h"
 #include "DefinedCurveDomainParameters.h"
+#include "FieldElement.h"
 
 void StatisticalOperationTest(const BaseOperationTester& tester)
 {
@@ -638,8 +639,8 @@ TEST_CASE("CanCreateEllipticCurveWithParameters_secp112r1")
     BigInteger expectedX("57cf52a0f9318000ee0bc032d756");
     BigInteger expectedY("60aee03bbcff537a8d17401f006c");
 
-    REQUIRE(expectedX.ToString() == sum.x.ToString());
-    REQUIRE(expectedY.ToString() == sum.y.ToString());
+    REQUIRE(sum.x == expectedX);
+    REQUIRE(sum.y == expectedY);
     
     REQUIRE(curve.CheckPointOnCurve(sum));
     
@@ -721,7 +722,7 @@ TEST_CASE("MultiplyWithScalar")
     BigInteger scalar = 5;
     Point basePoint = curve.GetBasePoint();
     
-    Point expectedPoint(BigInteger("ca188ca33fde3ce02a83f197547c"), BigInteger("ab5c59cb715e2ddc3e51ad252a5f"));
+    Point expectedPoint = curve.MakePointOnCurve(BigInteger("ca188ca33fde3ce02a83f197547c"), BigInteger("ab5c59cb715e2ddc3e51ad252a5f"));
     
     Point multipliedPoint = curve.MultiplyPointOnCurveWithScalar(basePoint, scalar);
     
@@ -782,19 +783,88 @@ TEST_CASE("CanGetCurveByName")
     REQUIRE(params.name == curveName);
 }
 
-//TEST_CASE("CanMakeBitcoinCurve")
-//{
-//    DomainParameters bitcoinCurveParams = GetSecp256k1Curve();
-//    EllipticCurve curve(bitcoinCurveParams);
-//    
-//    EccAlg alg(curve);
-//    alg.GenerateKeys();
-//    string savedKeys = alg.SaveKeys();
-//    
-//    EccAlg newAlg(bitcoinCurveParams);
-//    REQUIRE_NOTHROW(newAlg.LoadKeys(savedKeys));
-//    REQUIRE(savedKeys == newAlg.SaveKeys());
-//}
+TEST_CASE("CanMakeBitcoinCurve")
+{
+    DomainParameters bitcoinCurveParams = GetSecp256k1Curve();
+    EllipticCurve curve(bitcoinCurveParams);
+    
+    EccAlg alg(curve);
+    alg.GenerateKeys();
+    string savedKeys = alg.SaveKeys();
+    
+    EccAlg newAlg(bitcoinCurveParams);
+    REQUIRE_NOTHROW(newAlg.LoadKeys(savedKeys));
+    REQUIRE(savedKeys == newAlg.SaveKeys());
+}
+
+TEST_CASE("CanCreateFieldElement")
+{
+    FieldElement element(5, 7);
+}
+
+TEST_CASE("CanAddFieldElementsResultOutOfField")
+{
+    auto p = make_shared<BigInteger>(7);
+    FieldElement lhs(5, p);
+    FieldElement rhs(4, p);
+    
+    REQUIRE((lhs + rhs) == 2);
+}
+
+TEST_CASE("CanSubtractFieldElementsResultOutOfField")
+{
+    auto p = make_shared<BigInteger>(7);
+    FieldElement lhs(4, p);
+    FieldElement rhs(6, p);
+    
+    REQUIRE((lhs - rhs) == 5);
+}
+
+TEST_CASE("CanMultiplyFieldElementsResultOutOfField")
+{
+    auto p = make_shared<BigInteger>(7);
+    FieldElement lhs(5, p);
+    FieldElement rhs(5, p);
+    
+    REQUIRE((lhs * rhs) == 4);
+}
+
+TEST_CASE("CanDivideFieldElements")
+{
+    auto p = make_shared<BigInteger>(7);
+    FieldElement lhs(4, p);
+    FieldElement rhs(2, p);
+    
+    REQUIRE((lhs / rhs) == 2);
+    REQUIRE((rhs / lhs) == 4);
+}
+
+TEST_CASE("CanAddFieldElementsResultInField")
+{
+    auto p = make_shared<BigInteger>(7);
+    FieldElement lhs(2, p);
+    FieldElement rhs(2, p);
+    
+    REQUIRE((lhs + rhs) == 4);
+}
+
+TEST_CASE("CanSubtractFieldElementsResultInField")
+{
+    auto p = make_shared<BigInteger>(7);
+    FieldElement lhs(4, p);
+    FieldElement rhs(2, p);
+    
+    REQUIRE((lhs - rhs) == 2);
+}
+
+TEST_CASE("CanMultiplyFieldElementsResultInField")
+{
+    auto p = make_shared<BigInteger>(7);
+    FieldElement lhs(2, p);
+    FieldElement rhs(2, p);
+    
+    REQUIRE((lhs * rhs) == 4);
+}
 
 
 

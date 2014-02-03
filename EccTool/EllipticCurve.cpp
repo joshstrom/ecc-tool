@@ -8,6 +8,7 @@
 
 #include "EllipticCurve.h"
 #include "EccDefs.h"
+#include "FieldElement.h"
 #include <string>
 #include <exception>
 #include <iostream>
@@ -20,13 +21,11 @@ const Point EllipticCurve::PointAtInfinity = Point::MakePointAtInfinity();
 const char* EllipticCurve::COMPRESSED_GENERATOR_FLAG = "02";
 const char* EllipticCurve::UNCOMPRESSED_GENERATOR_FLAG = "04";
 
-EllipticCurve::EllipticCurve(DomainParameters params) : _h(params.h), _n(params.n), _p(params.p), _a(params.a), _b(params.b), _G(ParseGeneratorPoint(params))
+EllipticCurve::EllipticCurve(DomainParameters params) : _p(make_shared<BigInteger>(params.p)), _a(params.a, _p), _b(params.b, _p), _G(ParseGeneratorPoint(params)), _n(params.n), _h(params.h)
 {
     // Validate that the base point G is on the curve.
     if(!CheckPointOnCurve(_G))
-    {
         throw invalid_argument("Invalid curve parameters: Generator point not on curve.");
-    }
 }
 
 Point EllipticCurve::ParseGeneratorPoint(DomainParameters params) const
@@ -56,8 +55,10 @@ Point EllipticCurve::ParseUncompressedGeneratorPoint(const string& pointString) 
         throw invalid_argument("Generator point not serialized correctly: not same size.");
     
     // Create the point: x = first half of point string, y = second half of point string.
-    return Point(BigInteger(string(pointString.begin(), pointString.begin() + (pointString.size() / 2))),
-        BigInteger(string(pointString.begin() + (pointString.size() / 2), pointString.end())));
+    BigInteger pointX(string(pointString.begin(), pointString.begin() + (pointString.size() / 2)));
+    BigInteger pointY(string(pointString.begin() + (pointString.size() / 2), pointString.end()));
+                      
+    return Point(FieldElement(move(pointX), _p), FieldElement(move(pointY), _p));
 }
 
 Point EllipticCurve::ParseCompressedGeneratorPoint(const string& pointString)const
@@ -78,10 +79,10 @@ Point EllipticCurve::PointAdd(const Point& P, const Point& Q) const
     //  r:x|y = the newly computed point x and y coordinates.
     //  a = one of the coefficients of the curve.
     //  All calculations are done mod p (where p is the finite field of the curve).
-    
-    BigInteger s = DivideInFiniteField(SubtractInFiniteField(P.y, Q.y), SubtractInFiniteField(P.x, Q.x));
-    BigInteger Rx = SubtractInFiniteField(SubtractInFiniteField(MultiplyInFiniteField(s, s), P.x), Q.x);
-    BigInteger Ry = SubtractInFiniteField(MultiplyInFiniteField(s, SubtractInFiniteField(P.x, Rx)), P.y);
+
+    FieldElement s = (P.y - Q.y) / (P.x - Q.x);
+    FieldElement Rx = (s * s) - P.x - Q.x;
+    FieldElement Ry = (s * (P.x - Rx)) - P.y;
     
     return Point(Rx, Ry);
 }
@@ -100,9 +101,9 @@ Point EllipticCurve::PointDouble(const Point& P) const
     //  All calculations are done mod p (where p is the finite field of the curve) using the
     //      <operation>InFiniteField() functions.
     
-    BigInteger s = DivideInFiniteField(AddInFiniteField(MultiplyInFiniteField(3, MultiplyInFiniteField(P.x, P.x)), _a), MultiplyInFiniteField(2, P.y));
-    BigInteger Rx = SubtractInFiniteField(MultiplyInFiniteField(s, s), MultiplyInFiniteField(2, P.x));
-    BigInteger Ry = SubtractInFiniteField(MultiplyInFiniteField(s, SubtractInFiniteField(P.x, Rx)), P.y);
+    FieldElement s = ((FieldElement(3, _p) * (P.x * P.x)) + _a) / (FieldElement(2, _p) * P.y);
+    FieldElement Rx = (s * s) - (FieldElement(2, _p) * P.x);
+    FieldElement Ry = (s * (P.x - Rx)) - P.y;
     
     return Point(Rx, Ry);
 }
@@ -111,7 +112,7 @@ Point EllipticCurve::InvertPoint(const Point& point) const
 {
     // The inverse of a point on the curve is defined as:
     //  -{x,y} <=> {x,-y} (subtraction done in finite field).
-    return Point(point.x, SubtractInFiniteField(0,point.y));
+    return Point(point.x, -point.y);
 }
 
 Point EllipticCurve::AddPointsOnCurve(const Point& rhs, const Point& lhs) const
@@ -155,12 +156,7 @@ Point EllipticCurve::MultiplyPointOnCurveWithScalar(const Point& point, const Bi
     Point n = point;
     
     // Find first non-zero bit starting at the MSB of the scalar.
-    int i = static_cast<int>(scalar.GetBitSize()) - 1;
-    for(; i >= 0; i--)
-    {
-        if(scalar.GetBitAt(i))
-            break;
-    }
+    int i = static_cast<int>(scalar.GetMostSignificantBitIndex());
     
     // Do the addition based on the above algorithm.
     for(; i >= 0; i--)
@@ -177,11 +173,23 @@ bool EllipticCurve::CheckPointOnCurve(const Point& point) const
 {
     // For the point (x,y) to be on the curve,
     //  y^2 MUST EQUAL x^3 + ax + b    mod p
-    BigInteger leftHandSide = MultiplyInFiniteField(point.y, point.y);
-    BigInteger rightHandSide = AddInFiniteField(AddInFiniteField(MultiplyInFiniteField(MultiplyInFiniteField(point.x, point.x), point.x), MultiplyInFiniteField(_a, point.x)),_b);
+    
+    FieldElement leftHandSide = point.y * point.y;
+    FieldElement rightHandSide = (point.x * point.x * point.x) + (_a * point.x) + _b;
     bool pointIsOnCurve =  rightHandSide == leftHandSide;
     
     return pointIsOnCurve;
+}
+
+Point EllipticCurve::MakePointOnCurve(BigInteger&& x, BigInteger&& y)
+{
+    Point point(FieldElement(move(x), _p), FieldElement(move(y), _p));
+    
+    // Test to ensure that the public key is on the curve.
+    if(!CheckPointOnCurve(point))
+        throw invalid_argument("Point not on curve.");
+    
+    return point;
 }
 
 const Point& EllipticCurve::GetBasePoint() const
@@ -193,123 +201,3 @@ const BigInteger& EllipticCurve::GetBasePointOrder() const
 {
     return _n;
 }
-
-
-// Definitions of the below modulo operations were found here: http://tools.ietf.org/search/rfc6090
-BigInteger EllipticCurve::AddInFiniteField(const BigInteger& operand1, const BigInteger& operand2) const
-{
-    // Let p define the max of the finite field Fp such that all elemnets of Fp are in the range
-    //  [0, p-1].
-    // Since both operands are in Fp, the result of an addition operation must be
-    //  in the range [0, 2p-1]. Thus, to ensure that the result of the addition is an element of Fp,
-    //  do the following transformation:
-    //      case (result < p): return result.
-    //      case (result > p): return result - p (which will place it back in the range [0, p-1].
-    BigInteger result = operand1 + operand2;
-    if(result >= _p)
-        result -= _p;
-    
-    return result;
-}
-
-BigInteger EllipticCurve::SubtractInFiniteField(const BigInteger& operand1, const BigInteger& operand2) const
-{
-    // Let p define the max of the finite field Fp such that all elements of Fp are in the range
-    //  [0, p-1].
-    // Since both operands are in Fp, the result of a subtraction operation must be
-    //  in the range [-(p-1), p-1]. Thus, to ensure that the result of the subtraction is an element of Fp,
-    //  do the following transformation:
-    //      case (result >= 0): return result.
-    //      case (result < p): return result + p (which will place it back in the range [0, p-1].
-    BigInteger result = operand1 - operand2;
-    if(result < 0)
-        result += _p;
-    
-    return result;
-}
-
-BigInteger EllipticCurve::MultiplyInFiniteField(const BigInteger& operand1, const BigInteger& operand2) const
-{
-    // Let p define the max of the finite field Fp such that all elements of Fp are in the range
-    //  [0, p-1].
-    // To ensure that the result of the multiplication operation is an element of Fp, return the result
-    //  mod p, which will place the result in the range [0, p-1]
-    BigInteger result = operand1 * operand2;
-    return result %= _p;
-}
-
-BigInteger EllipticCurve::DivideInFiniteField(const BigInteger& numerator, const BigInteger& denominator) const
-{
-    // Let p define the max of the finite field Fp such that all elements of Fp are in the range
-    //  [0, p-1].
-    //  Divide numerator by denominator by multiplying the numerator by the multiplicative inverse
-    //  of the numerator, mod p. Since the result is a multiplication in the finite field, the result
-	//	will also be in the finite field.
-    return MultiplyInFiniteField(numerator, EllipticCurve::FindMultiplicativeInverse(denominator, _p));
-}
-
-BigInteger EllipticCurve::FindMultiplicativeInverse(const BigInteger& a, const BigInteger& b)
-{
-    // Use the following algorithm to calculate the multiplicative inverse via the
-    //  Extended Euclidean Algorithm: (algorithm found here: http://en.wikipedia.org/wiki/Extended_Euclidean_algorithm)
-    //    function eea(a, b)
-    //        s := 0;    old_s := 1
-    //        r := b;    old_r := a
-	//		  t := 1;    old_t := 0
-    //        while r ≠ 0
-    //            quotient := old_r div r
-    //            (old_r, r) := (r, old_r - quotient *r)
-    //            (old_s, s) := (s, old_s - quotient *s)
-	//			  (old_t, t) := (t, old_t - quotient *t)
-    //        output "Bézout coefficients:", (old_s, old_t)
-    //        output "greatest common divisor:", old_r
-    //        output "quotients by the gcd:", (t, s)
-    
-    //    Where (old_r, r) := (r, old_r - quotient *r) means:
-    //        prov := r;
-    //        r := old_r - quotient * prov;
-    //        old_r := prov;
-	// Note: this algorithm has been adjusted from that above for efficiency (through profiling)
-	//	to avoid extra operations, extra copies and extra allocations. Additionally, we do not need t.
-
-
-	// This will eventually hold the inverse of a mod b.
-    BigInteger s = 0;
-    BigInteger old_s = 1;
-    
-	// Used to hold the repeatedly computed remainder.
-    BigInteger r = b;
-    BigInteger old_r = a;
-    
-    while(r != 0)
-    {
-		// Do the full division operation for the quotient and remainder.
-        auto divResult = BigInteger::Divide(old_r, r); // Returns a pair: <quotient, remainder>
-		BigInteger& quotient = divResult.first;
-		BigInteger& remainder = divResult.second;
-
-		swap(old_r, r); // Save away the current r in old_r (value of old_r stored in r and no longer needed)
-		swap(r, remainder);	// Save away the current remainder in r (use swap to avoid making a copy).
-        
-		// Do the first part of the calculation (s = old_s - (quotient * s))
-		//	(the multiplication part), reusing the BigInteger instance for quotient.
-		quotient *= s; 
-
-		// Store away the value of s into old_s for the next iteration.
-		swap(old_s, s);
-        
-		// Now that old_s is in s, do the subtraction part of the equation (s = old_s - (quotient * s).
-		//	by subtracting the quotion (which holds quotient*s) from s (which holds old_s).
-		s -= quotient;
-    }
-
-    // old_s is the multiplicative inverse of a, but may be a negative number.
-    //  Place this within Fp by adding p to the result (if the result is less than 0).
-    if(old_s < 0)
-        old_s += b;
-    
-    return old_s;
-}
-
-
-

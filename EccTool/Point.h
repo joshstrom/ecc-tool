@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include "BigInteger.h"
+#include "FieldElement.h"
 
 using namespace std;
 
@@ -19,9 +20,9 @@ class Point
 {
 public:
     // The x-coordinate of the point.
-    BigInteger x;
+    FieldElement x;
     // The y-coordiante of the point.
-    BigInteger y;
+    FieldElement y;
     
     // Creates a point at infinity.
     static Point MakePointAtInfinity()
@@ -29,12 +30,12 @@ public:
         return Point(true);
     }
     
-    Point() : x(0), y(0), isPointAtInfinity(false)
+    Point() : x(BigInteger(0), BigInteger(0)), y(BigInteger(0), BigInteger(0)), isPointAtInfinity(false)
     {
     }
     
     // Creates a point with the given x and y coordinates (not at infinity).
-    Point(BigInteger x, BigInteger y) : x(x), y(y), isPointAtInfinity(false)
+    Point(FieldElement x, FieldElement y) : x(x), y(y), isPointAtInfinity(false)
     {
     }
     
@@ -58,16 +59,12 @@ private:
 
     // Internal constructor used only for making a point at infinity (bool param provided
     //  so these are not accidentally created as this is a default constructor).
-    Point(bool isPointAtInfinity) : x(0), y(0), isPointAtInfinity(isPointAtInfinity)
+    Point(bool isPointAtInfinity) : x(BigInteger(0), BigInteger(0)), y(BigInteger(0), BigInteger(0)), isPointAtInfinity(isPointAtInfinity)
     {
     }
 };
 
 // Stream writing operator for Point.
-inline std::ostream& operator<<(std::ostream& os, const Point& point)
-{
-    os << "{" << point.x << "," << point.y << "}";
-    return os;
-}
+std::ostream& operator<<(std::ostream& os, const Point& point);
 
 #endif /* defined(__EccTool__Point__) */

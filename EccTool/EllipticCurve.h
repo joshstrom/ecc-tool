@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <string>
+#include <memory>
 #include "BigInteger.h"
 #include "EccDefs.h"
 #include "Point.h"
@@ -31,11 +32,11 @@ private:
     
     // The parameters for this particular curve.
     // The field Fp over which the equation operates.
-    BigInteger _p;
+    shared_ptr<BigInteger> _p;
     
     // The coefficients which define the curve.
-    BigInteger _a;
-    BigInteger _b;
+    FieldElement _a;
+    FieldElement _b;
 
     // The Generator or Base Point of this curve.
     Point _G;
@@ -57,17 +58,6 @@ private:
     Point PointAdd(const Point& rhs, const Point& lhs) const;
     Point PointDouble(const Point& point) const;
     
-    // Internal helper functions for performing arithmetic over the finite field defined
-    //  in the curve.
-    BigInteger AddInFiniteField(const BigInteger& operand1, const BigInteger& operand2) const;
-    BigInteger SubtractInFiniteField(const BigInteger& operand1, const BigInteger& operand2) const;
-    BigInteger MultiplyInFiniteField(const BigInteger& operand1, const BigInteger& operand2) const;
-    BigInteger DivideInFiniteField(const BigInteger& numerator, const BigInteger& denominator) const;
-
-    // Uses the Extended Euclidian Algorithm to calculate the multiplicative inverse of
-    //  'a' in the finite field 'b'.
-    static BigInteger FindMultiplicativeInverse(const BigInteger& a, const BigInteger& b);
-    
 public:
     // Point at infinity.
     static const Point PointAtInfinity;
@@ -87,6 +77,8 @@ public:
     
     // Returns true|false depending on whether the given point is on the curve.
     bool CheckPointOnCurve(const Point& point) const;
+    
+    Point MakePointOnCurve(BigInteger&& x, BigInteger&& y);
     
     // Returns the Generator G, or Base Point of this curve.
     const Point& GetBasePoint() const;
