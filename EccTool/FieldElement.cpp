@@ -195,6 +195,17 @@ string FieldElement::ToString() const
     return ss.str();
 }
 
+vector<uint8_t> FieldElement::GetBytes() const
+{
+    auto bytes = _number.GetMagnitudeBytes();
+    
+    // Reize the vector to be returned by inserting the number of zero
+    //  bytes required to size the number to be the same as the field.
+    bytes.insert(bytes.begin(), _p->GetMagnitudeByteSize() - bytes.size(), 0);
+    
+    return bytes;
+}
+
 // ***
 // Implementatiions of free functions for binary mathematical operations
 // ***

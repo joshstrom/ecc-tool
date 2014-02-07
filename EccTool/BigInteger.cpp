@@ -353,6 +353,16 @@ const string BigInteger::ToString() const
     return ss.str();
 }
 
+vector<uint8_t> BigInteger::GetMagnitudeBytes() const
+{
+    return _magnitude;
+}
+
+size_t BigInteger::GetMagnitudeByteSize() const
+{
+    return _magnitude.size();
+}
+
 bool BigInteger::IsZero() const
 {
     return ((_magnitude.size() == 1) && (_magnitude[0] == 0));

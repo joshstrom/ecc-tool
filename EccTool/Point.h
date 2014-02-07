@@ -45,6 +45,7 @@ public:
     // Not Equal implemented as the inverse of Equal.
     bool operator!=(const Point& other) const;
     
+    // Serialzes the point to a string representation.
     string Serialize() const;
  
 private:
@@ -67,5 +68,8 @@ private:
 
 // Stream writing operator for Point.
 std::ostream& operator<<(std::ostream& os, const Point& point);
+
+// Stream writing operator for a vector of bytes.
+std::ostream& operator<<(std::ostream& os, const std::vector<uint8_t>& bytes);
 
 #endif /* defined(__EccTool__Point__) */

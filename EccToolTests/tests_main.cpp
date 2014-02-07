@@ -866,6 +866,21 @@ TEST_CASE("CanMultiplyFieldElementsResultInField")
     REQUIRE((lhs * rhs) == 4);
 }
 
+TEST_CASE("CanSerializeAndDeserializePoint")
+{
+    const string curveName = "secp112r1";
+    DomainParameters params = ecc::GetCurveByName(curveName);
+    
+    auto p = make_shared<BigInteger>(params.p);
+
+    // Parse the generator point. Serialize the point, Parse it again. It should be the same.
+    Point parsed = Point::Parse(params.G, p);
+    auto serialized = parsed.Serialize();
+    Point parsedAgain = Point::Parse(serialized, p);
+    
+    REQUIRE(parsed == parsedAgain);
+}
+
 
 
 

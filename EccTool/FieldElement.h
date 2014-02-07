@@ -51,8 +51,15 @@ public:
     bool operator==(const BigInteger& other) const;
     bool operator!=(const BigInteger& other) const;
     
+    // Returns the element as a BigInteger.
     BigInteger GetRawInteger() const;
+    
+    // Gets a string representation of this field element (mod n).
     string ToString() const;
+    
+    // Returns this field element as bytes. The array is sized to be
+    //  the same as the field, and prepended with zeros.
+    vector<uint8_t> GetBytes() const;
 };
 
 // Binary '+' operator implemented as a free function by convention.

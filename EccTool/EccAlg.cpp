@@ -109,7 +109,7 @@ const string EccAlg::SaveKeys() const
 const string EccAlg::KeysToString(bool includePrivate) const
 {
     stringstream ss;
-    ss << "Public: " << _publicKey;
+    ss << "Public: " << _publicKey.Serialize();
     
     if(includePrivate)
         ss << endl << "Private: " << _privateKey;

@@ -8,6 +8,8 @@
 
 #include "Point.h"
 #include <stdio.h>
+#include <iomanip>
+#include <sstream>
 
 const char* Point::COMPRESSED_POINT_FLAG = "02";
 const char* Point::UNCOMPRESSED_POINT_FLAG = "04";
@@ -80,8 +82,52 @@ bool Point::operator!=(const Point& other) const
     return !(*this == other);
 }
 
+// Serialzes the point to a string representation.
+string Point::Serialize() const
+{
+    // The point is written in an uncompressed format: 04<x coordinate><y coordinate>.
+    auto xCoord = x.GetBytes();
+    auto yCoord = y.GetBytes();
+
+    stringstream ss;
+    ss << UNCOMPRESSED_POINT_FLAG << xCoord << yCoord;
+    return ss.str();
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<uint8_t>& bytes)
+{
+    stringstream ss;
+    ss << hex << setfill('0');
+
+    // Print all digits to the stream.
+    //  The width must be 2 (example: 0x5 should print as "05").
+    //  The cast is to turn it from a character to a number.
+    for(auto digit : bytes)
+        ss << setw(2) << (static_cast<uint16_t>(digit) & 0xFF);
+    
+    os << ss.str();
+    
+    return os;
+}
+
 std::ostream& operator<<(std::ostream& os, const Point& point)
 {
     os << "{" << point.x << "," << point.y << "}";
     return os;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
