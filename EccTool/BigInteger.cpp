@@ -16,13 +16,13 @@
 #include <exception>
 #include <sstream>
 #include <algorithm>
+#include "Utilities.h"
 
 using namespace std;
 
 BigInteger::BigInteger(string number)
 {
-    // Strip spaces and determine sign of number.
-    number.erase(std::remove_if(number.begin(), number.end(), ::isspace), number.end());
+    // Determine sign of number.
     _sign = ((!number.empty() && number[0] == '-') ? NEGATIVE : POSITIVE);
     
     // Negative number means that the string was not empty the first character was '-'
@@ -30,30 +30,7 @@ BigInteger::BigInteger(string number)
     if(_sign == NEGATIVE)
         number = number.substr(1, string::npos);
         
-    // Since a single 8-bit byte can hold the data represented by two hex characters,
-    //  size the source buffer to the ceiling of half the length of the number string.
-    _magnitude.resize(static_cast<unsigned int>(ceil(static_cast<float>(number.size()) / static_cast<float>(2))));
-    
-    // The iteration through the destination buffer will be reversed.
-    auto destinationIterator = _magnitude.rbegin();
-    
-    // Iterate through the string containing the number in reverse order, two digits at a time.
-    unsigned int i = static_cast<unsigned int>(number.size()) - 1;
-    for(; i >= 1 && i < number.size(); i -= 2)
-    {
-        // Because we are iterating backwards, the hex digit at [i-1] is the most significant 2 bits
-        //  and the hex digit at [i] is the least significant two bits. Shift and OR them together
-        //  to create a single byte.
-        *destinationIterator = (GetValidHexDigit(number[i - 1]) << 4) | GetValidHexDigit(number[i]);
-        ++destinationIterator;
-    }
-    
-    // Handle the final character (this will only happen for numbers with an odd number of digits).
-    if(i == 0)
-    {
-        // No bit shifting here as we only have the least significant two bits.
-        *destinationIterator = GetValidHexDigit(number[0]);
-    }
+    _magnitude = utilities::HexStringToBytes(move(number));
     
     // Remove any empty zero bytes from the beginning of the buffer.
     TrimPrefixZeros();
@@ -374,27 +351,6 @@ BigInteger::Sign BigInteger::GetSign() const
         return POSITIVE;
     
     return _sign;
-}
-
-uint8_t BigInteger::GetValidHexDigit(char digit)
-{
-    // We need to convert this hex character in to an actual
-    //  hex binary digit.
-    // Hex digit 0-9 requires different handling than
-    //  hex digit a-f
-    
-    // 0-9: subtract the '0' character to adjust: '0'=0, '1'=1, etc.
-    // a-f: subtract the 'a' character and add 10: 'a'=11, 'b'=12, etc.
-    digit = tolower(digit);
-    if(digit >= '0' && digit <= '9')
-        return static_cast<uint8_t>(digit - '0');
-    if(digit >= 'a' && digit <= 'f')
-        return static_cast<uint8_t>(digit - 'a' + 10);
-    
-    // Not a valid hex digit.
-    stringstream ss;
-    ss << "Invalid hex digit: " << digit;
-    throw invalid_argument(ss.str());
 }
 
 void BigInteger::TrimPrefixZeros()

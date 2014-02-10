@@ -9,6 +9,7 @@
 #include "EllipticCurve.h"
 #include "EccDefs.h"
 #include "FieldElement.h"
+#include "Utilities.h"
 #include <string>
 #include <exception>
 #include <iostream>
@@ -21,7 +22,7 @@ const Point EllipticCurve::PointAtInfinity = Point::MakePointAtInfinity();
 const char* EllipticCurve::COMPRESSED_GENERATOR_FLAG = "02";
 const char* EllipticCurve::UNCOMPRESSED_GENERATOR_FLAG = "04";
 
-EllipticCurve::EllipticCurve(DomainParameters params) : _p(make_shared<BigInteger>(params.p)), _a(params.a, _p), _b(params.b, _p), _G(Point::Parse(params.G, _p)), _n(params.n), _h(params.h)
+EllipticCurve::EllipticCurve(DomainParameters params) : _p(make_shared<BigInteger>(params.p)), _a(params.a, _p), _b(params.b, _p), _G(Point::Parse(utilities::HexStringToBytes(params.G), _p)), _n(params.n), _h(params.h), _curveName(params.name)
 {
     // Validate that the base point G is on the curve.
     if(!CheckPointOnCurve(_G))
@@ -143,11 +144,21 @@ bool EllipticCurve::CheckPointOnCurve(const Point& point) const
     return pointIsOnCurve;
 }
 
-Point EllipticCurve::MakePointOnCurve(BigInteger&& x, BigInteger&& y)
+Point EllipticCurve::MakePointOnCurve(BigInteger&& x, BigInteger&& y) const
 {
     Point point(FieldElement(move(x), _p), FieldElement(move(y), _p));
     
     // Test to ensure that the public key is on the curve.
+    if(!CheckPointOnCurve(point))
+        throw invalid_argument("Point not on curve.");
+    
+    return point;
+}
+
+Point EllipticCurve::MakePointOnCurve(const vector<uint8_t>& serializedPoint) const
+{
+    Point point = Point::Parse(serializedPoint, _p);
+    
     if(!CheckPointOnCurve(point))
         throw invalid_argument("Point not on curve.");
     
@@ -162,4 +173,9 @@ const Point& EllipticCurve::GetBasePoint() const
 const BigInteger& EllipticCurve::GetBasePointOrder() const
 {
     return _n;
+}
+
+string EllipticCurve::GetCurveName() const
+{
+    return _curveName;
 }

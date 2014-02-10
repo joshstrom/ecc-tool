@@ -34,10 +34,7 @@ private:
     
     // Contains the sign of the number.
     Sign _sign;
-    
-    // Converts a hex character to a binary hex digit.
-    static uint8_t GetValidHexDigit(char digit);
-    
+
     // Removes any unnecessary prefix 0x00 bytes from the beginning of the buffer.
     void TrimPrefixZeros();
 
@@ -108,6 +105,13 @@ public:
         // The sign is handled in in the initializer.
         number = abs(number);
         SetSourceBuffer(static_cast<typename make_unsigned<T>::type>(number));
+    }
+    
+    // Constructs a BigInteger out of the binary representation of a number.
+    BigInteger(vector<uint8_t> number, bool isPositive = true)
+        : _sign(isPositive ? POSITIVE : NEGATIVE), _magnitude(move(number))
+    {
+        TrimPrefixZeros();
     }
 
     // Destructor, copy constructor, move constructor, and operator= (both move and copy)

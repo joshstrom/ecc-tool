@@ -15,6 +15,8 @@
 #include "EllipticCurve.h"
 #include "DefinedCurveDomainParameters.h"
 #include "FieldElement.h"
+#include "Utilities.h"
+#include "Version1KeySerializer.h"
 
 void StatisticalOperationTest(const BaseOperationTester& tester)
 {
@@ -874,18 +876,103 @@ TEST_CASE("CanSerializeAndDeserializePoint")
     auto p = make_shared<BigInteger>(params.p);
 
     // Parse the generator point. Serialize the point, Parse it again. It should be the same.
-    Point parsed = Point::Parse(params.G, p);
+    Point parsed = Point::Parse(utilities::HexStringToBytes(params.G), p);
     auto serialized = parsed.Serialize();
+    
+    
     Point parsedAgain = Point::Parse(serialized, p);
     
     REQUIRE(parsed == parsedAgain);
 }
 
+TEST_CASE("CanParseHexString")
+{
+    uint8_t expectedArr[] = { 0x1, 0x2, 0x3, 0x4 };
+    vector<uint8_t> expected(expectedArr, expectedArr + sizeof(expectedArr));
+    
+    auto parsed = utilities::HexStringToBytes("01020304");
+    
+    REQUIRE(expected == parsed);
+}
 
+TEST_CASE("CanParseHexStringMissingLeadingZero")
+{
+    uint8_t expectedArr[] = { 0x1, 0x2, 0x3, 0x4 };
+    vector<uint8_t> expected(expectedArr, expectedArr + sizeof(expectedArr));
+    
+    auto parsed = utilities::HexStringToBytes("1020304");
+    
+    REQUIRE(expected == parsed);
+}
 
+TEST_CASE("CanParseHexStringWithSpaces")
+{
+    uint8_t expectedArr[] = { 0x1, 0x2, 0x3, 0x4 };
+    vector<uint8_t> expected(expectedArr, expectedArr + sizeof(expectedArr));
+    
+    auto parsed = utilities::HexStringToBytes("01 02 03 04");
+    
+    REQUIRE(expected == parsed);
+}
 
+TEST_CASE("CanCreatePositiveBigIntegerFromBytes")
+{
+    uint8_t bytesArr[] = { 0x1, 0x2, 0x3, 0x4 };
+    vector<uint8_t> bytes(bytesArr, bytesArr + sizeof(bytesArr));
+    
+    BigInteger integer(bytes);
+    
+    REQUIRE(BigInteger("01020304") == integer);
+}
 
+TEST_CASE("CanCreateNegativeBigIntegerFromBytes")
+{
+    uint8_t bytesArr[] = { 0x1, 0x2, 0x3, 0x4 };
+    vector<uint8_t> bytes(bytesArr, bytesArr + sizeof(bytesArr));
+    
+    BigInteger integer(bytes, false);
+    
+    REQUIRE(BigInteger("-01020304") == integer);
+}
 
+TEST_CASE("CanSerializeAndParseBigInteger")
+{
+    BigInteger first("01020304");
+    auto serialized = first.GetMagnitudeBytes();
+    BigInteger second(serialized);
+    
+    REQUIRE(first == second);
+}
+
+TEST_CASE("CanSerializeAndParseKeys")
+{
+    DomainParameters curveParams = GetSecp112r1Curve();
+    EllipticCurve curve(GetSecp112r1Curve());
+    
+    EccAlg alg1(curve);
+    alg1.GenerateKeys();
+    
+    auto pubKey = alg1.GetPublicKey();
+    auto privKey = alg1.GetPrivateKey();
+    
+    EccAlg alg2(curve);
+    REQUIRE_NOTHROW(alg2.SetKeys(pubKey, privKey));
+
+}
+
+TEST_CASE("CanLoadV1SerializedKeys")
+{
+    DomainParameters curveParams = GetSecp112r1Curve();
+    EllipticCurve curve(GetSecp112r1Curve());
+
+    EccAlg alg1(curve);
+    alg1.GenerateKeys();
+    
+    auto serializedKeys = Version1KeySerializer().SerializePrivateKeys(alg1);
+    
+    REQUIRE_NOTHROW(auto alg2 = Version1KeySerializer().ParseKeys(serializedKeys));
+    
+}
 
 
 

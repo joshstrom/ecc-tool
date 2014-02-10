@@ -97,6 +97,31 @@ void EccAlg::LoadKeys(const string& archivedKeys)
 
 }
 
+void EccAlg::SetKeys(const vector<uint8_t> publicKey, const vector<uint8_t> privateKey)
+{
+    // Make both key values usable.
+    Point publicKeyPoint = _curve.MakePointOnCurve(publicKey);
+    BigInteger privateKeyValue = BigInteger(privateKey);
+    
+    // Validate key-pair to ensure that PubKey == G*PrivKey
+    if(_curve.MultiplyPointOnCurveWithScalar(_curve.GetBasePoint(), privateKeyValue) != publicKeyPoint)
+        throw invalid_argument("Pub/Priv key-pair invalid.");
+    
+    // Set the keys in the algorithm.
+    swap(_publicKey, publicKeyPoint);
+    swap(_privateKey, privateKeyValue);
+}
+
+const vector<uint8_t> EccAlg::GetPublicKey() const
+{
+    return _publicKey.Serialize();
+}
+
+const vector<uint8_t> EccAlg::GetPrivateKey() const
+{
+    return _privateKey.GetMagnitudeBytes();
+}
+
 const string EccAlg::SaveKeys() const
 {
     // Order of keys: [<private>:<publicX>:<publicY>]
@@ -115,4 +140,9 @@ const string EccAlg::KeysToString(bool includePrivate) const
         ss << endl << "Private: " << _privateKey;
     
     return ss.str();
+}
+
+string EccAlg::GetCurveName() const
+{
+    return _curve.GetCurveName();
 }

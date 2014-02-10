@@ -12,6 +12,7 @@
 #include <iostream>
 #include "BigInteger.h"
 #include "FieldElement.h"
+#include "Utilities.h"
 
 using namespace std;
 
@@ -28,7 +29,7 @@ public:
     static Point MakePointAtInfinity();
     
     // Deserializes a point.
-    static Point Parse(const string& serializedPoint, shared_ptr<BigInteger> field);
+    static Point Parse(const vector<uint8_t>& serializedPoint, shared_ptr<BigInteger> field);
     
     // Default constructor, creates a point at (0,0).
     Point();
@@ -46,17 +47,20 @@ public:
     bool operator!=(const Point& other) const;
     
     // Serialzes the point to a string representation.
-    string Serialize() const;
+    vector<uint8_t> Serialize() const;
  
 private:
-    static const char* COMPRESSED_POINT_FLAG;
-    static const char* UNCOMPRESSED_POINT_FLAG;
+    static const char* COMPRESSED_POINT_FLAG_STR;
+    static const char* UNCOMPRESSED_POINT_FLAG_STR;
+    
+    static const char COMPRESSED_POINT_FLAG;
+    static const char UNCOMPRESSED_POINT_FLAG;
     
     // Internal point parsing helper function for uncompressed point representations.
-    static Point ParseUncompressedGeneratorPoint(const string& pointString, shared_ptr<BigInteger> field);
-    
+    static Point ParseUncompressedPoint(const vector<uint8_t>& serializedPoint, shared_ptr<BigInteger> field);
+
     // Internal point parsing helper function for compressed point representations.
-    static Point ParseCompressedGeneratorPoint(const string& pointString, shared_ptr<BigInteger> field);
+    static Point ParseCompressedPoint(const vector<uint8_t>& serializedPoint, shared_ptr<BigInteger> field);
     
     // Determines if this is a point at infinity.
     bool isPointAtInfinity;
@@ -68,8 +72,5 @@ private:
 
 // Stream writing operator for Point.
 std::ostream& operator<<(std::ostream& os, const Point& point);
-
-// Stream writing operator for a vector of bytes.
-std::ostream& operator<<(std::ostream& os, const std::vector<uint8_t>& bytes);
 
 #endif /* defined(__EccTool__Point__) */

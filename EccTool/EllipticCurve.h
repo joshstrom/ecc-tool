@@ -47,6 +47,9 @@ private:
     // The cofactor of the curve.
     BigInteger _h;
     
+    // Name of the curve.
+    string _curveName;
+    
     // Internal functions to compute the addition of two points for
     //  a) A + B = C (when A and B are distinct), and
     //  b) A + A = C (when A is added to itself)
@@ -73,13 +76,19 @@ public:
     // Returns true|false depending on whether the given point is on the curve.
     bool CheckPointOnCurve(const Point& point) const;
     
-    Point MakePointOnCurve(BigInteger&& x, BigInteger&& y);
+    // Creates a point on the curve from x and y coordinates.
+    Point MakePointOnCurve(BigInteger&& x, BigInteger&& y) const;
+    
+    // Creates a point on the curve from a serialized point.
+    Point MakePointOnCurve(const vector<uint8_t>& serializedPoint) const;
     
     // Returns the Generator G, or Base Point of this curve.
     const Point& GetBasePoint() const;
     
     // Returns the order of the Generator G.
     const BigInteger& GetBasePointOrder() const;
+    
+    string GetCurveName() const;
 };
 
 #endif /* defined(__EccTool__EllipticCurve__) */
