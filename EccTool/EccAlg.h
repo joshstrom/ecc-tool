@@ -28,8 +28,14 @@ private:
     // The public key point on this curve.
     Point _publicKey;
     
+    // Indicates whether the alg is set up for private key operations.
+    bool _hasPrivateKey;
+    
     // Generates a random positive integer in the range 0 < generated < max.
     static BigInteger GenerateRandomPositiveIntegerLessThan(const BigInteger& max);
+    
+    // Throws and exception if the private key is not available.
+    void EnsurePrivateKeyAvailable() const;
     
 public:
     // Creates an Elliptic Curve Cryptography alg with the given curve.
@@ -37,12 +43,6 @@ public:
     
     // Generates random keys for the given curve.
     void GenerateKeys();
-    
-    // Loads stored keys from a string.
-    void LoadKeys(const string& archivedKeys);
-    
-    // Persists the keys pair in the returned string.
-    const string SaveKeys() const;
     
     // Creates a string with a printable version of the string.
     //  Optionally includes private key.
@@ -52,14 +52,20 @@ public:
     //  set or generted keys for this instance.
     // - pubicKey is the public key as a serialized point.
     // - privateKey is the the binary representation of the private key.
-    void SetKeys(const vector<uint8_t> publicKey, const vector<uint8_t> privateKey);
+    void SetKey(const vector<uint8_t> publicKey, const vector<uint8_t> privateKey);
+    
+    // Sets the public key for this instance. Replaces any previously set or
+    //  generated keys for this instance. Note that private key operations cannot
+    //  be performed if only the public key has been set.
+    // - publicKey is the public key as a serialized point.
+    void SetKey(const vector<uint8_t> publicKey);
     
     // Gets the public key for this alg as a serilized point. Note: this call
     //  will throw if the priate key was not previously either set or generated.
     const vector<uint8_t> GetPublicKey() const;
     
     // Gets the private key for this alg as a binary integer representation. Note: this call
-    //  will throw if the priate key was not previously either set or generated.
+    //  will throw an exception if the priate key was not previously either set or generated.
     const vector<uint8_t> GetPrivateKey() const;
     
     // Gets the name of the curve used to back this algorithm.
@@ -67,6 +73,14 @@ public:
     
     //vector<uint8_t> Encrypt(const vector<uint8_t> plaintext);
     //vector<uint8_t> Decrypt(const vector<uint8_t> ciphertext);
+};
+
+class no_private_key final : public runtime_error
+{
+public:
+    no_private_key() : runtime_error("Cannot peform private key operation. No private key set.")
+    {
+    }
 };
 
 

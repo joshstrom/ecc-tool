@@ -768,13 +768,6 @@ TEST_CASE("EccAlgCanGenerateAndPersistKeys")
     
     EccAlg alg(curve);
     alg.GenerateKeys();
-    
-    string savedKeys = alg.SaveKeys();
-    
-    EccAlg newAlg(params);
-    REQUIRE_NOTHROW(newAlg.LoadKeys(savedKeys));
-    REQUIRE(savedKeys == newAlg.SaveKeys());
-    
 }
 
 TEST_CASE("CanGetCurveByName")
@@ -792,11 +785,6 @@ TEST_CASE("CanMakeBitcoinCurve")
     
     EccAlg alg(curve);
     alg.GenerateKeys();
-    string savedKeys = alg.SaveKeys();
-    
-    EccAlg newAlg(bitcoinCurveParams);
-    REQUIRE_NOTHROW(newAlg.LoadKeys(savedKeys));
-    REQUIRE(savedKeys == newAlg.SaveKeys());
 }
 
 TEST_CASE("CanCreateFieldElement")
@@ -944,7 +932,7 @@ TEST_CASE("CanSerializeAndParseBigInteger")
     REQUIRE(first == second);
 }
 
-TEST_CASE("CanSerializeAndParseKeys")
+TEST_CASE("CanSerializeAndParsePrivateKeys")
 {
     DomainParameters curveParams = GetSecp112r1Curve();
     EllipticCurve curve(GetSecp112r1Curve());
@@ -956,7 +944,7 @@ TEST_CASE("CanSerializeAndParseKeys")
     auto privKey = alg1.GetPrivateKey();
     
     EccAlg alg2(curve);
-    REQUIRE_NOTHROW(alg2.SetKeys(pubKey, privKey));
+    REQUIRE_NOTHROW(alg2.SetKey(pubKey, privKey));
 
 }
 
@@ -972,6 +960,20 @@ TEST_CASE("CanLoadV1SerializedKeys")
     
     REQUIRE_NOTHROW(auto alg2 = Version1KeySerializer().ParseKeys(serializedKeys));
     
+}
+
+TEST_CASE("CanSerializeAndParsePublicKey")
+{
+    DomainParameters curveParams = GetSecp112r1Curve();
+    EllipticCurve curve(GetSecp112r1Curve());
+    
+    EccAlg alg1(curve);
+    alg1.GenerateKeys();
+    
+    auto serializedKey = Version1KeySerializer().SerializePublicKeys(alg1);
+    
+    EccAlg alg2 = Version1KeySerializer().ParseKeys(serializedKey);
+    REQUIRE_THROWS(alg2.GetPrivateKey());
 }
 
 

@@ -18,15 +18,20 @@ EccAlg::EccAlg(const EllipticCurve& curve) : _curve(curve)
 void EccAlg::GenerateKeys()
 {
     // Generate a random private key appropriate for this curve.
-    _privateKey = GenerateRandomPositiveIntegerLessThan(_curve.GetBasePointOrder());
+    BigInteger privateKey = GenerateRandomPositiveIntegerLessThan(_curve.GetBasePointOrder());
     
     // Generate the public key point matching the private key starting from the base point.
     const Point& basePoint = _curve.GetBasePoint();
-    _publicKey = _curve.MultiplyPointOnCurveWithScalar(basePoint, _privateKey);
+    Point publicKey = _curve.MultiplyPointOnCurveWithScalar(basePoint, privateKey);
     
     // Validate public key point.
-    if(!_curve.CheckPointOnCurve(_publicKey))
+    if(!_curve.CheckPointOnCurve(publicKey))
         throw runtime_error("Generated public key not on curve.");
+    
+    // All successful, set the public and private keys.
+    swap(_publicKey, publicKey);
+    swap(_privateKey, privateKey);
+    _hasPrivateKey = true;
 }
 
 BigInteger EccAlg::GenerateRandomPositiveIntegerLessThan(const BigInteger& max)
@@ -59,45 +64,7 @@ BigInteger EccAlg::GenerateRandomPositiveIntegerLessThan(const BigInteger& max)
     return k;
 }
 
-void EccAlg::LoadKeys(const string& archivedKeys)
-{
-    // Formate of keys: [<private>:<publicX>:<publicY>]
-    if(archivedKeys[0] != '[' || archivedKeys[archivedKeys.size() - 1] != ']')
-        throw invalid_argument("Not valid format for serialized keys. Missing outer bracket delimiters.");
-    
-    string stringToParse(archivedKeys.begin() + 1, archivedKeys.begin() + archivedKeys.size() - 1);
-    string delimiter = ":";
-    
-    // Parse the private key element from the archived string.
-    size_t elementDelimiter = stringToParse.find(delimiter);
-    if(elementDelimiter == string::npos)
-        throw invalid_argument("Not valid format for serialized keys. Only first element found.");
-    BigInteger parsedPrivateKey = (stringToParse.substr(0, elementDelimiter));
-    stringToParse.erase(0, elementDelimiter + 1);
-    
-    // Point to hold the public key components.
-    Point parsedPublicKey;
-    
-    // Parse the PublicX key element from the archived string.
-    elementDelimiter = stringToParse.find(delimiter);
-    if(elementDelimiter == string::npos)
-        throw invalid_argument("Not valid format for serialized keys. Third element not in string.");
-    BigInteger parsedX(stringToParse.substr(0, elementDelimiter));
-    stringToParse.erase(0, elementDelimiter + 1);
-    
-    // Parse the PublicY key element from the archived string.
-    elementDelimiter = stringToParse.find(delimiter);
-    if(elementDelimiter != string::npos)
-        throw invalid_argument("Not valid format for serialized keys. String not ending when expected.");
-    BigInteger parsedY(stringToParse.substr(0, elementDelimiter));
-    
-    // Save the key components.
-    swap(_privateKey, parsedPrivateKey);
-    _publicKey = _curve.MakePointOnCurve(move(parsedX), move(parsedY));
-
-}
-
-void EccAlg::SetKeys(const vector<uint8_t> publicKey, const vector<uint8_t> privateKey)
+void EccAlg::SetKey(const vector<uint8_t> publicKey, const vector<uint8_t> privateKey)
 {
     // Make both key values usable.
     Point publicKeyPoint = _curve.MakePointOnCurve(publicKey);
@@ -110,6 +77,17 @@ void EccAlg::SetKeys(const vector<uint8_t> publicKey, const vector<uint8_t> priv
     // Set the keys in the algorithm.
     swap(_publicKey, publicKeyPoint);
     swap(_privateKey, privateKeyValue);
+    _hasPrivateKey = true;
+}
+
+void EccAlg::SetKey(const vector<uint8_t> publicKey)
+{
+    // Make the public key value usable.
+    Point publicKeyPoint = _curve.MakePointOnCurve(publicKey);
+    
+    swap(_publicKey, publicKeyPoint);
+    _privateKey = 0;
+    _hasPrivateKey = false;
 }
 
 const vector<uint8_t> EccAlg::GetPublicKey() const
@@ -119,16 +97,8 @@ const vector<uint8_t> EccAlg::GetPublicKey() const
 
 const vector<uint8_t> EccAlg::GetPrivateKey() const
 {
+    EnsurePrivateKeyAvailable();
     return _privateKey.GetMagnitudeBytes();
-}
-
-const string EccAlg::SaveKeys() const
-{
-    // Order of keys: [<private>:<publicX>:<publicY>]
-    stringstream ss;
-    ss << '[' << _privateKey << ':' << _publicKey.x.GetRawInteger() << ':' << _publicKey.y.GetRawInteger() << ']';
-    
-    return ss.str();
 }
 
 const string EccAlg::KeysToString(bool includePrivate) const
@@ -146,3 +116,13 @@ string EccAlg::GetCurveName() const
 {
     return _curve.GetCurveName();
 }
+
+void EccAlg::EnsurePrivateKeyAvailable() const
+{
+    if(!_hasPrivateKey)
+        throw no_private_key();
+}
+
+
+
+

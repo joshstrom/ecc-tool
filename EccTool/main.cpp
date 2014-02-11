@@ -15,6 +15,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <algorithm>
+#include "Version1KeySerializer.h"
 
 using namespace std;
 using namespace ecc;
@@ -23,6 +24,7 @@ void PrintHelpMessage();
 void ListCurves();
 void GenerateKeys(int curveId, string keyName);
 void LoadKey(string keyname, bool printPrivate);
+void ExportKey(string keyname, string exportKeyName);
 
 string ToLower(string str);
 string TrimWhitespace(string str);
@@ -104,8 +106,7 @@ void PrintHelpMessage()
     cout << "    -c                        List supported ECC curves." << endl;
     cout << "    -g <curve ID><key name>   Generate keys with specified algorithm ID (from list" << endl;
     cout << "                              of ECC curves) and save with specified name." << endl;
-    cout << "    -l <keyname> [-p]         Print key information for the specified key. Use -p to " << endl;
-    cout << "                              print private key." << endl;
+    cout << "    -l <keyname> [-p]         Print key information for the specified key." << endl;
     cout << "    -h                        Display this help message." << endl;
 }
 
@@ -174,7 +175,7 @@ void GenerateKeys(int curveId, string keyName)
     cout << "Keys generated successfully." << endl;
     cout << "Saving..." << endl;
     
-    file << curveName << ':' << alg.SaveKeys();
+    file << Version1KeySerializer().SerializePrivateKeys(alg);
     file.close();
     
     cout << "Done. Access using \"" << keyName << "\"" << endl;
@@ -204,17 +205,16 @@ void LoadKey(string keyName, bool printPrivate)
         return;
     }
     
-    string curveName = archivedKey.substr(0, elementDelimiter);
-    archivedKey.erase(0, elementDelimiter + 1);
-
-    DomainParameters params = GetCurveByName(curveName);
-    EllipticCurve curve(params);
-    EccAlg alg(curve);
-    alg.LoadKeys(archivedKey);
+    EccAlg alg = Version1KeySerializer().ParseKeys(archivedKey);
     
-    cout << "Successfully loaded key. Curve: " << curveName << endl;
+    cout << "Successfully loaded key. Curve: " << alg.GetCurveName() << endl;
     cout << "Printing key information..." << endl;
     cout << alg.KeysToString(printPrivate) << endl;
+}
+
+void ExportKey(string keyname, string exportKeyName)
+{
+    
 }
 
 string ToLower(string str)

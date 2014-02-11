@@ -16,15 +16,20 @@
 
 string Version1KeySerializer::SerializePublicKeys(const EccAlg& alg) const
 {
-    return "";
+    // Save format: <curve name>:[<public>]
+    vector<uint8_t> publicKey = alg.GetPublicKey();
+    
+    stringstream ss;
+    ss << alg.GetCurveName() << ":[" << publicKey << ']';
+    
+    return ss.str();
 }
 
 string Version1KeySerializer::SerializePrivateKeys(const EccAlg& alg) const
 {
     // Save format: <curve name>:[<public>:<private>]
-    
-    vector<uint8_t> privateKey = alg.GetPrivateKey();
     vector<uint8_t> publicKey = alg.GetPublicKey();
+    vector<uint8_t> privateKey = alg.GetPrivateKey();
     
     stringstream ss;
     ss << alg.GetCurveName() << ":[" << publicKey << ':' << privateKey << ']';
@@ -56,22 +61,53 @@ EccAlg Version1KeySerializer::ParseKeys(const string& keys) const
     // Skip the '['
     startingIndex++;
     
-    // Parse the private key element from the archived string.
+    // Parse the public key element from the archived string.
     elementDelimiter = keys.find(delimiter, startingIndex);
+    string temp;
     if(elementDelimiter == string::npos)
-        throw invalid_argument("Not valid format for serialized keys. Only first element found.");
-    string temp = keys.substr(startingIndex, elementDelimiter - startingIndex);
-    vector<uint8_t> publicKey(utilities::HexStringToBytes(temp));
+    {
+        // Only public key here.
+        // Ignore the ending ']'
+        vector<uint8_t> publicKey(utilities::HexStringToBytes(keys.substr(startingIndex, keys.size() - startingIndex - 1)));
+        createdAlg.SetKey(publicKey);
+        return createdAlg;
+    }
+
+    // Otherwise, parse the private key as well.
+    vector<uint8_t> publicKey(utilities::HexStringToBytes(keys.substr(startingIndex, elementDelimiter - startingIndex)));
     startingIndex = elementDelimiter + 1;
     
-    // Parse the PublicY key element from the archived string.
+    // Check for end of data (delimited by a ']'), if this is the end, there is only a public key
+    // stored here.
+    if(keys[startingIndex] == ']')
+    {
+        createdAlg.SetKey(publicKey);
+        return createdAlg;
+    }
+    
+    // Parse the private key element from the archived string.
     elementDelimiter = keys.find(delimiter, startingIndex);
     if(elementDelimiter != string::npos)
         throw invalid_argument("Not valid format for serialized keys. String not ending when expected.");
     temp = keys.substr(startingIndex, keys.size() - startingIndex - 1);
     vector<uint8_t> privateKey(utilities::HexStringToBytes(temp));
 
-    createdAlg.SetKeys(publicKey, privateKey);
+    createdAlg.SetKey(publicKey, privateKey);
     
     return createdAlg;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
