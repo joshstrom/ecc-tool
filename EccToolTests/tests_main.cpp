@@ -17,6 +17,7 @@
 #include "FieldElement.h"
 #include "Utilities.h"
 #include "Version1KeySerializer.h"
+#include "NativeCrypto.h"
 
 void StatisticalOperationTest(const BaseOperationTester& tester)
 {
@@ -974,6 +975,14 @@ TEST_CASE("CanSerializeAndParsePublicKey")
     
     EccAlg alg2 = Version1KeySerializer().ParseKeys(serializedKey);
     REQUIRE_THROWS(alg2.GetPrivateKey());
+}
+
+TEST_CASE("CanDeriveKey")
+{
+    vector<uint8_t> password(10);
+    auto key = NativeCrypto::DeriveKey(password, password, 32);
+    
+    
 }
 
 

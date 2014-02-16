@@ -19,6 +19,8 @@
 		3C758C2F18A8BFCB00627B90 /* DefinedCurveDomainParameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C758C2E18A8BFCB00627B90 /* DefinedCurveDomainParameters.cpp */; };
 		3C758C3018A8BFCB00627B90 /* DefinedCurveDomainParameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C758C2E18A8BFCB00627B90 /* DefinedCurveDomainParameters.cpp */; };
 		3C93E83D18865C0E00B56C1C /* BigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C93E83B18865C0E00B56C1C /* BigInteger.cpp */; };
+		3CB05C9F18B0934E00D788BE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CB05C9E18B0934E00D788BE /* SystemConfiguration.framework */; };
+		3CB05CA118B0936F00D788BE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CB05C9E18B0934E00D788BE /* SystemConfiguration.framework */; };
 		3CB0AFD518939E6B0056B135 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CB0AFD318939E6B0056B135 /* Stopwatch.cpp */; };
 		3CCCC3771887C6EE008DF956 /* EccAlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C1707781883AAB500A900A1 /* EccAlg.cpp */; };
 		3CCCC3791887C6EE008DF956 /* BigInteger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C93E83B18865C0E00B56C1C /* BigInteger.cpp */; };
@@ -64,12 +66,14 @@
 		3C6D9A621894A0DD00645326 /* EccDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EccDefs.h; sourceTree = "<group>"; };
 		3C6D9ACC1895D02600645326 /* Point.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Point.h; sourceTree = "<group>"; };
 		3C6D9ACF1896034700645326 /* DefinedCurveDomainParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DefinedCurveDomainParameters.h; sourceTree = "<group>"; };
+		3C72C30618ADF8DD00B77EE9 /* NativeCrypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeCrypto.h; sourceTree = "<group>"; };
 		3C758C2A18A871D300627B90 /* Utilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utilities.cpp; sourceTree = "<group>"; };
 		3C758C2B18A871D300627B90 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utilities.h; sourceTree = "<group>"; };
 		3C758C2E18A8BFCB00627B90 /* DefinedCurveDomainParameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DefinedCurveDomainParameters.cpp; sourceTree = "<group>"; };
 		3C84E621188F94D700F4E16C /* OperationTesters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OperationTesters.h; sourceTree = "<group>"; };
 		3C93E83B18865C0E00B56C1C /* BigInteger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigInteger.cpp; sourceTree = "<group>"; };
 		3C93E83C18865C0E00B56C1C /* BigInteger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BigInteger.h; sourceTree = "<group>"; };
+		3CB05C9E18B0934E00D788BE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		3CB0AFD318939E6B0056B135 /* Stopwatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Stopwatch.cpp; sourceTree = "<group>"; };
 		3CB0AFD418939E6B0056B135 /* Stopwatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stopwatch.h; sourceTree = "<group>"; };
 		3CED523D189F0A650096027B /* FieldElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FieldElement.cpp; sourceTree = "<group>"; };
@@ -78,17 +82,19 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		3C17076C1883A47D00A900A1 /* Frameworks */ = {
+		3CB05C9B18B0925B00D788BE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3CB05C9F18B0934E00D788BE /* SystemConfiguration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		3C38AC5D187FBDF200DF4257 /* Frameworks */ = {
+		3CB05CA018B0936800D788BE /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3CB05CA118B0936F00D788BE /* SystemConfiguration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,6 +115,7 @@
 		3C38AC57187FBDF200DF4257 = {
 			isa = PBXGroup;
 			children = (
+				3CB05C9E18B0934E00D788BE /* SystemConfiguration.framework */,
 				3C38AC62187FBDF200DF4257 /* EccTool */,
 				3C1707701883A47D00A900A1 /* EccToolTests */,
 				3C38AC61187FBDF200DF4257 /* Products */,
@@ -147,6 +154,7 @@
 				3C5B330018A76A2700FEE5F9 /* Version1KeySerializer.h */,
 				3C758C2A18A871D300627B90 /* Utilities.cpp */,
 				3C758C2B18A871D300627B90 /* Utilities.h */,
+				3C72C30618ADF8DD00B77EE9 /* NativeCrypto.h */,
 			);
 			path = EccTool;
 			sourceTree = "<group>";
@@ -159,8 +167,8 @@
 			buildConfigurationList = 3C1707751883A47D00A900A1 /* Build configuration list for PBXNativeTarget "EccToolTests" */;
 			buildPhases = (
 				3C17076B1883A47D00A900A1 /* Sources */,
-				3C17076C1883A47D00A900A1 /* Frameworks */,
 				3C17076D1883A47D00A900A1 /* CopyFiles */,
+				3CB05C9B18B0925B00D788BE /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -176,8 +184,8 @@
 			buildConfigurationList = 3C38AC69187FBDF200DF4257 /* Build configuration list for PBXNativeTarget "EccTool" */;
 			buildPhases = (
 				3C38AC5C187FBDF200DF4257 /* Sources */,
-				3C38AC5D187FBDF200DF4257 /* Frameworks */,
 				3C38AC5E187FBDF200DF4257 /* CopyFiles */,
+				3CB05CA018B0936800D788BE /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -265,6 +273,10 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					./EccTool,
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/usr/lib/system",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYMROOT = bin/mac;
 			};
@@ -279,6 +291,10 @@
 					./External/Catch,
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					./EccTool,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/usr/lib/system",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYMROOT = bin/mac;
@@ -363,6 +379,10 @@
 					Structures,
 					2/Projects/EccTool/External/Catch,
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/usr/lib/system",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYMROOT = bin/mac;
 			};
@@ -378,6 +398,10 @@
 					/Users/joshstrom/Documents/School/Discrete,
 					Structures,
 					2/Projects/EccTool/External/Catch,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/usr/lib/system",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SYMROOT = bin/mac;

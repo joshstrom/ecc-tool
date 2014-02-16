@@ -71,7 +71,7 @@ public:
     // Gets the name of the curve used to back this algorithm.
     string GetCurveName() const;
     
-    //vector<uint8_t> Encrypt(const vector<uint8_t> plaintext);
+    vector<uint8_t> Encrypt(const vector<uint8_t> plaintext);
     //vector<uint8_t> Decrypt(const vector<uint8_t> ciphertext);
 };
 

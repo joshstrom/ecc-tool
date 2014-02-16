@@ -24,7 +24,6 @@ void PrintHelpMessage();
 void ListCurves();
 void GenerateKeys(int curveId, string keyName);
 void LoadKey(string keyname, bool printPrivate);
-void ExportKey(string keyname, string exportKeyName);
 
 string ToLower(string str);
 string TrimWhitespace(string str);
@@ -210,11 +209,6 @@ void LoadKey(string keyName, bool printPrivate)
     cout << "Successfully loaded key. Curve: " << alg.GetCurveName() << endl;
     cout << "Printing key information..." << endl;
     cout << alg.KeysToString(printPrivate) << endl;
-}
-
-void ExportKey(string keyname, string exportKeyName)
-{
-    
 }
 
 string ToLower(string str)

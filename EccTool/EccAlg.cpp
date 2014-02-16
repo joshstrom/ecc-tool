@@ -8,6 +8,7 @@
 
 #include "EccAlg.h"
 #include "Point.h"
+#include "NativeCrypto.h"
 #include <sstream>
 #include <ctime>
 
@@ -122,6 +123,69 @@ void EccAlg::EnsurePrivateKeyAvailable() const
     if(!_hasPrivateKey)
         throw no_private_key();
 }
+
+vector<uint8_t> Xor(const vector<uint8_t>& lhs, const vector<uint8_t>& rhs)
+{
+    if(lhs.size() != rhs.size())
+        throw invalid_argument("Both vectors must be the same size for XOR operation.");
+    
+    vector<uint8_t> result(lhs.size());
+    for(unsigned int i = 0; i < lhs.size(); i++)
+        result[i] = lhs[i] ^ rhs[i];
+    
+    return result;
+}
+
+vector<uint8_t> EccAlg::Encrypt(const vector<uint8_t> plaintext)
+{
+    // Compute a shared secret from which to derive a symmetric key.
+    // First, choose a random number r such that 0 < r < n (the curve
+    // base point order).
+    
+    // Next, derive a shared secret S by multiplying r by the recipient's
+    // public key.
+    
+    // Lastly calculate the point R by multiplying the base point with r.
+    // R is a "tag" value that will allow the recipient to derive the
+    // shared secret.
+    
+    BigInteger r = GenerateRandomPositiveIntegerLessThan(_curve.GetBasePointOrder());
+    Point S = _curve.MultiplyPointOnCurveWithScalar(_curve.GetBasePoint(), r);
+    auto R = _curve.MultiplyPointOnCurveWithScalar(_publicKey, r).Serialize(); // We only need this serialized.
+    
+    // Use the shared secret S to derive a key. Note: normally, some additional
+    // shared information would be used as the "salt" value here. However, in this
+    // example, we will use the 'x' value of the point as the password and the 'y'
+    // value of the point as the salt. The length of the derived key will be  the
+    // length of the plaintext.
+    vector<uint8_t> encryptionKey = NativeCrypto::DeriveKey(S.x.GetRawInteger().GetMagnitudeBytes(), S.y.GetRawInteger().GetMagnitudeBytes(), plaintext.size());
+    
+    // Encrypt with XOR encryption.
+    auto ciphertext = Xor(plaintext, encryptionKey);
+    
+    // The output of this function is the ciphertext and the tag with the following format:
+    // R || ciphertext (where '||' denotes concatenation)
+    vector<uint8_t> output(R.size() + ciphertext.size());
+    auto outIterator = output.begin();
+    
+    copy(R.begin(), R.end(), outIterator);
+    outIterator += R.size();
+    copy(ciphertext.begin(), ciphertext.end(), outIterator);
+    
+    return output;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
