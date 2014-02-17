@@ -204,6 +204,7 @@ void GenerateKeys(int curveId, string keyName)
 void LoadKey(string keyName, bool printPrivate)
 {
     // Open the key and load it in memory.
+	cout << "Loading key \"" << keyName << "\"..." << endl;
     EccAlg alg = ReadKeyFromFile(keyName);
     
     cout << "Successfully loaded key. Curve: " << alg.GetCurveName() << endl;
@@ -219,8 +220,10 @@ bool CheckFileExists(const string& fileName)
 
 void Encrypt(string keyName, string outFile, string msg)
 {
+	cout << "Loading key \"" << keyName << "\"..." << endl;
     EccAlg alg = ReadKeyFromFile(keyName);
-    cout << "Successfully loaded key. Encrypting message..." << endl;
+	cout << "Successfully loaded key." << endl;
+	cout << "Encrypting message..." << endl;
     
     vector<uint8_t> plaintext(msg.begin(), msg.end());
     auto ciphertext = alg.Encrypt(plaintext);
@@ -229,26 +232,32 @@ void Encrypt(string keyName, string outFile, string msg)
     string encryptedMessageText = utilities::BytesToHexString(ciphertext);
     SaveToFile(outFile, encryptedMessageText);
     
-    cout << "Done. Encrypted message: \'" << encryptedMessageText << "\'" << endl;
-    cout << "Message encrypted and stored in \"" << outFile << "\"" << endl;
+	cout << "Message successfully encrypted." << endl;
+	cout << "Encrypted message:" << endl;
+	cout << encryptedMessageText << endl;
+    cout << "Encrypted message stored in \"" << outFile << "\"" << endl;
 }
 
 void Decrypt(string keyName, string inFile)
 {
+	cout << "Loading key \"" << keyName << "\"..." << endl;
     EccAlg alg = ReadKeyFromFile(keyName);
     if(!alg.HasPrivateKey())
         throw runtime_error("Cannot decrypt without private key.");
-    cout << "Successfully loaded key. Loading encrypted message..." << endl;
+	cout << "Successfully loaded key." << endl;
+	cout << "Loading encrypted message..." << endl;
     
     string ciphertextStr = ReadFromFile(inFile);
     auto ciphertext = utilities::HexStringToBytes(ciphertextStr);
-    cout << "Encrypted message loaded. Ciphertext: \"" << ciphertextStr << "\"" << endl;
+	cout << "Encrypted message loaded." << endl;
+	cout << "Ciphertext:" << endl;
+	cout << ciphertextStr << endl;
     cout << "Decrypting..." << endl;
         
     auto message = alg.Decrypt(ciphertext);
     string messageStr(message.begin(), message.end());
     
-    cout << "Done. Decrypted Message:" << endl;
+    cout << "Message successfully decrypted. Decrypted Message:" << endl;
     cout << messageStr;
     cout << endl;
 }
@@ -292,11 +301,15 @@ string MakePrivKeyFileName(const string& keyName)
 
 void SaveKeyToFile(const EccAlg& key, const string& keyName)
 {
-    // This routine is only for full keys and will delete existing files
-    //  without confirmation.
+    // This routine is only for full keys (private key included).
     if(!key.HasPrivateKey())
         throw runtime_error("Cannot store incomplete keys.");
     
+	// Key stored in the following manor:
+	//	pubKeyKeyFile = pub key only
+	//	privKeyFile = pub + priv
+	//	This will allow (for example) the pub key file to be distributed without
+	//	disclosing the private key.
     string pubKeyFileName = MakePubKeyFileName(keyName);
     string privKeyFileName = MakePrivKeyFileName(keyName);
     
