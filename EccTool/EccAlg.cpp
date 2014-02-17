@@ -124,6 +124,11 @@ void EccAlg::EnsurePrivateKeyAvailable() const
         throw no_private_key();
 }
 
+bool EccAlg::HasPrivateKey() const
+{
+    return _hasPrivateKey;
+}
+
 vector<uint8_t> Xor(const vector<uint8_t>& lhs, const vector<uint8_t>& rhs)
 {
     if(lhs.size() != rhs.size())
@@ -184,6 +189,7 @@ vector<uint8_t> EccAlg::Encrypt(const vector<uint8_t>& plaintext)
 
 vector<uint8_t> EccAlg::Decrypt(const vector<uint8_t>& ciphertext)
 {
+    EnsurePrivateKeyAvailable();
     // The following process is derived from the SEC 1: Elliptic Curve Cryptography spec
     //  found here: http://www.secg.org/collateral/sec1_final.pdf (Section 5.1.4)
     

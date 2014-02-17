@@ -1011,6 +1011,21 @@ TEST_CASE("CanEncrypt")
     REQUIRE(decrypted == message);
 }
 
+TEST_CASE("ThrowsOnDecypritonIfPrivateKeyNotAvailable")
+{
+    DomainParameters curveParams = GetSecp112r1Curve();
+    EllipticCurve curve(GetSecp112r1Curve());
+    
+    EccAlg alg1(curve);
+    alg1.GenerateKeys();
+    auto ciphertext = alg1.Encrypt(vector<uint8_t>(50));
+    
+    auto serializer = Version1KeySerializer();
+    EccAlg alg2 = serializer.ParseKeys(serializer.SerializePublicKeys(alg1));
+    
+    REQUIRE_THROWS(alg2.Decrypt(ciphertext));
+}
+
 
 
 

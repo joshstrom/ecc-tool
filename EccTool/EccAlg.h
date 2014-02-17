@@ -74,6 +74,8 @@ public:
     vector<uint8_t> Encrypt(const vector<uint8_t>& plaintext);
     
     vector<uint8_t> Decrypt(const vector<uint8_t>& ciphertext);
+    
+    bool HasPrivateKey() const;
 };
 
 class no_private_key final : public runtime_error
