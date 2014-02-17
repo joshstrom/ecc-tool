@@ -231,7 +231,7 @@ public:
     // Gets the magnitude the BigInteger as bytes.
     //  For a negative number, this is equivalent to getting the bytes of
     //  the absolute value of the number.
-    vector<uint8_t> GetMagnitudeBytes() const;
+    const vector<uint8_t>& GetMagnitudeBytes() const;
     
     // Gets the size, in bytes of the magnitude of this integer.
     size_t GetMagnitudeByteSize() const;

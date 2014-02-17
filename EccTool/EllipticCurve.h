@@ -88,6 +88,7 @@ public:
     // Returns the order of the Generator G.
     const BigInteger& GetBasePointOrder() const;
     
+    // Gets the name of this particular curve.
     string GetCurveName() const;
 };
 

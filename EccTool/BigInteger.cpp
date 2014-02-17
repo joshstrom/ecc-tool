@@ -330,7 +330,7 @@ const string BigInteger::ToString() const
     return ss.str();
 }
 
-vector<uint8_t> BigInteger::GetMagnitudeBytes() const
+const vector<uint8_t>& BigInteger::GetMagnitudeBytes() const
 {
     return _magnitude;
 }

@@ -48,6 +48,9 @@ public:
     
     // Serialzes the point to a string representation.
     vector<uint8_t> Serialize() const;
+    
+    // Gets the size of this point when serialized uncompressed.
+    size_t ComputeUncompressedSize() const;
  
 private:
     static const char* COMPRESSED_POINT_FLAG_STR;

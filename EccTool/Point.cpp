@@ -25,25 +25,26 @@ Point Point::MakePointAtInfinity()
 
 Point Point::ParseUncompressedPoint(const vector<uint8_t>& serializedPoint, shared_ptr<BigInteger> field)
 {
-    // Format of uncompressed point: <compression flag><x-coordinate><y-coordinate> with the
-    //  compression flag being a single byte and the x/y coordinates represented in the same number of bytes.
+    // Format of uncompressed point: <compression flag><x-coordinate><y-coordinate>[possible extra data] with the
+    //  compression flag being a single byte and the x/y coordinates represented in the same number of bytes equal
+    //  to the size of the field.
     //
     // Thus the length of the buffer can be
     //  calculated with the expression 2n + 1 (where n is the number of bytes to represent the x or the
-    //  y coordinate). Therefore, the buffer must be of an odd number of bytes (by definition of odd).
-    //  Fail if this is not the case.
-    if(serializedPoint.size() % 2 == 0)
-        throw invalid_argument("Invalid length of point buffer");
+    //  y coordinate).
+    auto sizeOfCoordinates = field->GetMagnitudeByteSize();
+    size_t sizeOfCoordinateBuffer = (2 * sizeOfCoordinates) + 1;
+    if(serializedPoint.size() < sizeOfCoordinateBuffer)
+        throw invalid_argument("Serialized point buffer to small.");
     
-    // Since the length of the buffer is equal to 2n + 1, to discover n, we must solve the expression
-    //  n = (<length of buffer> - 1)/2. Observe that <length of buffer> - 1 must be even, so the division
-    //  will result in an integer.
-    auto sizeOfCoordinates = (serializedPoint.size() - 1)/2;
+    // With this information we can find the beginning and end of the x and y coordinates and create the point.
+    //  This allows us to parse out a point from a buffer that may contain more than just that poin.
+    auto xCoordinateBegin = serializedPoint.begin() + 1;
+    auto yCoordinateBegin = xCoordinateBegin + sizeOfCoordinates;
+    auto coordinatesEnd = yCoordinateBegin + sizeOfCoordinates;
     
-    // The x and y coordinate segments can be found by adjusting the beginning and end iterators of the
-    //  serialized point buffer to skip over the point compression flag and/or the other coordinate.
-    BigInteger xCoord(vector<uint8_t>(serializedPoint.begin() + 1, serializedPoint.end() - sizeOfCoordinates));
-    BigInteger yCoord(vector<uint8_t>(serializedPoint.begin() + 1 + sizeOfCoordinates, serializedPoint.end()));
+    BigInteger xCoord(vector<uint8_t>(xCoordinateBegin, yCoordinateBegin));
+    BigInteger yCoord(vector<uint8_t>(yCoordinateBegin, coordinatesEnd));
     
     return Point(FieldElement(move(xCoord), field), FieldElement(move(yCoord), field));
 }
@@ -113,6 +114,13 @@ vector<uint8_t> Point::Serialize() const
     copy(yCoord.begin(), yCoord.end(), iterator);
     
     return result;
+}
+
+size_t Point::ComputeUncompressedSize() const
+{
+    // Format of uncompressed point:
+    //  compression flag byte || x-coordinate || y-coordinate.
+    return 1 + (2 * x.GetRawInteger().GetMagnitudeByteSize());
 }
 
 std::ostream& operator<<(std::ostream& os, const Point& point)

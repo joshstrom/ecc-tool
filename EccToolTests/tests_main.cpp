@@ -874,6 +874,17 @@ TEST_CASE("CanSerializeAndDeserializePoint")
     REQUIRE(parsed == parsedAgain);
 }
 
+TEST_CASE("CanDeserializePointWithExtraBytesAppended")
+{
+    uint8_t serializedPoint[] { 0x04, 0x01, 0x02, 0x00, 0x00 }; // Serialized point, two zero bytes added.
+    BigInteger field(9);
+    
+    auto parsed = Point::Parse(vector<uint8_t>(serializedPoint, serializedPoint + sizeof(serializedPoint)), make_shared<BigInteger>(field));
+    
+    REQUIRE(parsed.x == 1);
+    REQUIRE(parsed.y == 2);
+}
+
 TEST_CASE("CanParseHexString")
 {
     uint8_t expectedArr[] = { 0x1, 0x2, 0x3, 0x4 };
@@ -981,9 +992,50 @@ TEST_CASE("CanDeriveKey")
 {
     vector<uint8_t> password(10);
     auto key = NativeCrypto::DeriveKey(password, password, 32);
-    
-    
 }
+
+TEST_CASE("CanEncrypt")
+{
+    DomainParameters curveParams = GetSecp112r1Curve();
+    EllipticCurve curve(GetSecp112r1Curve());
+    
+    EccAlg alg1(curve);
+    alg1.GenerateKeys();
+    
+    uint8_t messageArr[] = { 0, 1, 2, 3, 4, 5 };
+    vector<uint8_t> message(messageArr, messageArr + sizeof(messageArr));
+    
+    auto encrypted = alg1.Encrypt(message);
+    auto decrypted = alg1.Decrypt(encrypted);
+    
+    REQUIRE(decrypted == message);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

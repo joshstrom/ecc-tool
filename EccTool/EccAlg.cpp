@@ -136,8 +136,11 @@ vector<uint8_t> Xor(const vector<uint8_t>& lhs, const vector<uint8_t>& rhs)
     return result;
 }
 
-vector<uint8_t> EccAlg::Encrypt(const vector<uint8_t> plaintext)
+vector<uint8_t> EccAlg::Encrypt(const vector<uint8_t>& plaintext)
 {
+    // The following process is derived from the SEC 1: Elliptic Curve Cryptography spec
+    //  found here: http://www.secg.org/collateral/sec1_final.pdf (Section 5.1.3)
+    
     // Compute a shared secret from which to derive a symmetric key.
     // First, choose a random number r such that 0 < r < n (the curve
     // base point order).
@@ -150,8 +153,8 @@ vector<uint8_t> EccAlg::Encrypt(const vector<uint8_t> plaintext)
     // shared secret.
     
     BigInteger r = GenerateRandomPositiveIntegerLessThan(_curve.GetBasePointOrder());
-    Point S = _curve.MultiplyPointOnCurveWithScalar(_curve.GetBasePoint(), r);
-    auto R = _curve.MultiplyPointOnCurveWithScalar(_publicKey, r).Serialize(); // We only need this serialized.
+    Point S = _curve.MultiplyPointOnCurveWithScalar(_publicKey, r);
+    auto R = _curve.MultiplyPointOnCurveWithScalar(_curve.GetBasePoint(), r).Serialize(); // We only need this serialized.
     
     // Use the shared secret S to derive a key. Note: normally, some additional
     // shared information would be used as the "salt" value here. However, in this
@@ -161,21 +164,65 @@ vector<uint8_t> EccAlg::Encrypt(const vector<uint8_t> plaintext)
     vector<uint8_t> encryptionKey = NativeCrypto::DeriveKey(S.x.GetRawInteger().GetMagnitudeBytes(), S.y.GetRawInteger().GetMagnitudeBytes(), plaintext.size());
     
     // Encrypt with XOR encryption.
-    auto ciphertext = Xor(plaintext, encryptionKey);
+    auto encryptedMessage = Xor(plaintext, encryptionKey);
     
     // The output of this function is the ciphertext and the tag with the following format:
-    // R || ciphertext (where '||' denotes concatenation)
-    vector<uint8_t> output(R.size() + ciphertext.size());
-    auto outIterator = output.begin();
+    // R || encryptedMessage (where '||' denotes concatenation).
+    // Note: The actual specification defines that a MAC should be computed over the encryptedMessage,
+    //  and appended to the output following the encryptedMessage. This is ommited for simplicity in this
+    //  implementation.
+    vector<uint8_t> ciphertext(R.size() + encryptedMessage.size());
+    auto outIterator = ciphertext.begin();
     
     copy(R.begin(), R.end(), outIterator);
     outIterator += R.size();
-    copy(ciphertext.begin(), ciphertext.end(), outIterator);
+    copy(encryptedMessage.begin(), encryptedMessage.end(), outIterator);
     
-    return output;
+    return ciphertext;
 }
 
 
+vector<uint8_t> EccAlg::Decrypt(const vector<uint8_t>& ciphertext)
+{
+    // The following process is derived from the SEC 1: Elliptic Curve Cryptography spec
+    //  found here: http://www.secg.org/collateral/sec1_final.pdf (Section 5.1.4)
+    
+    // The ciphertext will contain R (a tag value which allows us to derive the shared secret) and
+    //  the ciphertext itself.
+    // Note: the specification also defines a MAC value, but for simplicity of this example, the MAC
+    //  value is ignored.
+    // The format of the buffer is as follows: R || ciphertext (where '||' denotes concatenation).
+    
+    // First, parse out the point. It is encoded according to the curve, and thus can be parsed.
+    // The Parse routine ignores any additional data appended after the point.
+    Point R = _curve.MakePointOnCurve(ciphertext);
+    
+    // The encrypted message is the remaining portion of the buffer that does not contian the point.
+    vector<uint8_t> encryptedMessage(ciphertext.begin() + R.ComputeUncompressedSize(), ciphertext.end());
+    
+    // Compute the shared secret S by multiplying R with the private key.
+    //  This works because:
+    // S = pubKey * r (where S is the shared scret we are trying to derive)
+    // R = G * r (where r is the generated secret integer)
+    // pubKey = G * privKey
+    // Therefore S = pubKey * r
+    //             = (G * privKey) * r  [by substitution of pubKey]
+    //             = (G * r) * privKey  [by rearanging the mulptilcands)
+    //             = R * privKey        [by substitution of G * r]
+    Point S = _curve.MultiplyPointOnCurveWithScalar(R, _privateKey);
+    
+    // Use the shared secret S to derive a key. Note: normally, some additional
+    // shared information would be used as the "salt" value here. However, in this
+    // example, we will use the 'x' value of the point as the password and the 'y'
+    // value of the point as the salt. The length of the derived key will be  the
+    // length of the encrypted message.
+    auto encryptionKey = NativeCrypto::DeriveKey(S.x.GetRawInteger().GetMagnitudeBytes(), S.y.GetRawInteger().GetMagnitudeBytes(), encryptedMessage.size());
+    
+    // Decrypt with XOR encryption.
+    auto plaintext = Xor(encryptedMessage, encryptionKey);
+    
+    return plaintext;
+}
 
 
 

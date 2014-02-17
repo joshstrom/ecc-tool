@@ -182,7 +182,7 @@ bool FieldElement::operator!=(const BigInteger& other) const
     return !(*this == other);
 }
 
-BigInteger FieldElement::GetRawInteger() const
+const BigInteger& FieldElement::GetRawInteger() const
 {
     return _number;
 }

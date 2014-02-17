@@ -52,7 +52,7 @@ public:
     bool operator!=(const BigInteger& other) const;
     
     // Returns the element as a BigInteger.
-    BigInteger GetRawInteger() const;
+    const BigInteger& GetRawInteger() const;
     
     // Gets a string representation of this field element (mod n).
     string ToString() const;
