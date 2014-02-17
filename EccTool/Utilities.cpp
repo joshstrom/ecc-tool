@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <string>
 #include <math.h>
+#include <algorithm>
 
 // Converts a string character into the ehx byte it represents.
 uint8_t GetValidHexDigit(char digit)

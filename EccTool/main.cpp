@@ -230,7 +230,7 @@ void Encrypt(string keyName, string outFile, string msg)
     SaveToFile(outFile, encryptedMessageText);
     
     cout << "Done. Encrypted message: \'" << encryptedMessageText << "\'" << endl;
-    cout << "Message encyprted and stored in \'" << outFile << "\'" << endl;
+    cout << "Message encrypted and stored in \"" << outFile << "\"" << endl;
 }
 
 void Decrypt(string keyName, string inFile)
@@ -242,7 +242,7 @@ void Decrypt(string keyName, string inFile)
     
     string ciphertextStr = ReadFromFile(inFile);
     auto ciphertext = utilities::HexStringToBytes(ciphertextStr);
-    cout << "Encrypted message loaded. Ciphertext: \'" << ciphertextStr << "\'" << endl;
+    cout << "Encrypted message loaded. Ciphertext: \"" << ciphertextStr << "\"" << endl;
     cout << "Decrypting..." << endl;
         
     auto message = alg.Decrypt(ciphertext);
@@ -262,7 +262,7 @@ void ConfirmOverwriteKeyFile(const string& keyName)
     if(!keyFilesExist)
         return;
     
-    if(!UserApproved(string("Key \'").append(keyName).append("\' already exists. Overwrite?")))
+    if(!UserApproved(string("Key \"").append(keyName).append("\" already exists. Overwrite?")))
         throw runtime_error("Key already exists.");
     
     remove(pubKeyFileName.c_str());
@@ -274,7 +274,7 @@ void ConfirmOverwriteFile(const string& fileName)
     if(!CheckFileExists(fileName))
         return;
     
-    if(!UserApproved(string("File \'").append(fileName).append("\' already exists. Overwrite?")))
+    if(!UserApproved(string("File \"").append(fileName).append("\" already exists. Overwrite?")))
         throw runtime_error("File already exists.");
     
     remove(fileName.c_str());

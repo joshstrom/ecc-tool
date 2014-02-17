@@ -61,6 +61,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -79,24 +80,35 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>bcrypt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\EccToolTests\Stopwatch.cpp" />
     <ClCompile Include="..\EccToolTests\tests_main.cpp" />
     <ClCompile Include="..\EccTool\BigInteger.cpp" />
+    <ClCompile Include="..\EccTool\DefinedCurveDomainParameters.cpp" />
     <ClCompile Include="..\EccTool\EccAlg.cpp" />
     <ClCompile Include="..\EccTool\EllipticCurve.cpp" />
+    <ClCompile Include="..\EccTool\FieldElement.cpp" />
+    <ClCompile Include="..\EccTool\Point.cpp" />
+    <ClCompile Include="..\EccTool\Utilities.cpp" />
+    <ClCompile Include="..\EccTool\Version1KeySerializer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\EccToolTests\OperationTesters.h" />
     <ClInclude Include="..\EccToolTests\Stopwatch.h" />
+    <ClInclude Include="..\EccTool\AbstractKeySerializer.h" />
     <ClInclude Include="..\EccTool\BigInteger.h" />
     <ClInclude Include="..\EccTool\DefinedCurveDomainParameters.h" />
     <ClInclude Include="..\EccTool\EccAlg.h" />
     <ClInclude Include="..\EccTool\EccDefs.h" />
     <ClInclude Include="..\EccTool\EllipticCurve.h" />
+    <ClInclude Include="..\EccTool\FieldElement.h" />
+    <ClInclude Include="..\EccTool\NativeCrypto.h" />
     <ClInclude Include="..\EccTool\Point.h" />
+    <ClInclude Include="..\EccTool\Utilities.h" />
+    <ClInclude Include="..\EccTool\Version1KeySerializer.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="EccTool.vcxproj">

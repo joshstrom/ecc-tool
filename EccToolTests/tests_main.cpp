@@ -876,7 +876,7 @@ TEST_CASE("CanSerializeAndDeserializePoint")
 
 TEST_CASE("CanDeserializePointWithExtraBytesAppended")
 {
-    uint8_t serializedPoint[] { 0x04, 0x01, 0x02, 0x00, 0x00 }; // Serialized point, two zero bytes added.
+    uint8_t serializedPoint[] = { 0x04, 0x01, 0x02, 0x00, 0x00 }; // Serialized point, two zero bytes added.
     BigInteger field(9);
     
     auto parsed = Point::Parse(vector<uint8_t>(serializedPoint, serializedPoint + sizeof(serializedPoint)), make_shared<BigInteger>(field));
