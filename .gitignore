@@ -31,6 +31,10 @@
 *.vcxproj.user
 *.vspx
 
+####
+# Folders used for build
+####
+bin/
 
 #####
 # OS X temporary files that should never be committed

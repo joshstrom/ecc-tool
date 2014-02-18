@@ -289,19 +289,20 @@ BigInteger& BigInteger::operator<<=(int count)
     // Shift each byte in the magnitude buffer, from right to left, by the number of bits to shift.
     //  Track any carry between iterations.
     uint8_t carry = 0;
+    uint8_t remainingBitShiftAmount = 8 - bitsToShift;
     for(int i = static_cast<int>(_magnitude.size()) - 1; i >= 0; i--)
     {
         uint8_t& currentElement = _magnitude[i];
         
         // Determine the carry for the next byte (the most significant digits which would shift out).
-        uint8_t currentCarry = (currentElement >> (8 - bitsToShift));
+        uint8_t nextCarry = (currentElement >> remainingBitShiftAmount);
         
         // Do the shift and add the previous carry.
         currentElement <<= bitsToShift;
         currentElement |= carry;
         
         // Save the current carry for the next iteration.
-        carry = currentCarry;
+        carry = nextCarry;
     }
     
     // Handle any remaining carry.

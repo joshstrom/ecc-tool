@@ -1,0 +1,71 @@
+Phase 2: Implementation Notes:
+
+With phase 2, I have implemented general purpose encryption/decryption and many 
+refactorings for code usability/quality. 
+
+Encryption/Decryption:
+Unlike RSA, where general purpose encryption/decryption can be done directly with the
+primitives, ECC encryption/decryption is done via a symmetric algorithm, and ECC is 
+simply used for key exchange. The encryption algorithm implemented here is the Elliptic
+Curve Integrated Encryption Scheme (ECIES) which is defined in the SEC 1 specification
+of Elliptic Curve Cryptography (found here: http://www.secg.org/collateral/sec1_final.pdf).
+
+A couple of notes about the implementation:
+- Since the purpose of the project is implementing ECC, I have used the OS implementation
+of PBKDF2 for the key derivation function.
+- For simplicity in this example, I have also omitted the MAC which should be calculated
+over the encrypted message.
+- Lastly, the XOR encryption scheme is used to encrypt the message with the derived key. 
+If this were a real implementation, a better encryption function (such as AES) would 
+be used here. However, since a) the key is never repeated, and b) the key itself was 
+derived via a secure KDF, it should be secure enough for this example.
+
+Additions to the command line interface: EccTool:
+
+Key Generation:
+The output of key generation has changed slightly in that the key is saved in two files:
+pub_keyname.ecckey and priv_keyname.ecckey
+
+The public key file contains only the public portion of the key while the private key 
+file contains both. Note that old keys will not work with this new app version.
+
+Encryption:
+The '-e' flag is used for encryption. The tool is able to encrypt a message typed
+into the command with a particular key and save it out to a file. Usage example:
+
+EccTool -e keyname message.txt "This is the message to encrypt."
+
+This command encrypts the message "This is the message to encrypt." with the public 
+portion of the key entitled "keyname" and saves it out to a file called "message.txt".
+
+Note that for encryption, only the public portion of the key is necessary.
+
+Decryption:
+The '-d' flag is used for decryption. Its operation is the revers of encryption. The tool
+is able to take an encrypted message from a file, decrypt it, and print it to the screen.
+Usage example:
+
+EccTool -d keyname message.txt
+
+This command decrypts the message stored in message.txt with the key designated by keyname
+and prints the output to the screen.
+
+Refactoring of operations for arithmetic in a finite field:
+Functions for arithmetic in finite field (add, subtract, multiply, divide) were previously
+implemented as named functions in the EllipticCurve class. A class has been created for 
+the purpose of handling such operations entitled FieldElement. Two FieldElements may be
+added, subtracted, multiplied, or divided, and the output of such an operation is another
+element in the finite field. The field Fp is defined by a BigInteger p such that for all 
+elements e, 0 < e < p.
+
+Refactoring of the serialization and parsing of ECC Points:
+The Point class has been expanded to include parsing and serialization of ECC Points with
+the defined algorithms for representing points as arrays of bytes. Note that only parsing
+and serialization of points in an uncompressed format is supported.
+
+Refactoring of key serialization and parsing routines:
+In Phase 1, the EccAlg class (and several other classes used internally) would parse and
+serialize their state directly to strings of hex-encoded bytes. This has been changed so 
+that they input and output byte arrays and the serialization to and from strings has been
+moved to the KeySerializer and subclasses.
+
