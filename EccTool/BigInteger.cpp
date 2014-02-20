@@ -593,7 +593,7 @@ BigInteger& BigInteger::Multiply(const BigInteger& rhs)
 BigInteger& BigInteger::Subtract(const BigInteger& rhs)
 {
     // This function does not support a subtraction resulting in a negative number.
-    //  It will only subtract a smaller magnitude from a smaller.
+    //  It will only subtract a smaller magnitude from a larger.
     if(CompareMagnitudeTo(rhs) == -1)
     {
         stringstream ss;
@@ -674,7 +674,7 @@ pair<BigInteger, BigInteger> BigInteger::Divide(const BigInteger& numerator, con
     //     end
     // end
     
-    // Note that this division operaton ignores sign and only deals in magnitude.
+    // Note that this division operation ignores sign and only deals in magnitude.
     BigInteger quotient(0);
     BigInteger remainder(0);
     

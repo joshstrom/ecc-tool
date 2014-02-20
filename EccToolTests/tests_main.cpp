@@ -788,6 +788,23 @@ TEST_CASE("CanMakeBitcoinCurve")
     alg.GenerateKeys();
 }
 
+TEST_CASE("CanEncryptAndDecryptWithBitcoinCurve")
+{
+	DomainParameters bitcoinCurveParams = GetSecp256k1Curve();
+	EllipticCurve curve(bitcoinCurveParams);
+
+	EccAlg alg(curve);
+	alg.GenerateKeys();
+
+	uint8_t messageArr[] = { 0, 1, 2, 3, 4, 5 };
+	vector<uint8_t> message(messageArr, messageArr + sizeof(messageArr));
+
+	auto encrypted = alg.Encrypt(message);
+	auto decrypted = alg.Decrypt(encrypted);
+
+	REQUIRE(decrypted == message);
+}
+
 TEST_CASE("CanCreateFieldElement")
 {
     FieldElement element(5, 7);
