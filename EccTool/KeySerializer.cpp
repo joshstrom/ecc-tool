@@ -1,12 +1,12 @@
 //
-//  Version1KeySerializer.cpp
+//  KeySerializer.cpp
 //  EccTool
 //
 //  Created by Josh Strom on 2/8/14.
 //  Copyright (c) 2014 Josh Strom. All rights reserved.
 //
 
-#include "Version1KeySerializer.h"
+#include "KeySerializer.h"
 #include "Utilities.h"
 #include "EccAlg.h"
 #include "DefinedCurveDomainParameters.h"
@@ -14,7 +14,7 @@
 
 #include <sstream>
 
-string Version1KeySerializer::SerializePublicKeys(const EccAlg& alg) const
+string KeySerializer::SerializePublicKeys(const EccAlg& alg) const
 {
     // Save format: <curve name>:[<public>]
     vector<uint8_t> publicKey = alg.GetPublicKey();
@@ -25,7 +25,7 @@ string Version1KeySerializer::SerializePublicKeys(const EccAlg& alg) const
     return ss.str();
 }
 
-string Version1KeySerializer::SerializePrivateKeys(const EccAlg& alg) const
+string KeySerializer::SerializePrivateKeys(const EccAlg& alg) const
 {
     // Save format: <curve name>:[<public>:<private>]
     vector<uint8_t> publicKey = alg.GetPublicKey();
@@ -37,7 +37,7 @@ string Version1KeySerializer::SerializePrivateKeys(const EccAlg& alg) const
     return ss.str();
 }
 
-EccAlg Version1KeySerializer::ParseKeys(const string& keys) const
+EccAlg KeySerializer::ParseKeys(const string& keys) const
 {
     // Save format: <curve name>:[<private>:<public>]
     

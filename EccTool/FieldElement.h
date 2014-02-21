@@ -45,7 +45,7 @@ public:
     FieldElement& Invert();
     FieldElement GetInverse() const;
     
-    // Comparison Operators
+    // Comparison Operators specialized for other FieldElements and BigIntegers.
     bool operator==(const FieldElement& other) const;
     bool operator!=(const FieldElement& other) const;
     bool operator==(const BigInteger& other) const;

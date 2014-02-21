@@ -15,7 +15,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <algorithm>
-#include "Version1KeySerializer.h"
+#include "KeySerializer.h"
 
 using namespace std;
 using namespace ecc;
@@ -148,6 +148,7 @@ void PrintHelpMessage()
     cout << "                                  (from list of ECC curves) and save with" << endl;
     cout << "                                  the specified name." << endl;
     cout << "    -l <keyname> [-p]             Print key information for the specified key." << endl;
+    cout << "                                  Optionally print private key information." << endl;
     cout << "    -e <keyname> <outfile> <msg>  Encrypt the message with the indicated key. " << endl;
     cout << "                                  Store in indicated file." << endl;
     cout << "    -d <keyname> <infile>         Decrypt the message in the indicated " << endl;
@@ -201,6 +202,7 @@ void GenerateKeys(int curveId, string keyName)
     cout << "Done. Access using \"" << keyName << "\"" << endl;
 }
 
+// Loads the specified key and prints details to console.
 void LoadKey(string keyName, bool printPrivate)
 {
     // Open the key and load it in memory.
@@ -212,12 +214,7 @@ void LoadKey(string keyName, bool printPrivate)
     cout << alg.KeysToString(printPrivate) << endl;
 }
 
-bool CheckFileExists(const string& fileName)
-{
-    ifstream file(fileName);
-    return file.good();
-}
-
+// Encrypt the message with the key and store in the file.
 void Encrypt(string keyName, string outFile, string msg)
 {
 	cout << "Loading key \"" << keyName << "\"..." << endl;
@@ -238,6 +235,7 @@ void Encrypt(string keyName, string outFile, string msg)
     cout << "Encrypted message stored in \"" << outFile << "\"" << endl;
 }
 
+// Decrypts the message from file with the key.
 void Decrypt(string keyName, string inFile)
 {
 	cout << "Loading key \"" << keyName << "\"..." << endl;
@@ -262,6 +260,14 @@ void Decrypt(string keyName, string inFile)
     cout << endl;
 }
 
+// Helper function to see if the given file exists.
+bool CheckFileExists(const string& fileName)
+{
+    ifstream file(fileName);
+    return file.good();
+}
+
+// Helper function to delete (for later overwrite) the given key file(s) with user confirmation.
 void ConfirmOverwriteKeyFile(const string& keyName)
 {
     string pubKeyFileName = MakePubKeyFileName(keyName);
@@ -278,6 +284,7 @@ void ConfirmOverwriteKeyFile(const string& keyName)
     remove(privKeyFileName.c_str());
 }
 
+// Helper function to delete (for later overwrite) the given file with user confirmation.
 void ConfirmOverwriteFile(const string& fileName)
 {
     if(!CheckFileExists(fileName))
@@ -289,16 +296,19 @@ void ConfirmOverwriteFile(const string& fileName)
     remove(fileName.c_str());
 }
 
+// Helper function to create the public key file name.
 string MakePubKeyFileName(const string& keyName)
 {
     return string("pub_").append(keyName).append(".ecckey");
 }
 
+// Helper function to create the private key file name.
 string MakePrivKeyFileName(const string& keyName)
 {
     return string("priv_").append(keyName).append(".ecckey");
 }
 
+// Saves the given key (with the specified key name) to disk. Requires privat key.
 void SaveKeyToFile(const EccAlg& key, const string& keyName)
 {
     // This routine is only for full keys (private key included).
@@ -313,11 +323,14 @@ void SaveKeyToFile(const EccAlg& key, const string& keyName)
     string pubKeyFileName = MakePubKeyFileName(keyName);
     string privKeyFileName = MakePrivKeyFileName(keyName);
     
-    Version1KeySerializer serializer;
+    KeySerializer serializer;
     SaveToFile(pubKeyFileName, serializer.SerializePublicKeys(key));
     SaveToFile(privKeyFileName, serializer.SerializePrivateKeys(key));
 }
 
+// Creates an ECC algorithm by reading the key data from file.
+// Note that this may return an algorithm with just the public key
+// or the public and private keys.
 EccAlg ReadKeyFromFile(const string& keyName)
 {
     string pubKeyFileName = MakePubKeyFileName(keyName);
@@ -340,9 +353,10 @@ EccAlg ReadKeyFromFile(const string& keyName)
     if(keyData.empty())
         throw runtime_error(string("Key \'").append(keyName).append("\' not found."));
     
-    return Version1KeySerializer().ParseKeys(keyData);
+    return KeySerializer().ParseKeys(keyData);
 }
 
+// Saves the provided string to the specified file.
 void SaveToFile(const string& fileName, const string& data)
 {
     ofstream outStream(fileName, ios::out | ios::binary);
@@ -352,6 +366,7 @@ void SaveToFile(const string& fileName, const string& data)
     outStream << data;
 }
 
+// Reads all data from the specified file (as a string).
 string ReadFromFile(const string& fileName)
 {
     ifstream inStream(fileName, ios::in | ios::binary);
@@ -364,18 +379,21 @@ string ReadFromFile(const string& fileName)
     return data;
 }
 
+// Converts all letters in the string to lowercase.
 string ToLower(string str)
 {
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
     return str;
 }
 
+// Returns a copy of the given string with all whitespace removed.
 string TrimWhitespace(string str)
 {
     str.erase(remove_if(str.begin(), str.end(), ::isspace), str.end());
     return str;
 }
 
+// Asks for user approval with the given (yes/no) question.
 bool UserApproved(const string& question)
 {
     char answer = '0';

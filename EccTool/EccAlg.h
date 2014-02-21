@@ -71,13 +71,17 @@ public:
     // Gets the name of the curve used to back this algorithm.
     string GetCurveName() const;
     
+    // Encrypts the given plaintext (uses public key).
     vector<uint8_t> Encrypt(const vector<uint8_t>& plaintext);
     
+    // Decrypts the given ciphertext (uses private key).
     vector<uint8_t> Decrypt(const vector<uint8_t>& ciphertext);
     
+    // Returns wether this instance has a private key or was loaded from a public key.
     bool HasPrivateKey() const;
 };
 
+// The exception thrown if the private key is not set for an option which requires it.
 class no_private_key final : public runtime_error
 {
 public:

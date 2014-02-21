@@ -47,7 +47,7 @@ Point EllipticCurve::PointAdd(const Point& P, const Point& Q) const
     FieldElement Rx = (s * s) - P.x - Q.x;
     FieldElement Ry = (s * (P.x - Rx)) - P.y;
     
-    return Point(Rx, Ry);
+    return Point(move(Rx), move(Ry));
 }
 
 Point EllipticCurve::PointDouble(const Point& P) const
@@ -68,7 +68,7 @@ Point EllipticCurve::PointDouble(const Point& P) const
     FieldElement Rx = (s * s) - (FieldElement(2, _p) * P.x);
     FieldElement Ry = (s * (P.x - Rx)) - P.y;
     
-    return Point(Rx, Ry);
+    return Point(move(Rx), move(Ry));
 }
 
 Point EllipticCurve::InvertPoint(const Point& point) const
@@ -134,8 +134,8 @@ Point EllipticCurve::MultiplyPointOnCurveWithScalar(const Point& point, const Bi
 
 bool EllipticCurve::CheckPointOnCurve(const Point& point) const
 {
-    // For the point (x,y) to be on the curve,
-    //  y^2 MUST EQUAL x^3 + ax + b    mod p
+    // For the point (x,y) to be on the curve, the x and y coordinates must satisfy the curve equation:
+    //  y^2 = x^3 + ax + b    mod p
     
     FieldElement leftHandSide = point.y * point.y;
     FieldElement rightHandSide = (point.x * point.x * point.x) + (_a * point.x) + _b;
@@ -148,7 +148,7 @@ Point EllipticCurve::MakePointOnCurve(BigInteger&& x, BigInteger&& y) const
 {
     Point point(FieldElement(move(x), _p), FieldElement(move(y), _p));
     
-    // Test to ensure that the public key is on the curve.
+    // Test to ensure that the point is on the curve.
     if(!CheckPointOnCurve(point))
         throw invalid_argument("Point not on curve.");
     
@@ -159,6 +159,7 @@ Point EllipticCurve::MakePointOnCurve(const vector<uint8_t>& serializedPoint) co
 {
     Point point = Point::Parse(serializedPoint, _p);
     
+    // Test to ensure that the point is on the curve.
     if(!CheckPointOnCurve(point))
         throw invalid_argument("Point not on curve.");
     

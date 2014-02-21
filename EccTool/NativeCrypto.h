@@ -46,7 +46,9 @@ public:
         
         return derivedKey;
         
-#elif _MSC_VER // Windows TODO: insert win32 #ifdef here, don't just use #else
+#elif _MSC_VER // Windows
+        
+        // For Windows, use the CNG (Crypto Next Gen) BCrypt APIs for key derivation.
         
 		// Deleter for alg handle to ensure deterministic close.
 		auto deleter = [] (BCRYPT_ALG_HANDLE* handle) 
@@ -57,9 +59,9 @@ public:
 			BCryptCloseAlgorithmProvider(*handle, 0); 
 			delete handle; 
 		};
-
 		unique_ptr<BCRYPT_ALG_HANDLE, decltype(deleter)> prfAlgHandle(new BCRYPT_ALG_HANDLE(), deleter);
 
+        // Open the algorithm provider (SHA-256) for the as the PRF for the key derivation function.
 		NTSTATUS status = BCryptOpenAlgorithmProvider(prfAlgHandle.get(), 
 													  BCRYPT_SHA256_ALGORITHM, 
 													  MS_PRIMITIVE_PROVIDER, 
@@ -67,6 +69,9 @@ public:
 		if (status != 0)
 			throw runtime_error("Unable to create hash alg for key derivation.");
 		
+        // Use the Password Based Key Derivation Function version 2 (PBKDF2) algorithm to derive a key.
+        // Note: we use const_cast on the the password and salt buffers because although these buffers are
+        // unchanged by the function, they are not declared as const in the function declaration.
 		vector<uint8_t> derivedKey(keySize);
 		status = BCryptDeriveKeyPBKDF2(*prfAlgHandle,
 									   const_cast<uint8_t*>(password.data()),

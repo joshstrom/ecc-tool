@@ -77,7 +77,7 @@ Point::Point() : x(BigInteger(0), BigInteger(1)), y(BigInteger(0), BigInteger(1)
 {
 }
 
-Point::Point(FieldElement x, FieldElement y) : x(x), y(y), isPointAtInfinity(false)
+Point::Point(FieldElement x, FieldElement y) : x(move(x)), y(move(y)), isPointAtInfinity(false)
 {
 }
 

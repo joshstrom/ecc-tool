@@ -10,8 +10,8 @@
 		3C1707721883A47D00A900A1 /* tests_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C1707711883A47D00A900A1 /* tests_main.cpp */; };
 		3C17077A1883AAB500A900A1 /* EccAlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C1707781883AAB500A900A1 /* EccAlg.cpp */; };
 		3C38AC64187FBDF200DF4257 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C38AC63187FBDF200DF4257 /* main.cpp */; };
-		3C5B330118A76A2700FEE5F9 /* Version1KeySerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C5B32FF18A76A2700FEE5F9 /* Version1KeySerializer.cpp */; };
-		3C5B330218A76A2700FEE5F9 /* Version1KeySerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C5B32FF18A76A2700FEE5F9 /* Version1KeySerializer.cpp */; };
+		3C5B330118A76A2700FEE5F9 /* KeySerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C5B32FF18A76A2700FEE5F9 /* KeySerializer.cpp */; };
+		3C5B330218A76A2700FEE5F9 /* KeySerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C5B32FF18A76A2700FEE5F9 /* KeySerializer.cpp */; };
 		3C6D9A6018945C4000645326 /* EllipticCurve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C6D9A5E18945C4000645326 /* EllipticCurve.cpp */; };
 		3C6D9A6118945C4000645326 /* EllipticCurve.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C6D9A5E18945C4000645326 /* EllipticCurve.cpp */; };
 		3C758C2C18A871D300627B90 /* Utilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3C758C2A18A871D300627B90 /* Utilities.cpp */; };
@@ -58,9 +58,8 @@
 		3C1707791883AAB500A900A1 /* EccAlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EccAlg.h; sourceTree = "<group>"; };
 		3C38AC60187FBDF200DF4257 /* EccTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = EccTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		3C38AC63187FBDF200DF4257 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		3C5B32FE18A765D800FEE5F9 /* AbstractKeySerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractKeySerializer.h; sourceTree = "<group>"; };
-		3C5B32FF18A76A2700FEE5F9 /* Version1KeySerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Version1KeySerializer.cpp; sourceTree = "<group>"; };
-		3C5B330018A76A2700FEE5F9 /* Version1KeySerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Version1KeySerializer.h; sourceTree = "<group>"; };
+		3C5B32FF18A76A2700FEE5F9 /* KeySerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeySerializer.cpp; sourceTree = "<group>"; };
+		3C5B330018A76A2700FEE5F9 /* KeySerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeySerializer.h; sourceTree = "<group>"; };
 		3C6D9A5E18945C4000645326 /* EllipticCurve.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EllipticCurve.cpp; sourceTree = "<group>"; };
 		3C6D9A5F18945C4000645326 /* EllipticCurve.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EllipticCurve.h; sourceTree = "<group>"; };
 		3C6D9A621894A0DD00645326 /* EccDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EccDefs.h; sourceTree = "<group>"; };
@@ -149,9 +148,8 @@
 				3C6D9ACF1896034700645326 /* DefinedCurveDomainParameters.h */,
 				3CED523D189F0A650096027B /* FieldElement.cpp */,
 				3CED523E189F0A650096027B /* FieldElement.h */,
-				3C5B32FE18A765D800FEE5F9 /* AbstractKeySerializer.h */,
-				3C5B32FF18A76A2700FEE5F9 /* Version1KeySerializer.cpp */,
-				3C5B330018A76A2700FEE5F9 /* Version1KeySerializer.h */,
+				3C5B32FF18A76A2700FEE5F9 /* KeySerializer.cpp */,
+				3C5B330018A76A2700FEE5F9 /* KeySerializer.h */,
 				3C758C2A18A871D300627B90 /* Utilities.cpp */,
 				3C758C2B18A871D300627B90 /* Utilities.h */,
 				3C72C30618ADF8DD00B77EE9 /* NativeCrypto.h */,
@@ -232,7 +230,7 @@
 				3CED5240189F0A650096027B /* FieldElement.cpp in Sources */,
 				3CCCC3791887C6EE008DF956 /* BigInteger.cpp in Sources */,
 				3C1707721883A47D00A900A1 /* tests_main.cpp in Sources */,
-				3C5B330218A76A2700FEE5F9 /* Version1KeySerializer.cpp in Sources */,
+				3C5B330218A76A2700FEE5F9 /* KeySerializer.cpp in Sources */,
 				3C6D9A6118945C4000645326 /* EllipticCurve.cpp in Sources */,
 				3C758C3018A8BFCB00627B90 /* DefinedCurveDomainParameters.cpp in Sources */,
 				3CED5243189F30990096027B /* Point.cpp in Sources */,
@@ -245,7 +243,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3C5B330118A76A2700FEE5F9 /* Version1KeySerializer.cpp in Sources */,
+				3C5B330118A76A2700FEE5F9 /* KeySerializer.cpp in Sources */,
 				3CED5242189F30990096027B /* Point.cpp in Sources */,
 				3C758C2C18A871D300627B90 /* Utilities.cpp in Sources */,
 				3C93E83D18865C0E00B56C1C /* BigInteger.cpp in Sources */,

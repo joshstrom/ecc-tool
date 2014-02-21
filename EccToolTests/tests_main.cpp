@@ -16,7 +16,7 @@
 #include "DefinedCurveDomainParameters.h"
 #include "FieldElement.h"
 #include "Utilities.h"
-#include "Version1KeySerializer.h"
+#include "KeySerializer.h"
 #include "NativeCrypto.h"
 
 void StatisticalOperationTest(const BaseOperationTester& tester)
@@ -985,9 +985,9 @@ TEST_CASE("CanLoadV1SerializedKeys")
     EccAlg alg1(curve);
     alg1.GenerateKeys();
     
-    auto serializedKeys = Version1KeySerializer().SerializePrivateKeys(alg1);
+    auto serializedKeys = KeySerializer().SerializePrivateKeys(alg1);
     
-    REQUIRE_NOTHROW(auto alg2 = Version1KeySerializer().ParseKeys(serializedKeys));
+    REQUIRE_NOTHROW(auto alg2 = KeySerializer().ParseKeys(serializedKeys));
     
 }
 
@@ -999,9 +999,9 @@ TEST_CASE("CanSerializeAndParsePublicKey")
     EccAlg alg1(curve);
     alg1.GenerateKeys();
     
-    auto serializedKey = Version1KeySerializer().SerializePublicKeys(alg1);
+    auto serializedKey = KeySerializer().SerializePublicKeys(alg1);
     
-    EccAlg alg2 = Version1KeySerializer().ParseKeys(serializedKey);
+    EccAlg alg2 = KeySerializer().ParseKeys(serializedKey);
     REQUIRE_THROWS(alg2.GetPrivateKey());
 }
 
@@ -1037,12 +1037,11 @@ TEST_CASE("ThrowsOnDecypritonIfPrivateKeyNotAvailable")
     alg1.GenerateKeys();
     auto ciphertext = alg1.Encrypt(vector<uint8_t>(50));
     
-    auto serializer = Version1KeySerializer();
+    auto serializer = KeySerializer();
     EccAlg alg2 = serializer.ParseKeys(serializer.SerializePublicKeys(alg1));
     
     REQUIRE_THROWS(alg2.Decrypt(ciphertext));
 }
-
 
 
 
