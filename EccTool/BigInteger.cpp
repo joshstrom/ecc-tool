@@ -255,16 +255,19 @@ void BigInteger::ClearBitAt(size_t index)
 
 size_t BigInteger::GetBitSize() const
 {
-    return _magnitude.size() * 8;
+    int bitSize =  static_cast<int>(_magnitude.size()) * 8;
+    for(int i = bitSize - 1; i >= 0; --i)
+    {
+        if(GetBitAt(i))
+            return i + 1;
+    }
+    
+    return 0;
 }
 
 size_t BigInteger::GetMostSignificantBitIndex() const
 {
-    int bitSize = static_cast<int>(GetBitSize()) - 1;
-    while(!GetBitAt(bitSize))
-        --bitSize;
-    
-    return bitSize;
+    return GetBitSize() - 1;
 }
 
 BigInteger& BigInteger::operator<<=(int count)
@@ -308,6 +311,67 @@ BigInteger& BigInteger::operator<<=(int count)
     // Handle any remaining carry.
     if(carry != 0)
         _magnitude.insert(_magnitude.begin(), carry);
+    
+    return *this;
+}
+
+BigInteger& BigInteger::operator>>=(int count)
+{
+    // Zero shifted right is still zero.
+    if(IsZero())
+        return *this;
+    
+    // Determine the number of whole bytes and the number of bits to shift.
+    int bytesToShift = count / 8;
+    int bitsToShift = count % 8;
+    
+    // If we are shifting by as many (or more) bytes than the magnitude, the result is zero.
+    if(bytesToShift >= _magnitude.size())
+    {
+        SetZero();
+        return *this;
+    }
+    
+    // Delete the number of whole bytes to shift from the back of the vector.
+    if(bytesToShift >= 0)
+        _magnitude.resize(_magnitude.size() - bytesToShift);
+    
+    if(bitsToShift == 0)
+        return *this;
+    
+    // Iterate through each byte in the array, from right to left, shifting each byte
+    // to the right by the specifed number of bits, capturing the overflow, and applying
+    // it to the next byte.
+    
+    // Construct a bit mask which will allow us to determine the carry for the next byte.
+    // For example, if the nuber of bits to shift is 3, the mask should be 00000111b.
+    // We can use bit shifting to accomplish this.
+    uint8_t bitsToShiftInverse = 8 - bitsToShift;
+    uint8_t carryMask = 0xff >> bitsToShiftInverse;
+    
+    uint8_t carry = 0;
+    for(size_t i = 0; i < _magnitude.size(); i++)
+    {
+        uint8_t& current = _magnitude[i];
+        
+        // Determine the carry for the next byte by masking the byte with the
+        // carry mask and shifting those bits to be the most significant.
+        // Example: If the bit is: 10010100b, and we are shifting 3 bits,
+        // the mask is: 0000111b, after the shift the carry is 11100000b.
+        uint8_t nextCarry = (current & carryMask) << bitsToShiftInverse;
+        
+        // Shift the current bit and add the previous carry.
+        current >>= bitsToShift;
+        current |= carry;
+        
+        // Save the next carry.
+        carry = nextCarry;
+    }
+    
+    // Because of right shift, any overflow after the last byte is dropped.
+    
+    // We may have zero bytes at the beginning.
+    TrimPrefixZeros();
     
     return *this;
 }

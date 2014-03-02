@@ -21,6 +21,7 @@ using namespace std;
 #ifdef __APPLE__ // Mac
 #include <CommonCrypto/CommonCryptor.h>
 #include <CommonCrypto/CommonKeyDerivation.h>
+#include <CommonCrypto/CommonDigest.h>
 #elif _MSC_VER // Windows
 #define WIN32_LEAN_AND_MEAN
 #include "Windows.h"
@@ -92,5 +93,22 @@ public:
 #endif
     }
     
+    // Hash the provided data with the SHA 256 hash algorithm.
+    static vector<uint8_t> HashData(const vector<uint8_t>& data)
+    {
+#ifdef __APPLE__
+        
+        // For Apple, use the CommonCrypto implementation of SHA 256.
+        vector<uint8_t> digest(CC_SHA256_DIGEST_LENGTH);
+        CC_SHA256(data.data(), static_cast<CC_LONG>(data.size()), digest.data());
+        
+        return digest;
+        
+#elif _MSC_VER
+#error "Hash not implemented."
+#else
+#error "Unsupported Platform."
+#endif
+    }
 };
 #endif /* defined(__EccTool__NativeCrypto__) */

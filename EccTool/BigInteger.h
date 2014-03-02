@@ -215,11 +215,15 @@ public:
     
     // Bitwise manipulation operators.
     BigInteger& operator<<=(int count);
+    BigInteger& operator>>=(int count);
     
     // Bitwise indexing operators. Note that bitwise indexes go right to left.
     bool GetBitAt(size_t index) const;
     void SetBitAt(size_t index);
     void ClearBitAt(size_t index);
+    
+    // Returns the number of bits needed to represent the integer. May not exactly
+    // equal 8 * number of bytes.
     size_t GetBitSize() const;
     size_t GetMostSignificantBitIndex() const;
     

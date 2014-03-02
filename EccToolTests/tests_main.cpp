@@ -558,7 +558,7 @@ TEST_CASE("CanTakeModuloOfVeryLargeNumbers")
 TEST_CASE("CanSetAndGetBitsInFirstByte")
 {
     BigInteger integer(0);
-    REQUIRE(integer.GetBitSize() == 8);
+    REQUIRE(integer.GetBitSize() == 0);
     REQUIRE(integer.GetBitAt(4) == false);
     
     integer.SetBitAt(4);
@@ -1013,7 +1013,6 @@ TEST_CASE("CanDeriveKey")
 
 TEST_CASE("CanEncrypt")
 {
-    DomainParameters curveParams = GetSecp112r1Curve();
     EllipticCurve curve(GetSecp112r1Curve());
     
     EccAlg alg1(curve);
@@ -1043,7 +1042,42 @@ TEST_CASE("ThrowsOnDecypritonIfPrivateKeyNotAvailable")
     REQUIRE_THROWS(alg2.Decrypt(ciphertext));
 }
 
+TEST_CASE("CanSignMessage")
+{
+    uint8_t messageArr[] = { 0, 1, 2, 3, 4, 5 };
+    vector<uint8_t> message(messageArr, messageArr + sizeof(messageArr));
+    
+    EllipticCurve curve(GetSecp112r1Curve());
+    EccAlg alg(curve);
+    alg.GenerateKeys();
+    
+    auto signedMessage = alg.Sign(message);
+    REQUIRE(signedMessage.size() > message.size());
+}
 
+TEST_CASE("CanRightShiftBySmallAmount")
+{
+    BigInteger original(5);
+    original >>= 1;
+    
+    REQUIRE(original == 2);
+}
+
+TEST_CASE("CanRightShiftByLargerAmount")
+{
+    BigInteger original("FFFFFFFFFFFFFFFF");
+    original >>= 10;
+    
+    REQUIRE(original == BigInteger("3FFFFFFFFFFFFF"));
+}
+
+TEST_CASE("CanRightShiftByEvenByteAmount")
+{
+    BigInteger original("FFFFFFFFFFFFFFFF");
+    original >>= 8;
+    
+    REQUIRE(original == BigInteger("FFFFFFFFFFFFFF"));
+}
 
 
 

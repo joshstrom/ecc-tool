@@ -141,7 +141,7 @@ vector<uint8_t> Xor(const vector<uint8_t>& lhs, const vector<uint8_t>& rhs)
     return result;
 }
 
-vector<uint8_t> EccAlg::Encrypt(const vector<uint8_t>& plaintext)
+vector<uint8_t> EccAlg::Encrypt(const vector<uint8_t>& plaintext) const
 {
     // The following process is derived from the SEC 1: Elliptic Curve Cryptography spec
     //  found here: http://www.secg.org/collateral/sec1_final.pdf (Section 5.1.3)
@@ -186,8 +186,7 @@ vector<uint8_t> EccAlg::Encrypt(const vector<uint8_t>& plaintext)
     return ciphertext;
 }
 
-
-vector<uint8_t> EccAlg::Decrypt(const vector<uint8_t>& ciphertext)
+vector<uint8_t> EccAlg::Decrypt(const vector<uint8_t>& ciphertext) const
 {
     EnsurePrivateKeyAvailable();
     // The following process is derived from the SEC 1: Elliptic Curve Cryptography spec
@@ -230,6 +229,50 @@ vector<uint8_t> EccAlg::Decrypt(const vector<uint8_t>& ciphertext)
     return plaintext;
 }
 
+vector<uint8_t> EccAlg::Sign(const vector<uint8_t>& message) const
+{
+    // Compute a hash of the message and select the left-most n bits,
+    // where n is the bitlength of the curve order. Store these bits
+    // in the integer z.
+    auto hash = NativeCrypto::HashData(message);
+    
+    // Select the bits by determining how many bits must must be removed
+    // and shifting the integer z right to remove the right-most bits.
+    BigInteger z(hash);
+    size_t Ln = min(_curve.GetBasePointOrder().GetBitSize(), z.GetBitSize());
+    unsigned int bitsToRemove = static_cast<unsigned int>(z.GetBitSize() - Ln);
+    z >>= bitsToRemove;
+    
+    // Generate an ephemeral keypair, k (private key) and Pk (public key).
+    auto k = GenerateRandomPositiveIntegerLessThan(_curve.GetBasePointOrder());
+    auto Pk = _curve.MultiplyPointOnCurveWithScalar(_curve.GetBasePoint(), k);
+    
+    // Calculate an integer r by taking the x-value of the previously generated
+    // point mod the base point order. If zero, generate a new k and start again.
+    auto n = make_shared<BigInteger>(_curve.GetBasePointOrder());
+    auto r = FieldElement(Pk.x.GetRawInteger() % _curve.GetBasePointOrder(), n);
+    
+    // Calculate an integer s by adding z to the multiplication of the private key with s,
+    // then dividing this by the ephemral private key, mod n.
+    auto fieldElementK = FieldElement(k, n);
+    auto s = (FieldElement(z, n) + fieldElementK * r) / fieldElementK;
+    
+    auto signature = Point(r, s);
+    auto signatureBytes = signature.Serialize();
+    
+    vector<uint8_t> retVal(message.size() + signatureBytes.size());
+    auto it = retVal.begin();
+    copy(message.begin(), message.end(), it);
+    it += message.size();
+    copy(signatureBytes.begin(), signatureBytes.end(), it);
+    
+    return retVal;
+}
+
+bool EccAlg::Verify(const vector<uint8_t>& signedMessage) const
+{
+    return false;
+}
 
 
 

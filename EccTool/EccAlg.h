@@ -72,10 +72,16 @@ public:
     string GetCurveName() const;
     
     // Encrypts the given plaintext (uses public key).
-    vector<uint8_t> Encrypt(const vector<uint8_t>& plaintext);
+    vector<uint8_t> Encrypt(const vector<uint8_t>& plaintext) const;
     
     // Decrypts the given ciphertext (uses private key).
-    vector<uint8_t> Decrypt(const vector<uint8_t>& ciphertext);
+    vector<uint8_t> Decrypt(const vector<uint8_t>& ciphertext) const;
+    
+    // Signs the given message with the alg's privte key.
+    vector<uint8_t> Sign(const vector<uint8_t>& message) const;
+    
+    // Verifies the given signed message with the alg's public key.
+    bool Verify(const vector<uint8_t>& signedMessage) const;
     
     // Returns wether this instance has a private key or was loaded from a public key.
     bool HasPrivateKey() const;
