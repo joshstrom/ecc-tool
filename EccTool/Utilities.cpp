@@ -77,6 +77,18 @@ vector<uint8_t> utilities::HexStringToBytes(string byteString)
     return bytes;
 }
 
+void utilities::DebugLog(const string& message)
+{
+    DebugLog(message.c_str());
+}
+
+void utilities::DebugLog(const char* message)
+{
+#ifndef NDEBUG
+    std::cout << "DEBUG LOG MESSAGE: " << message;
+#endif
+}
+
 std::ostream& operator<<(std::ostream& os, const std::vector<uint8_t>& bytes)
 {
     stringstream ss;

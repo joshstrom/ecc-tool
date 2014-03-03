@@ -29,7 +29,7 @@ public:
     static Point MakePointAtInfinity();
     
     // Deserializes a point.
-    static Point Parse(const vector<uint8_t>& serializedPoint, shared_ptr<BigInteger> field);
+    static Point Parse(const vector<uint8_t>& serializedPoint, size_t offset, shared_ptr<BigInteger> field);
     
     // Default constructor, creates a point at (0,0).
     Point();
@@ -51,6 +51,8 @@ public:
     
     // Gets the size of this point when serialized uncompressed.
     size_t ComputeUncompressedSize() const;
+    
+    static size_t ComputeUncompressedPointSize(size_t fieldSize);
  
 private:
     static const char* COMPRESSED_POINT_FLAG_STR;
@@ -60,10 +62,10 @@ private:
     static const char UNCOMPRESSED_POINT_FLAG;
     
     // Internal point parsing helper function for uncompressed point representations.
-    static Point ParseUncompressedPoint(const vector<uint8_t>& serializedPoint, shared_ptr<BigInteger> field);
+    static Point ParseUncompressedPoint(const vector<uint8_t>& serializedPoint, size_t offset, shared_ptr<BigInteger> field);
 
     // Internal point parsing helper function for compressed point representations.
-    static Point ParseCompressedPoint(const vector<uint8_t>& serializedPoint, shared_ptr<BigInteger> field);
+    static Point ParseCompressedPoint(const vector<uint8_t>& serializedPoint, size_t offset, shared_ptr<BigInteger> field);
     
     // Determines if this is a point at infinity.
     bool isPointAtInfinity;

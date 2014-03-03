@@ -25,6 +25,14 @@ private:
     shared_ptr<const BigInteger> _p;
     
 public:
+    // Creates a field element from a big integer and a field p. If the number is not
+    // already within p, the number is taken modulo p. Number must be >= 0.
+    static FieldElement MakeElement(BigInteger number, shared_ptr<const BigInteger> p);
+    
+    // Creates a field element from a big integer and a field p. If the number is not
+    // already within p, the number is taken modulo p. Number must be >= 0.
+    static FieldElement MakeElement(const FieldElement& number, shared_ptr<const BigInteger> p);
+    
     // Constructor taking an number in the field and the field itself (as a shared ptr).
     FieldElement(BigInteger number, shared_ptr<const BigInteger> p);
     
@@ -60,6 +68,10 @@ public:
     // Returns this field element as bytes. The array is sized to be
     //  the same as the field, and prepended with zeros.
     vector<uint8_t> GetBytes() const;
+    
+    // Returns the number of bytes it would take to serialize the integer
+    // same size as the field.
+    size_t GetByteSize() const;
 };
 
 // Binary '+' operator implemented as a free function by convention.

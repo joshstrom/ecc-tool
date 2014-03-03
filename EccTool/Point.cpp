@@ -23,7 +23,7 @@ Point Point::MakePointAtInfinity()
     return Point(true);
 }
 
-Point Point::ParseUncompressedPoint(const vector<uint8_t>& serializedPoint, shared_ptr<BigInteger> field)
+Point Point::ParseUncompressedPoint(const vector<uint8_t>& serializedPoint, size_t offset, shared_ptr<BigInteger> field)
 {
     // Format of uncompressed point: <compression flag><x-coordinate><y-coordinate>[possible extra data] with the
     //  compression flag being a single byte and the x/y coordinates represented in the same number of bytes equal
@@ -34,12 +34,12 @@ Point Point::ParseUncompressedPoint(const vector<uint8_t>& serializedPoint, shar
     //  y coordinate).
     auto sizeOfCoordinates = field->GetMagnitudeByteSize();
     size_t sizeOfCoordinateBuffer = (2 * sizeOfCoordinates) + 1;
-    if(serializedPoint.size() < sizeOfCoordinateBuffer)
+    if((serializedPoint.size() - offset) < sizeOfCoordinateBuffer)
         throw invalid_argument("Serialized point buffer to small.");
     
     // With this information we can find the beginning and end of the x and y coordinates and create the point.
     //  This allows us to parse out a point from a buffer that may contain more than just that poin.
-    auto xCoordinateBegin = serializedPoint.begin() + 1;
+    auto xCoordinateBegin = serializedPoint.begin() + (offset + 1);
     auto yCoordinateBegin = xCoordinateBegin + sizeOfCoordinates;
     auto coordinatesEnd = yCoordinateBegin + sizeOfCoordinates;
     
@@ -49,25 +49,25 @@ Point Point::ParseUncompressedPoint(const vector<uint8_t>& serializedPoint, shar
     return Point(FieldElement(move(xCoord), field), FieldElement(move(yCoord), field));
 }
 
-Point Point::Parse(const vector<uint8_t>& serializedPoint, shared_ptr<BigInteger> field)
+Point Point::Parse(const vector<uint8_t>& serializedPoint, size_t offset, shared_ptr<BigInteger> field)
 {
     // Format of serialized point <compression flag><serialized point>, parsing is different
     //  depending on compression flag.
-    if(serializedPoint.size() < 1) // Net even a compression flag.
+    if((serializedPoint.size() - offset) < 1) // Not even a compression flag.
      throw invalid_argument("Buffer too small to hold point");
     
-    uint8_t compressionFlag = serializedPoint[0];
+    uint8_t compressionFlag = serializedPoint[offset];
     switch (compressionFlag) {
         case UNCOMPRESSED_POINT_FLAG:
-            return ParseUncompressedPoint(serializedPoint, field);
+            return ParseUncompressedPoint(serializedPoint, offset, field);
         case COMPRESSED_POINT_FLAG:
-            return ParseCompressedPoint(serializedPoint, field);
+            return ParseCompressedPoint(serializedPoint, offset, field);
         default:
             throw invalid_argument("Invalid point compression flag.");
     }
 }
 
-Point Point::ParseCompressedPoint(const vector<uint8_t>& serializedPoint, shared_ptr<BigInteger> field)
+Point Point::ParseCompressedPoint(const vector<uint8_t>& serializedPoint, size_t offset, shared_ptr<BigInteger> field)
 {
     // TODO: Implement.
     throw invalid_argument("Compressed point parsing not implemented.");
@@ -118,9 +118,14 @@ vector<uint8_t> Point::Serialize() const
 
 size_t Point::ComputeUncompressedSize() const
 {
+    return ComputeUncompressedPointSize(x.GetByteSize());
+}
+
+size_t Point::ComputeUncompressedPointSize(size_t fieldSize)
+{
     // Format of uncompressed point:
     //  compression flag byte || x-coordinate || y-coordinate.
-    return 1 + (2 * x.GetRawInteger().GetMagnitudeByteSize());
+    return 1 + (2 * fieldSize);
 }
 
 std::ostream& operator<<(std::ostream& os, const Point& point)

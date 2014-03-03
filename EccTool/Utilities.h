@@ -24,6 +24,10 @@ namespace utilities
 
     // Converts a hexadecimal string it its binary representation.
     vector<uint8_t> HexStringToBytes(string byteString);
+    
+    // Log the povided message to console when built in debug mode.
+    void DebugLog(const string& message);
+    void DebugLog(const char* message);
 }
 
 // Operators go outside of the namespace.

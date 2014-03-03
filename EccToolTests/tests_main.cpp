@@ -771,39 +771,39 @@ TEST_CASE("EccAlgCanGenerateAndPersistKeys")
     alg.GenerateKeys();
 }
 
-TEST_CASE("CanGetCurveByName")
-{
-    const string curveName = "secp256k1";
-    DomainParameters params = ecc::GetCurveByName(curveName);
-    
-    REQUIRE(params.name == curveName);
-}
-
-TEST_CASE("CanMakeBitcoinCurve")
-{
-    DomainParameters bitcoinCurveParams = GetSecp256k1Curve();
-    EllipticCurve curve(bitcoinCurveParams);
-    
-    EccAlg alg(curve);
-    alg.GenerateKeys();
-}
-
-TEST_CASE("CanEncryptAndDecryptWithBitcoinCurve")
-{
-	DomainParameters bitcoinCurveParams = GetSecp256k1Curve();
-	EllipticCurve curve(bitcoinCurveParams);
-
-	EccAlg alg(curve);
-	alg.GenerateKeys();
-
-	uint8_t messageArr[] = { 0, 1, 2, 3, 4, 5 };
-	vector<uint8_t> message(messageArr, messageArr + sizeof(messageArr));
-
-	auto encrypted = alg.Encrypt(message);
-	auto decrypted = alg.Decrypt(encrypted);
-
-	REQUIRE(decrypted == message);
-}
+//TEST_CASE("CanGetCurveByName")
+//{
+//    const string curveName = "secp256k1";
+//    DomainParameters params = ecc::GetCurveByName(curveName);
+//    
+//    REQUIRE(params.name == curveName);
+//}
+//
+//TEST_CASE("CanMakeBitcoinCurve")
+//{
+//    DomainParameters bitcoinCurveParams = GetSecp256k1Curve();
+//    EllipticCurve curve(bitcoinCurveParams);
+//    
+//    EccAlg alg(curve);
+//    alg.GenerateKeys();
+//}
+//
+//TEST_CASE("CanEncryptAndDecryptWithBitcoinCurve")
+//{
+//	DomainParameters bitcoinCurveParams = GetSecp256k1Curve();
+//	EllipticCurve curve(bitcoinCurveParams);
+//
+//	EccAlg alg(curve);
+//	alg.GenerateKeys();
+//
+//	uint8_t messageArr[] = { 0, 1, 2, 3, 4, 5 };
+//	vector<uint8_t> message(messageArr, messageArr + sizeof(messageArr));
+//
+//	auto encrypted = alg.Encrypt(message);
+//	auto decrypted = alg.Decrypt(encrypted);
+//
+//	REQUIRE(decrypted == message);
+//}
 
 TEST_CASE("CanCreateFieldElement")
 {
@@ -882,11 +882,11 @@ TEST_CASE("CanSerializeAndDeserializePoint")
     auto p = make_shared<BigInteger>(params.p);
 
     // Parse the generator point. Serialize the point, Parse it again. It should be the same.
-    Point parsed = Point::Parse(utilities::HexStringToBytes(params.G), p);
+    Point parsed = Point::Parse(utilities::HexStringToBytes(params.G), 0, p);
     auto serialized = parsed.Serialize();
     
     
-    Point parsedAgain = Point::Parse(serialized, p);
+    Point parsedAgain = Point::Parse(serialized, 0, p);
     
     REQUIRE(parsed == parsedAgain);
 }
@@ -896,7 +896,7 @@ TEST_CASE("CanDeserializePointWithExtraBytesAppended")
     uint8_t serializedPoint[] = { 0x04, 0x01, 0x02, 0x00, 0x00 }; // Serialized point, two zero bytes added.
     BigInteger field(9);
     
-    auto parsed = Point::Parse(vector<uint8_t>(serializedPoint, serializedPoint + sizeof(serializedPoint)), make_shared<BigInteger>(field));
+    auto parsed = Point::Parse(vector<uint8_t>(serializedPoint, serializedPoint + sizeof(serializedPoint)), 0, make_shared<BigInteger>(field));
     
     REQUIRE(parsed.x == 1);
     REQUIRE(parsed.y == 2);
@@ -1042,7 +1042,7 @@ TEST_CASE("ThrowsOnDecypritonIfPrivateKeyNotAvailable")
     REQUIRE_THROWS(alg2.Decrypt(ciphertext));
 }
 
-TEST_CASE("CanSignMessage")
+TEST_CASE("CanSignAndVerifyMessage")
 {
     uint8_t messageArr[] = { 0, 1, 2, 3, 4, 5 };
     vector<uint8_t> message(messageArr, messageArr + sizeof(messageArr));
@@ -1051,8 +1051,50 @@ TEST_CASE("CanSignMessage")
     EccAlg alg(curve);
     alg.GenerateKeys();
     
-    auto signedMessage = alg.Sign(message);
-    REQUIRE(signedMessage.size() > message.size());
+    bool isValid = false;
+    vector<uint8_t> signedMessage;
+    
+    auto signature = alg.Sign(message);
+    REQUIRE_NOTHROW(isValid = alg.Verify(message, signature));
+    REQUIRE(isValid);
+}
+
+TEST_CASE("SignatureFailsToVerifyIfMessageAltered")
+{
+    uint8_t messageArr[] = { 0, 1, 2, 3, 4, 5 };
+    vector<uint8_t> message(messageArr, messageArr + sizeof(messageArr));
+    
+    EllipticCurve curve(GetSecp112r1Curve());
+    EccAlg alg(curve);
+    alg.GenerateKeys();
+    
+    auto signature = alg.Sign(message);
+    
+    // Modify the first byte of the message. This should cause verification to fail.
+    message[0] += 1;
+    
+    bool isValid = false;
+    REQUIRE_NOTHROW(isValid = alg.Verify(message, signature));
+    REQUIRE(!isValid);
+}
+
+TEST_CASE("SignatureFailsToVerifyIfSignatureAltered")
+{
+    uint8_t messageArr[] = { 0, 1, 2, 3, 4, 5 };
+    vector<uint8_t> message(messageArr, messageArr + sizeof(messageArr));
+    
+    EllipticCurve curve(GetSecp112r1Curve());
+    EccAlg alg(curve);
+    alg.GenerateKeys();
+    
+    auto signature = alg.Sign(message);
+    
+    // Modify the signature, this should cause verification to fail.
+    signature[0] += 1;
+    
+    bool isValid = false;
+    REQUIRE_NOTHROW(isValid = alg.Verify(message, signature));
+    REQUIRE(!isValid);
 }
 
 TEST_CASE("CanRightShiftBySmallAmount")
@@ -1078,6 +1120,7 @@ TEST_CASE("CanRightShiftByEvenByteAmount")
     
     REQUIRE(original == BigInteger("FFFFFFFFFFFFFF"));
 }
+
 
 
 

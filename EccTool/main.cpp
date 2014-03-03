@@ -15,6 +15,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <algorithm>
+#include <tuple>
 #include "KeySerializer.h"
 
 using namespace std;
@@ -26,6 +27,8 @@ void GenerateKeys(int curveId, string keyName);
 void LoadKey(string keyname, bool printPrivate);
 void Encrypt(string keyName, string outFile, string msg);
 void Decrypt(string keyName, string inFile);
+void Sign(const string& keyname, const string& inFile, const string& outFile);
+void Verify(const string& keyname, const string& inFile);
 
 void SaveToFile(const string& fileName, const string& data);
 string ReadFromFile(const string& fileName);
@@ -111,7 +114,6 @@ int main(int argc, const char * argv[])
             if(argc < 3)
             {
                 throw invalid_argument("Key name required.");
-                return 0;
             }
             
             string keyName(argv[2]);
@@ -124,6 +126,32 @@ int main(int argc, const char * argv[])
             }
             
             LoadKey(keyName, printPrivateKey);
+            cout << endl;
+            return 0;
+        }
+        if(firstArg == "-s")
+        {
+            if(argc < 5)
+                throw invalid_argument("Need keyname, infile, and outfile.");
+            
+            string keyname(argv[2]);
+            string inFile(argv[3]);
+            string outFile(argv[4]);
+            
+            Sign(keyname, inFile, outFile);
+            cout << endl;
+            return 0;
+                
+        }
+        if(firstArg == "-v")
+        {
+            if(argc < 4)
+                throw invalid_argument("Need keyname and infile.");
+            
+            string keyname(argv[2]);
+            string inFile(argv[3]);
+            
+            Verify(keyname, inFile);
             cout << endl;
             return 0;
         }
@@ -144,15 +172,21 @@ void PrintHelpMessage()
 {
     cout << "The following commands are supported:" << endl;
     cout << "    -c                            List supported ECC curves." << endl;
-    cout << "    -g <curve ID><key name>       Generate keys with specified algorithm ID " << endl;
+    cout << "    -g <curve ID><keyname>        Generate keys with specified algorithm ID " << endl;
     cout << "                                  (from list of ECC curves) and save with" << endl;
     cout << "                                  the specified name." << endl;
     cout << "    -l <keyname> [-p]             Print key information for the specified key." << endl;
     cout << "                                  Optionally print private key information." << endl;
-    cout << "    -e <keyname> <outfile> <msg>  Encrypt the message with the indicated key. " << endl;
+    cout << "    -e <keyname> <out> <msg>      Encrypt the message with the indicated key. " << endl;
     cout << "                                  Store in indicated file." << endl;
-    cout << "    -d <keyname> <infile>         Decrypt the message in the indicated " << endl;
+    cout << "    -d <keyname> <in>             Decrypt the message in the indicated " << endl;
     cout << "                                  file with the indicated key." << endl;
+    cout << "    -s <keyname> <in> <out>       Signs the message in the indicated " << endl;
+    cout << "                                  file with the indicated key. Saves the" << endl;
+    cout << "                                  file with signature append to out file." << endl;
+    cout << "    -v <keyname> <in>             Verfies the signed message in the" << endl;
+    cout << "                                  indicated file. Prints \"Valid\"" << endl;
+    cout << "                                  or \"Invalid\"." << endl;
     cout << "    -h                            Display this help message." << endl;
 }
 
@@ -258,6 +292,77 @@ void Decrypt(string keyName, string inFile)
     cout << "Message successfully decrypted. Decrypted Message:" << endl;
     cout << messageStr;
     cout << endl;
+}
+
+string BuildSignatureBlock(const string& message, const vector<uint8_t>& signature)
+{
+    stringstream ss;
+    ss << message << "--SIGNATURE--" << utilities::BytesToHexString(signature) << "--END SIGNATURE--";
+    
+    return ss.str();
+}
+
+tuple<string, vector<uint8_t>> ReadSignatureBlock(const string& signatureBlock)
+{
+    string signatureBeginDelimiter("--SIGNATURE--");
+    string signatureEndDelimiter("--END SIGNATURE--");
+    
+    // Find the beginning of the signature. This describes the message.
+    size_t signatureSegmentBeginIndex = signatureBlock.find(signatureBeginDelimiter);
+    if(signatureSegmentBeginIndex == string::npos)
+        throw invalid_argument("Invalid signed message format.");
+    auto message = signatureBlock.substr(0, signatureSegmentBeginIndex);
+    
+    // Find the end if the signature. This describes the signature.
+    size_t signatureEndIndex = signatureBlock.find(signatureEndDelimiter, signatureSegmentBeginIndex);
+    if(signatureEndIndex == string::npos)
+        throw invalid_argument("Invalid signed message format.");
+    
+    auto signatureBeginIndex = signatureSegmentBeginIndex + signatureBeginDelimiter.size();
+    auto signatureSize = signatureEndIndex - signatureBeginIndex;
+    auto signatureStr = signatureBlock.substr(signatureBeginIndex, signatureSize);
+    return make_tuple(message, utilities::HexStringToBytes(signatureStr));
+}
+
+void Sign(const string& keyName, const string& inFile, const string& outFile)
+{
+    cout << "Loading key \"" << keyName << "\"..." << endl;
+    EccAlg alg = ReadKeyFromFile(keyName);
+    if(!alg.HasPrivateKey())
+        throw runtime_error("Cannot sign without private key.");
+	cout << "Successfully loaded key." << endl;
+	cout << "Loading message to sign..." << endl;
+    
+    string message = ReadFromFile(inFile);
+    vector<uint8_t> messageBytes(message.begin(), message.end());
+    cout << "Message loaded." << endl;
+    cout << "Signing..." << endl;
+    auto signature = alg.Sign(messageBytes);
+    
+    cout << "Message successfully signed." << endl;
+    
+    ConfirmOverwriteFile(outFile);
+    string signatureBlock = BuildSignatureBlock(message, signature);
+    SaveToFile(outFile, signatureBlock);
+    
+}
+
+void Verify(const string& keyName, const string& inFile)
+{
+    cout << "Loading key \"" << keyName << "\"..." << endl;
+    EccAlg alg = ReadKeyFromFile(keyName);
+	cout << "Successfully loaded key." << endl;
+	cout << "Loading message and signature to verify..." << endl;
+    
+    string message = ReadFromFile(inFile);
+    auto signatureParts = ReadSignatureBlock(message);
+    string parsedMessage = get<0>(signatureParts);
+    vector<uint8_t> messageBytes(parsedMessage.begin(), parsedMessage.end());
+    vector<uint8_t> parsedSignature = get<1>(signatureParts);
+    cout << "Verifying..." << endl;
+    bool result = alg.Verify(messageBytes, parsedSignature);
+    
+    cout << (result ? "Valid" : "Invalid") << endl;
 }
 
 // Helper function to see if the given file exists.
@@ -373,10 +478,10 @@ string ReadFromFile(const string& fileName)
     if(inStream.bad())
         throw runtime_error("Unable to open file for reading.");
     
-    string data;
-    inStream >> data;
+    stringstream data;
+    data << inStream.rdbuf();
     
-    return data;
+    return data.str();
 }
 
 // Converts all letters in the string to lowercase.

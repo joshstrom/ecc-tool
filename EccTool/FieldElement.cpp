@@ -11,6 +11,21 @@
 #include <sstream>
 #include <cassert>
 
+FieldElement FieldElement::MakeElement(BigInteger number, shared_ptr<const BigInteger> p)
+{
+    assert(number >= 0);
+    if(number >= *p)
+        number %= *p;
+    
+    return FieldElement(move(number), p);
+}
+
+FieldElement FieldElement::MakeElement(const FieldElement& fieldNumber, shared_ptr<const BigInteger> p)
+{
+    BigInteger number = fieldNumber.GetRawInteger();
+    return MakeElement(move(number), p);
+}
+
 FieldElement::FieldElement(BigInteger number, shared_ptr<const BigInteger> p)
     : _number(number), _p(p)
 {
@@ -204,6 +219,11 @@ vector<uint8_t> FieldElement::GetBytes() const
     bytes.insert(bytes.begin(), _p->GetMagnitudeByteSize() - bytes.size(), 0);
     
     return bytes;
+}
+
+size_t FieldElement::GetByteSize() const
+{
+    return _p->GetMagnitudeByteSize();
 }
 
 // ***

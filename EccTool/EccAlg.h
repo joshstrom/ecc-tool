@@ -81,7 +81,7 @@ public:
     vector<uint8_t> Sign(const vector<uint8_t>& message) const;
     
     // Verifies the given signed message with the alg's public key.
-    bool Verify(const vector<uint8_t>& signedMessage) const;
+    bool Verify(const vector<uint8_t>& message, const vector<uint8_t>& signature) const;
     
     // Returns wether this instance has a private key or was loaded from a public key.
     bool HasPrivateKey() const;

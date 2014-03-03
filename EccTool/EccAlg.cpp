@@ -11,9 +11,11 @@
 #include "NativeCrypto.h"
 #include <sstream>
 #include <ctime>
+#include <cassert>
 
 EccAlg::EccAlg(const EllipticCurve& curve) : _curve(curve)
 {
+    srand(static_cast<unsigned int>(time(nullptr)));
 }
 
 void EccAlg::GenerateKeys()
@@ -42,7 +44,6 @@ BigInteger EccAlg::GenerateRandomPositiveIntegerLessThan(const BigInteger& max)
     
     BigInteger k; // This will be the private key.
     
-    srand(static_cast<unsigned int>(time(nullptr)));
     for(size_t i = 0; i <= maxRandomBitsNeeded; i++)
     {
         k <<= 1;
@@ -245,33 +246,90 @@ vector<uint8_t> EccAlg::Sign(const vector<uint8_t>& message) const
     
     // Generate an ephemeral keypair, k (private key) and Pk (public key).
     auto k = GenerateRandomPositiveIntegerLessThan(_curve.GetBasePointOrder());
-    auto Pk = _curve.MultiplyPointOnCurveWithScalar(_curve.GetBasePoint(), k);
+    auto R = _curve.MultiplyPointOnCurveWithScalar(_curve.GetBasePoint(), k);
     
     // Calculate an integer r by taking the x-value of the previously generated
     // point mod the base point order. If zero, generate a new k and start again.
     auto n = make_shared<BigInteger>(_curve.GetBasePointOrder());
-    auto r = FieldElement(Pk.x.GetRawInteger() % _curve.GetBasePointOrder(), n);
+    auto r = FieldElement::MakeElement(R.x, n);//FieldElement(Pk.x.GetRawInteger() % *n, n);
+    assert(r != 0);
     
     // Calculate an integer s by adding z to the multiplication of the private key with s,
     // then dividing this by the ephemral private key, mod n.
-    auto fieldElementK = FieldElement(k, n);
-    auto s = (FieldElement(z, n) + fieldElementK * r) / fieldElementK;
+    auto fieldElementK = FieldElement::MakeElement(k, n);
+    auto s = ((FieldElement::MakeElement(z, n) + FieldElement::MakeElement(_privateKey, n) * r)) / fieldElementK;
+    assert(s != 0);
     
     auto signature = Point(r, s);
-    auto signatureBytes = signature.Serialize();
-    
-    vector<uint8_t> retVal(message.size() + signatureBytes.size());
-    auto it = retVal.begin();
-    copy(message.begin(), message.end(), it);
-    it += message.size();
-    copy(signatureBytes.begin(), signatureBytes.end(), it);
-    
-    return retVal;
+    return signature.Serialize();
 }
 
-bool EccAlg::Verify(const vector<uint8_t>& signedMessage) const
+bool EccAlg::Verify(const vector<uint8_t>& message, const vector<uint8_t>& signature) const
 {
-    return false;
+    // The point is in the field of the curve's base point order domain parameter.
+    auto n = make_shared<BigInteger>(_curve.GetBasePointOrder());
+    
+    // The signature is encoded as a point. Parse it (catching any exceptions).
+    Point signaturePoint;
+    try
+    {
+        signaturePoint = Point::Parse(signature, 0, n);
+    }
+    catch(exception& ex)
+    {
+        // We only want to output a message here in in debug mode.
+        utilities::DebugLog(string("Error parsing signature point: ").append(ex.what()));
+        return false;
+    }
+
+    // The signature values r and s are encoded as the x and y coordinates of
+    // the signature point.
+    auto& r = signaturePoint.x;
+    auto& s = signaturePoint.y;
+    
+    // They both must be in the range of (0,n) (exclusive);
+    if(r.GetRawInteger() <= 0 || r.GetRawInteger() >= *n)
+    {
+        // We only want to output a message here in in debug mode.
+        utilities::DebugLog("Signature invalid - r out of range.");
+        return false;
+    }
+    
+    if(s.GetRawInteger() <= 0 || s.GetRawInteger() >= *n)
+    {
+        // We only want to output a message here in in debug mode.
+        utilities::DebugLog("Signature invalid - s out of range.");
+        return false;
+    }
+    
+    // Compute a hash of the message and select the left-most n bits,
+    // where n is the bitlength of the curve order. Store these bits
+    // in the integer z.
+    auto hash = NativeCrypto::HashData(message);
+    
+    // Select the bits by determining how many bits must must be removed
+    // and shifting the integer z right to remove the right-most bits.
+    BigInteger z(hash);
+    size_t Ln = min(_curve.GetBasePointOrder().GetBitSize(), z.GetBitSize());
+    unsigned int bitsToRemove = static_cast<unsigned int>(z.GetBitSize() - Ln);
+    z >>= bitsToRemove;
+
+    // Let w be the multiplicative inverse of s in the mod field n.
+    auto w = s.GetInverse();
+    
+    // Let u1 be the multiplicatin of z with w (mod n) and u2 be the multiplication
+    // of r with w (mod n).
+    auto u1 = FieldElement(z, n) * w;
+    auto u2 = r * w;
+    
+    // Calculate the check point by adding the multiplication of u1 and the curve generator point
+    // to the multiplication of u2 and the alg's public key.
+    auto firstAddend = _curve.MultiplyPointOnCurveWithScalar(_curve.GetBasePoint(), u1.GetRawInteger());
+    auto secondAddend = _curve.MultiplyPointOnCurveWithScalar(_publicKey, u2.GetRawInteger());
+    auto checkPoint = _curve.AddPointsOnCurve(firstAddend, secondAddend);
+    
+    // The signature is valid if r is equivalent to checkPoint:x (mod n).
+    return r == (checkPoint.x.GetRawInteger() % *n);
 }
 
 
