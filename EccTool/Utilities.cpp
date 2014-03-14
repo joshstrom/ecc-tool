@@ -85,7 +85,7 @@ void utilities::DebugLog(const string& message)
 void utilities::DebugLog(const char* message)
 {
 #ifndef NDEBUG
-    std::cout << "DEBUG LOG MESSAGE: " << message;
+    std::cout << "DEBUG LOG MESSAGE: " << message << endl;
 #endif
 }
 

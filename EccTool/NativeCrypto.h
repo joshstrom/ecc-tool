@@ -105,7 +105,48 @@ public:
         return digest;
         
 #elif _MSC_VER
-#error "Hash not implemented."
+
+		// Deleter for alg handle to ensure deterministic close.
+		auto deleter = [] (BCRYPT_ALG_HANDLE* handle) 
+		{ 
+			if (handle == nullptr)
+				return;
+
+			BCryptCloseAlgorithmProvider(*handle, 0); 
+			delete handle; 
+		};
+		unique_ptr<BCRYPT_ALG_HANDLE, decltype(deleter)> hashAlgHandle(new BCRYPT_ALG_HANDLE(), deleter);
+
+		// Open the algorithm provider (SHA-256) for the as the PRF for the key derivation function.
+		NTSTATUS status = BCryptOpenAlgorithmProvider(hashAlgHandle.get(), 
+			BCRYPT_SHA256_ALGORITHM, 
+			MS_PRIMITIVE_PROVIDER, 
+			0);
+		if (status != 0)
+			throw runtime_error("Unable to create hash alg.");
+
+		auto hashHandleDeleter = [] (BCRYPT_HASH_HANDLE* handle) 
+		{ 
+			if (handle == nullptr)
+				return;
+
+			BCryptDestroyHash(*handle); 
+			delete handle; 
+		};
+		unique_ptr<BCRYPT_HASH_HANDLE, decltype(hashHandleDeleter)> hashHandle(new BCRYPT_HASH_HANDLE(), hashHandleDeleter);
+		
+		status = BCryptCreateHash(*hashAlgHandle, hashHandle.get(), NULL, 0, NULL, 0, 0);
+
+		vector<uint8_t> hash(32);
+		status = BCryptHashData(*hashHandle, const_cast<uint8_t*>(data.data()), data.size(), 0);
+		if (status != 0)
+			throw runtime_error("Unable to hash data.");
+		status = BCryptFinishHash(*hashHandle, const_cast<uint8_t*>(hash.data()), hash.size(), 0);
+		if (status != 0)
+			throw runtime_error("Unable to finish hash.");
+		
+		return hash;
+
 #else
 #error "Unsupported Platform."
 #endif

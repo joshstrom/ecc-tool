@@ -45,7 +45,7 @@
     <ClCompile Include="..\EccTool\Utilities.cpp">
       <Filter>UnderTest</Filter>
     </ClCompile>
-    <ClCompile Include="..\EccTool\Version1KeySerializer.cpp">
+    <ClCompile Include="..\EccTool\KeySerializer.cpp">
       <Filter>UnderTest</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,9 +74,6 @@
     <ClInclude Include="..\EccTool\Point.h">
       <Filter>UnderTest</Filter>
     </ClInclude>
-    <ClInclude Include="..\EccTool\AbstractKeySerializer.h">
-      <Filter>UnderTest</Filter>
-    </ClInclude>
     <ClInclude Include="..\EccTool\FieldElement.h">
       <Filter>UnderTest</Filter>
     </ClInclude>
@@ -86,7 +83,7 @@
     <ClInclude Include="..\EccTool\Utilities.h">
       <Filter>UnderTest</Filter>
     </ClInclude>
-    <ClInclude Include="..\EccTool\Version1KeySerializer.h">
+    <ClInclude Include="..\EccTool\KeySerializer.h">
       <Filter>UnderTest</Filter>
     </ClInclude>
   </ItemGroup>

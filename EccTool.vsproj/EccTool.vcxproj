@@ -16,10 +16,10 @@
     <ClCompile Include="..\EccTool\EccAlg.cpp" />
     <ClCompile Include="..\EccTool\EllipticCurve.cpp" />
     <ClCompile Include="..\EccTool\FieldElement.cpp" />
+    <ClCompile Include="..\EccTool\KeySerializer.cpp" />
     <ClCompile Include="..\EccTool\main.cpp" />
     <ClCompile Include="..\EccTool\Point.cpp" />
     <ClCompile Include="..\EccTool\Utilities.cpp" />
-    <ClCompile Include="..\EccTool\Version1KeySerializer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\EccTool\AbstractKeySerializer.h" />
@@ -29,10 +29,10 @@
     <ClInclude Include="..\EccTool\EccDefs.h" />
     <ClInclude Include="..\EccTool\EllipticCurve.h" />
     <ClInclude Include="..\EccTool\FieldElement.h" />
+    <ClInclude Include="..\EccTool\KeySerializer.h" />
     <ClInclude Include="..\EccTool\NativeCrypto.h" />
     <ClInclude Include="..\EccTool\Point.h" />
     <ClInclude Include="..\EccTool\Utilities.h" />
-    <ClInclude Include="..\EccTool\Version1KeySerializer.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4CAE85BA-8089-4E4D-8AD6-B88FA04BB7F2}</ProjectGuid>

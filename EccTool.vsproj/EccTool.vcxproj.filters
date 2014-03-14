@@ -39,7 +39,7 @@
     <ClCompile Include="..\EccTool\Utilities.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\EccTool\Version1KeySerializer.cpp">
+    <ClCompile Include="..\EccTool\KeySerializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,7 +74,7 @@
     <ClInclude Include="..\EccTool\Utilities.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\EccTool\Version1KeySerializer.h">
+    <ClInclude Include="..\EccTool\KeySerializer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
