@@ -42,6 +42,9 @@
     <ClCompile Include="..\EccTool\KeySerializer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\EccTool\windows_sources\WindowsNativeCrypto.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\EccTool\BigInteger.h">

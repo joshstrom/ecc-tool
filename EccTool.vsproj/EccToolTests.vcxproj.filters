@@ -48,6 +48,9 @@
     <ClCompile Include="..\EccTool\KeySerializer.cpp">
       <Filter>UnderTest</Filter>
     </ClCompile>
+    <ClCompile Include="..\EccTool\windows_sources\WindowsNativeCrypto.cpp">
+      <Filter>UnderTest</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\EccToolTests\OperationTesters.h">

@@ -35,6 +35,7 @@
 # Folders used for build
 ####
 bin/
+obj/
 
 #####
 # OS X temporary files that should never be committed

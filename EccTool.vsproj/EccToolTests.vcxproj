@@ -96,6 +96,7 @@
     <ClCompile Include="..\EccTool\KeySerializer.cpp" />
     <ClCompile Include="..\EccTool\Point.cpp" />
     <ClCompile Include="..\EccTool\Utilities.cpp" />
+    <ClCompile Include="..\EccTool\windows_sources\WindowsNativeCrypto.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\EccToolTests\OperationTesters.h" />

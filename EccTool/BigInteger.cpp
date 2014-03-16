@@ -322,8 +322,8 @@ BigInteger& BigInteger::operator>>=(int count)
         return *this;
     
     // Determine the number of whole bytes and the number of bits to shift.
-    int bytesToShift = count / 8;
-    int bitsToShift = count % 8;
+    unsigned int bytesToShift = count / 8;
+    unsigned int bitsToShift = count % 8;
     
     // If we are shifting by as many (or more) bytes than the magnitude, the result is zero.
     if(bytesToShift >= _magnitude.size())
