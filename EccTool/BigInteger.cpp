@@ -333,7 +333,7 @@ BigInteger& BigInteger::operator>>=(int count)
     }
     
     // Delete the number of whole bytes to shift from the back of the vector.
-    if(bytesToShift >= 0)
+    if(bytesToShift > 0)
         _magnitude.resize(_magnitude.size() - bytesToShift);
     
     if(bitsToShift == 0)

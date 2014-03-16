@@ -28,6 +28,8 @@
 		3CED5240189F0A650096027B /* FieldElement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CED523D189F0A650096027B /* FieldElement.cpp */; };
 		3CED5242189F30990096027B /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CED5241189F30990096027B /* Point.cpp */; };
 		3CED5243189F30990096027B /* Point.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CED5241189F30990096027B /* Point.cpp */; };
+		3CF7E42C18D5704F003448DE /* MacNativeCrypto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CF7E42B18D5704F003448DE /* MacNativeCrypto.cpp */; };
+		3CF7E42D18D57075003448DE /* MacNativeCrypto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3CF7E42B18D5704F003448DE /* MacNativeCrypto.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -78,6 +80,7 @@
 		3CED523D189F0A650096027B /* FieldElement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FieldElement.cpp; sourceTree = "<group>"; };
 		3CED523E189F0A650096027B /* FieldElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FieldElement.h; sourceTree = "<group>"; };
 		3CED5241189F30990096027B /* Point.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Point.cpp; sourceTree = "<group>"; };
+		3CF7E42B18D5704F003448DE /* MacNativeCrypto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MacNativeCrypto.cpp; path = mac_sources/MacNativeCrypto.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +137,7 @@
 		3C38AC62187FBDF200DF4257 /* EccTool */ = {
 			isa = PBXGroup;
 			children = (
+				3CF7E42B18D5704F003448DE /* MacNativeCrypto.cpp */,
 				3C6D9A621894A0DD00645326 /* EccDefs.h */,
 				3C38AC63187FBDF200DF4257 /* main.cpp */,
 				3C1707781883AAB500A900A1 /* EccAlg.cpp */,
@@ -226,6 +230,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3CF7E42D18D57075003448DE /* MacNativeCrypto.cpp in Sources */,
 				3CCCC3771887C6EE008DF956 /* EccAlg.cpp in Sources */,
 				3CED5240189F0A650096027B /* FieldElement.cpp in Sources */,
 				3CCCC3791887C6EE008DF956 /* BigInteger.cpp in Sources */,
@@ -244,6 +249,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3C5B330118A76A2700FEE5F9 /* KeySerializer.cpp in Sources */,
+				3CF7E42C18D5704F003448DE /* MacNativeCrypto.cpp in Sources */,
 				3CED5242189F30990096027B /* Point.cpp in Sources */,
 				3C758C2C18A871D300627B90 /* Utilities.cpp in Sources */,
 				3C93E83D18865C0E00B56C1C /* BigInteger.cpp in Sources */,
