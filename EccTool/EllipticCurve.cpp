@@ -114,6 +114,9 @@ Point EllipticCurve::MultiplyPointOnCurveWithScalar(const Point& point, const Bi
     //        }
     //    }
     //    output R
+    
+    // This algorithm is significantly more efficient than repeated addition because of the huge size
+    // of some of these numbers.
 
     Point product = EllipticCurve::PointAtInfinity;
     Point n = point;

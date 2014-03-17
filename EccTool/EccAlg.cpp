@@ -232,6 +232,7 @@ vector<uint8_t> EccAlg::Decrypt(const vector<uint8_t>& ciphertext) const
 
 vector<uint8_t> EccAlg::Sign(const vector<uint8_t>& message) const
 {
+    EnsurePrivateKeyAvailable();
     // Compute a hash of the message and select the left-most n bits,
     // where n is the bitlength of the curve order. Store these bits
     // in the integer z.
