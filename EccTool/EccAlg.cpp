@@ -329,6 +329,24 @@ bool EccAlg::Verify(const vector<uint8_t>& message, const vector<uint8_t>& signa
     auto secondAddend = _curve.MultiplyPointOnCurveWithScalar(_publicKey, u2.GetRawInteger());
     auto checkPoint = _curve.AddPointsOnCurve(firstAddend, secondAddend);
     
+    // Working backwards to show why this works:
+    //  checkPoint = (G * u1) + (pubKey * u2)
+    //             = (G * z * w) + (pubKey * r * w)         [by substituting u1 and u2 with their components]
+    //             = (G * z * w) + (G * priv * r * w)       [by subtiuting pubKey for the definition of public key]
+    //             = G * w * (z + priv * r)                 [by factoring out G and w]
+    //
+    // Recall the definition of w:
+    //  w = s^-1                    [by substitution]
+    //    = ((z + priv * r) / k)^-1   [from the algorithm for signing]
+    //    = k / (z + priv * r)        [by calculating the inverse]
+    //
+    // Thus:
+    // checkPoint = G * (k / z + priv * r) * (z + priv * r)    [by substitution of w]
+    //            = G * k                                      [by cancelling]
+    //
+    // During the signature creation process, r is calculated as exactly this. Which is why ECDSA works.
+    
+    
     // The signature is valid if r is equivalent to checkPoint:x (mod n).
     return r == (checkPoint.x.GetRawInteger() % *n);
 }

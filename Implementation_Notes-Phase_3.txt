@@ -1,0 +1,80 @@
+Phase 3: Implementation Notes:
+
+With phase 3, I have implemented ECDSA signing/verification and made some code quality
+and crypto improvements.
+
+ECDSA Sign/Verify:
+The signature and verification process uses algebraic manipulations of the curve and
+some hash values to create a signature of some arbitrary bit of data. The proof of this
+algorithm is noted in the verify routine. Note that this operation takes somewhat longer
+to complete than other algorithms here, primarily because of several multiplications 
+of a scalar with a point are required along the way. For comparison: both key generation 
+and encryption/decryption only require one each. ECDSA sign requires one, and verify 
+requires two.
+
+Command line application usage of Sign:
+A message in a file can be signed using EccTool. The message along with the signature is
+then written out to a file of the user's choosing. The format of the written
+message + signature is as follows: 
+message--SIGNATURE--signaturebytesgohere--END SIGNATURE--
+
+Usage is as follows:
+EccTool -s keyname filetosign.txt signedfilelocation.txt
+
+The above command constructs an ECDSA signature of the contents of the file "filetosign.txt"
+with the private key of the keypair entitled "keyname" and outputs the message and 
+singnature to a file called "signedfilelocation.txt". The private portion of the key is
+required to construct a signature.
+
+Command line application usage of Verify:
+A signed message in a file can be verified with the public portion of a user's key. The
+algorithm reads the message (the first part of the file before "--SIGNATURE--" is 
+encountered) and verifies it with the signature (the portion of the file found between
+"--SIGNATURE--" and "--END SIGNATURE--"). Note that this may not be an optimal solution
+as the program could become confused if "--SIGNATURE--" or "--END SIGNATURE--" is found
+within the message. The reason I implemented in the fashion is that I wanted to essentially
+leave the beginning of the file (the part containing the message) unchanged and simply
+attach a signature to the very end. One possible optimization of this flow would be to
+search for the signature starting at the back of the file.
+
+Usage is as follows:
+EccTool -v keyname signedfilelocation.txt
+
+The above command verifies the message in the file "signedfilelocation.txt" with the 
+against the signature stored in the same with the public key of the keypair entitled 
+"keyname". The application outputs "Valid" if the signature is valid for the message and
+"Invalid" otherwise.
+
+Refactoring of NativeCrypto:
+The previous implementation of NativeCrypto had the entire implementation for both 
+supported platforms inline in the header file. I have separated this out so that the 
+header only defines the APIs and the implementations are moved to separate source files
+for each platform. The projects for each platform are structured to only compile the 
+appropriate source file. This cleans up the implementation by removing a large number of
+preprocessor commands and makes it much easier to read and test.
+
+Random number generation error:
+I realized during phase 3 that I was using rand()/srand() incorrectly. Note that I am 
+aware that this is not a cryptographically secure random number generator. A plan for
+the future is to replace its usage with a function in NativeCrypto to use a platform 
+dependent cryptographically secure random number generator. Anyhow, the incorrect usage
+was to call srand() before each run the the function that generates a random BigInteger.
+I seeded srand() with the current time (which only has a resolution of one second). This 
+means that if two "random" BigIntegers were generated within the same second, they would 
+be exactly the same. The short-term fix was to move the call to srand() to EccAlg's ctor,
+which mitigates the problem somewhat. This was presenting as an odd intermittent failure
+of the ECDSA sign/verify, especially on my much faster Haswell MacBook Pro (since it is
+conceivably able to run the operations fast enough for this to be a problem).
+
+
+
+
+
+
+
+
+
+
+
+
+
