@@ -12,6 +12,8 @@ of a scalar with a point are required along the way. For comparison: both key ge
 and encryption/decryption only require one each. ECDSA sign requires one, and verify 
 requires two.
 
+RECOMENDATAION: Build in release mode. The code runs significantly faster.
+
 Command line application usage of Sign:
 A message in a file can be signed using EccTool. The message along with the signature is
 then written out to a file of the user's choosing. The format of the written

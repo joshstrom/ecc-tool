@@ -56,7 +56,7 @@ implemented as named functions in the EllipticCurve class. A class has been crea
 the purpose of handling such operations entitled FieldElement. Two FieldElements may be
 added, subtracted, multiplied, or divided, and the output of such an operation is another
 element in the finite field. The field Fp is defined by a BigInteger p such that for all 
-elements e, 0 < e < p.
+elements e, 0 <= e < p.
 
 Refactoring of the serialization and parsing of ECC Points:
 The Point class has been expanded to include parsing and serialization of ECC Points with

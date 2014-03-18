@@ -318,13 +318,13 @@ bool EccAlg::Verify(const vector<uint8_t>& message, const vector<uint8_t>& signa
     // Let w be the multiplicative inverse of s in the mod field n.
     auto w = s.GetInverse();
     
-    // Let u1 be the multiplicatin of z with w (mod n) and u2 be the multiplication
+    // Let u1 be the multiplication of z with w (mod n) and u2 be the multiplication
     // of r with w (mod n).
-    auto u1 = FieldElement(z, n) * w;
+    auto u1 = FieldElement::MakeElement(z, n) * w;
     auto u2 = r * w;
     
     // Calculate the check point by adding the multiplication of u1 and the curve generator point
-    // to the multiplication of u2 and the alg's public key.
+    // to the multiplication of u2 and the alg's public key. Expression: (G * u1) + (pubKey * u2).
     auto firstAddend = _curve.MultiplyPointOnCurveWithScalar(_curve.GetBasePoint(), u1.GetRawInteger());
     auto secondAddend = _curve.MultiplyPointOnCurveWithScalar(_publicKey, u2.GetRawInteger());
     auto checkPoint = _curve.AddPointsOnCurve(firstAddend, secondAddend);
@@ -348,7 +348,7 @@ bool EccAlg::Verify(const vector<uint8_t>& message, const vector<uint8_t>& signa
     
     
     // The signature is valid if r is equivalent to checkPoint:x (mod n).
-    return r == (checkPoint.x.GetRawInteger() % *n);
+    return r == FieldElement::MakeElement(checkPoint.x.GetRawInteger(), n);
 }
 
 
