@@ -1,10 +1,16 @@
-Simple ECC implementation for learning purposes.
+Scratch-built implementation of ECC done for learning purposes.
+The implementation supports key generation, encryption/decryption, and sign/verify operations.
 
-This project will be implemented in three phases:
+Please note: although this implementation does work for all tested standard ECC curves, it should
+not be trusted for any sort of secure software without security review. Please use a standard 
+implementation of ECC for your project. This was developed to learn more about ECC (and associated
+mathematical operations), C++, and as practice for cross-platform development.
 
-1. Implement primitives and ECC key generation.			[DONE]
-2. Implement ECC general purpose encryption/decryption.	[DONE]
-3. Implement ECC sign/verify.							[DONE]
+This project was implemented in three phases:
+
+1. Implement primitives and ECC key generation.             [DONE]
+2. Implement ECC general purpose encryption/decryption.     [DONE]
+3. Implement ECC sign/verify.                               [DONE]
 
 See Implementation_Notes-Phase_1.txt for information about Phase 1 implementation.
 See Implementation_Notes-Phase_2.txt for information about Phase 2 implementation.
