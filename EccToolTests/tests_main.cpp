@@ -1136,6 +1136,17 @@ TEST_CASE("CanRightShiftByEvenByteAmount")
     REQUIRE(original == BigInteger("FFFFFFFFFFFFFF"));
 }
 
+TEST_CASE("MultiplyBasePointWithOrder")
+{
+	EllipticCurve curve(GetSecp112r1Curve());
+	auto& G = curve.GetBasePoint();
+	auto& n = curve.GetBasePointOrder();
+	auto point1 = curve.MultiplyPointOnCurveWithScalar(G, (n + 1));
+	auto point2 = curve.MultiplyPointOnCurveWithScalar(G, 1);
+	
+	REQUIRE(point1 == point2);
+}
+
 
 
 

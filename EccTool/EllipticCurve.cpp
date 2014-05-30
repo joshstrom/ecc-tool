@@ -37,7 +37,14 @@ const Point EllipticCurve::PointAtInfinity = Point::MakePointAtInfinity();
 const char* EllipticCurve::COMPRESSED_GENERATOR_FLAG = "02";
 const char* EllipticCurve::UNCOMPRESSED_GENERATOR_FLAG = "04";
 
-EllipticCurve::EllipticCurve(DomainParameters params) : _p(make_shared<BigInteger>(params.p)), _a(params.a, _p), _b(params.b, _p), _G(Point::Parse(utilities::HexStringToBytes(params.G), 0, _p)), _n(params.n), _h(params.h), _curveName(params.name)
+EllipticCurve::EllipticCurve(DomainParameters params) 
+	: _p(make_shared<BigInteger>(params.p)), 
+	_a(params.a, _p), 
+	_b(params.b, _p), 
+	_G(Point::Parse(utilities::HexStringToBytes(params.G), 0, _p)), 
+	_n(params.n), 
+	_h(params.h), 
+	_curveName(params.name)
 {
     // Validate that the base point G is on the curve.
     if(!CheckPointOnCurve(_G))
